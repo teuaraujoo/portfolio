@@ -38,39 +38,45 @@ O portfólio de **Mateus Araujo** atende a três públicos principais simultanea
 A seção Home adota uma composição **fullscreen (`100svh`)**, com bastante espaço negativo e estética **editorial-tech**.
 
 ### Diferenças críticas em relação à referência (`victordeveloper.com`)
-1. **Remoção total da logo 3D em partículas:** não haverá canvas WebGL nem animação de logo flutuante; o espaço visual na coluna direita é ocupado pelo **Mapa de Contribuições do Git (`ContributionSkyline`)**.
+1. **Substituição da logo 3D em partículas pelo Shader Silk de fundo + Mapa do Git:** não há animação de logo 3D flutuante na coluna direita (espaço ocupado pelo **Mapa de Contribuições do Git (`ContributionSkyline`)**); em seu lugar, o fundo de `#hero` utiliza o canvas WebGL1 fluido **`SilkShaderBackground`** ([src/components/ui/silk-shader-background.tsx](../src/components/ui/silk-shader-background.tsx)).
 2. **Distribuição assimétrica da Hero (espelhando a referência `victordeveloper.com`):**
-   - **Lado Esquerdo:** concentra toda a identidade verbal e tipográfica — o nome **`Mateus Araujo`** em escala monumental como título principal (`<h1>`, com `Mateus` alinhado à esquerda e `Araujo` deslocado para a direita), a **tag de cargo e localização** logo abaixo e o **pequeno texto introdutório** (*Lorem ipsum* inicial).
+   - **Lado Esquerdo:** concentra toda a identidade verbal e tipográfica — o nome **`Mateus Araujo`** em escala monumental como título principal (`<h1>`, com `Mateus` alinhado à esquerda e `Araujo` deslocado para a direita), a **tag de cargo e localização** logo abaixo, a **proposta de valor introdutória** (`.hero-lead`) e a **mini-bio complementar** (`.hero-bio`).
    - **Lado Direito:** abriga o **Mapa do Git** (`ContributionSkyline`, componente do **21st.dev**) em escala compacta (`max-w-[400px] xl:max-w-[440px]`), posicionado na **parte inferior direita** logo acima do **indicador de scroll** ancorado no **canto inferior direito**, preservando amplo respiro visual no quadrante superior direito para o título monumental.
-3. **Header / Navbar Flutuante Unificado:** em vez de elementos separados nas pontas ou barra de largura total, adota **um único dock de vidro luminoso centralizado no topo** (`fixed top-4 inset-x-0 flex justify-center`) sem fundo externo, abrigando internamente o **ícone da marca (`/icon.svg`) à esquerda**, os **links de navegação com indicador ativo deslizante ao centro** e o **CTA roxo `Fale comigo ↗` à direita**.
+3. **Header / Navbar Flutuante Adaptativo (`#navbar`):** no topo da página (`window.scrollY <= 36`), o dock inicia centralizado (`w-max max-w-full`) totalmente sem fundo, borda, sombra ou blur (`border-transparent bg-transparent shadow-none backdrop-blur-none`) e com os 3 blocos separados por espaçadores de `~60px` (**logo `/icon.svg` à esquerda**, **links ao centro** e **CTA roxo `Fale comigo ↗` à direita**). A partir do primeiro scroll (`window.scrollY > 36`), os espaçadores fecham suavemente para o **dock compacto de vidro luminoso centralizado** sem barra externa.
 
 ---
 
 ## 3. Especificação Detalhada do Header / Navbar (`#navbar`)
 
 ### Posicionamento e Wrapper Flutuante (compatível com GSAP)
-- **Wrapper Externo (`<header id="navbar">`):** sem fundo, sem borda e sem barra de largura total em nenhum estado de scroll:
-  - `pointer-events-none fixed inset-x-0 top-4 z-50 flex justify-center px-4`
+- **Wrapper Externo (`<header id="navbar">`):** sem fundo, sem borda e sem barra de largura total em nenhum estado de scroll, alinhado exatamente às margens horizontais da Hero:
+  - `pointer-events-none fixed inset-x-0 top-4 z-50 flex justify-center px-[clamp(20px,4vw,56px)]`
   - **Por que `inset-x-0 flex justify-center` (sem `-translate-x-1/2`)?** Permite que a timeline de entrada GSAP (`gsap.fromTo("#navbar", { autoAlpha: 0, y: -12 }, { autoAlpha: 1, y: 0, clearProps: "transform" })`) anime `y` sem conflitar ou sobrescrever a centralização horizontal.
-- **Container Único Principal (Dock Translúcido de Vidro Luminoso + `ConcentricRectangle`):**
-  - `pointer-events-auto relative flex w-max max-w-full items-center gap-1 rounded-(--dock-radius) p-(--dock-pad)`
-  - Tokens locais concêntricos (baseado no `ConcentricRectangle` da Apple: `R_interno = max(R_minimo, R_externo - inset)`):
-    - `[--dock-radius:14px] [--dock-pad:6px] [--dock-inner-radius:max(4px,calc(var(--dock-radius)_-_var(--dock-pad)))]` (`14px - 6px = 8px` interno paralelo ao arco externo).
-  - `border border-white/25 bg-linear-to-b from-white/18 to-white/6`
-  - `shadow-[inset_0_1px_0_rgb(255_255_255/0.35),0_12px_40px_-12px_rgb(0_0_0/0.5)] backdrop-blur-xl backdrop-saturate-150`
+- **Container Único Principal (`div[ref={dockRef}]` — Morphing Glass Dock + `ConcentricRectangle`):**
+  - Base compartilhada: `pointer-events-auto relative flex w-max max-w-full items-center rounded-(--dock-radius) border p-(--dock-pad) [--dock-radius:14px] [--dock-pad:6px] [--dock-inner-radius:max(4px,calc(var(--dock-radius)_-_var(--dock-pad)))] transition-[background-color,border-color,box-shadow,backdrop-filter] duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] motion-reduce:transition-none`
+  - **Estado no topo da página (`!isScrolled`, `window.scrollY <= 36`):**
+    - Dock centralizado e totalmente transparente com separação simétrica de `60px` entre as 3 seções:
+      - **Spacer 1** (entre Logo e separador/links): `w-[52px] lg:w-[60px]` (`52px + pl-2 (8px) = 60px` no mobile `< lg`, e `60px` no desktop `>= lg`).
+      - **Spacer 2** (entre `<nav>` e grupo direito no desktop): `hidden w-[52px] lg:block` (`52px + pl-2 (8px) = 60px` entre links e `Fale comigo ↗`).
+    - Sem fundo, borda, sombra ou blur: `border-transparent bg-transparent shadow-none backdrop-blur-none` (camada interna de gradiente com `opacity-0`).
+    - Separador vertical colapsado (`mx-0 w-0 opacity-0`).
+  - **Estado após o primeiro scroll (`isScrolled`, `window.scrollY > 36`):**
+    - Os espaçadores animam suavemente de `w-[52px] lg:w-[60px]` e `w-[52px]` para `w-0` (`duration-700 ease-[cubic-bezier(0.16,1,0.3,1)]`), fechando as folgas e deixando apenas o `pl-2` (`8px`) padrão do dock compacto enquanto `w-max` centraliza o dock automaticamente em 60fps.
+    - Revela o divisor desktop (`mx-2 w-px opacity-100`) e o vidro luminoso completo: `border-white/25 bg-transparent shadow-[inset_0_1px_0_rgb(255_255_255/0.35),0_12px_40px_-12px_rgb(0_0_0/0.5)] backdrop-blur-xl backdrop-saturate-150`, com a camada interna de gradiente (`bg-linear-to-b from-white/18 to-white/6`) fazendo fade suave (`opacity-0` → `opacity-100`).
+    - Recarregar a página já rolada (`window.scrollY > 36`) sincroniza `isScrolled` imediatamente no `useLayoutEffect` de montagem (desativando a transição apenas nesse frame inicial).
 
 ### 1. Esquerda dentro do Dock (`.nav-brand`)
 - Link âncora para `#hero`: `group/brand flex h-10 shrink-0 items-center rounded-(--dock-inner-radius) px-2.5 sm:px-3`
 - Conteúdo: Ícone da marca **`/icon.svg`** ([public/icon.svg](../public/icon.svg), `268x239`, renderizado com `<img width={268} height={239} className="h-5 w-auto shrink-0 sm:h-6 ..."/>`).
 - Microinteração no hover/focus: `transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover/brand:-rotate-12 group-hover/brand:scale-110 group-focus-visible/brand:-rotate-12 group-focus-visible/brand:scale-110 motion-reduce:transition-none` (inclinação para a esquerda `-12deg` combinada com leve zoom `1.10`).
-- Separador vertical sutil antes dos links no desktop (`lg:`): `<span aria-hidden="true" className="mx-1 hidden h-5 w-px shrink-0 bg-white/15 lg:block" />`.
+- Separador vertical sutil antes dos links no desktop (`lg:`): recolhido no topo (`mx-0 w-0 opacity-0`) e revelado ao unir o dock (`mx-2 w-px opacity-100`, `17px` totais, em `transition-[width,margin,opacity] duration-500`).
 
 ### 2. Meio dentro do Dock (`<nav aria-label="Navegação principal">` — Desktop `lg: >= 1024px`)
-- **Wrapper relativo para os links:** `relative hidden items-center gap-1 lg:flex`
+- **Wrapper relativo para os links:** `relative hidden shrink-0 items-center gap-1 lg:flex`
 - **Indicador Ativo Deslizante (`sliding pill` via `useLayoutEffect`):**
   - `<span ref={indicatorRef} aria-hidden="true" />` posicionado atrás dos links dentro do mesmo `<nav>`:
     - `pointer-events-none absolute top-0 bottom-0 left-0 rounded-(--dock-inner-radius) bg-white/18 shadow-[inset_0_1px_0_rgb(255_255_255/0.25)] transition-[translate,width,opacity] duration-500 ease-[cubic-bezier(0.65,0,0.35,1)] motion-reduce:transition-none`
-  - Referências de cada `<a>` armazenadas em `Map<string, HTMLAnchorElement>` e medidas em `useLayoutEffect` (recalculando em mudança de `activeId`, `resize`, `ResizeObserver` e `document.fonts.ready`) usando `offsetWidth` e `offsetLeft`:
+  - Referências de cada `<a>` armazenadas em `Map<string, HTMLAnchorElement>` e medidas em `useLayoutEffect` (recalculando em mudança de `activeId`, `resize`, `ResizeObserver` e `document.fonts.ready`) usando `offsetWidth` e `offsetLeft` (estável pois `<nav>` é `shrink-0`):
     - `indicator.style.opacity = activeEl && activeEl.offsetWidth > 0 ? "1" : "0"`
     - `indicator.style.width = "${activeEl.offsetWidth}px"`
     - `indicator.style.translate = "${activeEl.offsetLeft}px 0"`
@@ -81,13 +87,14 @@ A seção Home adota uma composição **fullscreen (`100svh`)**, com bastante es
   - **Estado Inativo:** `text-white/75 hover:text-white`.
 
 ### 3. Direita dentro do Dock (CTA + Botão Mobile)
+- Wrapper conjunto à direita: `flex shrink-0 items-center gap-2 pl-2` (mantendo o espaçamento uniforme de `8px` entre CTA, botão mobile e elemento anterior ao unir o dock sem introduzir `gap` fantasma nos espaçadores colapsados).
 - **Botão CTA (`Fale comigo ↗`):**
-  - Link/botão na ponta direita **dentro do mesmo dock** (`ml-1 hidden min-[420px]:flex h-10 shrink-0 items-center gap-1.5 rounded-(--dock-inner-radius) px-3.5 sm:px-4`).
+  - Link/botão na ponta direita **dentro do mesmo dock** (`hidden min-[420px]:flex h-10 shrink-0 items-center gap-1.5 rounded-(--dock-inner-radius) px-3.5 sm:px-4`), apontando para o WhatsApp (`https://wa.me/5579988081797`) com `external: true` (`target="_blank" rel="noopener noreferrer"`, abrindo em nova aba).
   - Cores e brilho roxo da marca: `bg-brand text-foreground shadow-[inset_0_1px_0_rgb(255_255_255/0.25)]` (`#4811ED` com `#F5F5F5`).
   - Tipografia: `font-sans text-sm lg:text-[0.95rem] font-bold tracking-[-0.01em] whitespace-nowrap`.
   - Hover / Focus: `hover:brightness-110`; ícone `ArrowUpRight` (`strokeWidth={2.5}`, `size-4`) translada `group-hover:translate-x-0.5 group-hover:-translate-y-0.5` em `cubic-bezier(0.16, 1, 0.3, 1)`.
 - **Botão Mobile (`Menu`):**
-  - Visível abaixo de `1024px` (`lg:hidden`) dentro do mesmo dock flutuante centralizado (`ml-1 flex h-10 min-w-[44px] shrink-0 items-center justify-center gap-1.5 rounded-(--dock-inner-radius) bg-white/12 px-3 hover:bg-white/20`), garantindo que em `375px` (`< 420px`) o dock exiba apenas `[Logo | Menu]` sem transbordar (`max-w-full`).
+  - Visível abaixo de `1024px` (`lg:hidden`) dentro do mesmo dock flutuante (`flex h-10 min-w-[44px] shrink-0 items-center justify-center gap-1.5 rounded-(--dock-inner-radius) bg-white/12 px-3 hover:bg-white/20`), garantindo que em `375px` (`< 420px`) o dock exiba apenas `[Logo | Menu]` sem transbordar.
   - Abre drawer/overlay fullscreen (`#mobile-menu`) em `#0D0D0D` com todos os links em tipografia grande (`Space Grotesk`, `clamp(2rem, 8vw, 3rem)`), fechamento por `Escape` e botão `Fale comigo ↗` na base.
 
 ---
@@ -98,13 +105,18 @@ A seção Home adota uma composição **fullscreen (`100svh`)**, com bastante es
 - **Elemento:** `<section id="hero" aria-label="Apresentação">`
 - **Dimensões:** `relative min-h-svh lg:h-svh w-full overflow-hidden bg-background text-foreground`
 - **Espaçamento interno:** `px-[clamp(20px,4vw,56px)] pt-24 pb-6 md:pt-28 md:pb-8`
+- **Camada de Fundo WebGL (`SilkShaderBackground` — `z-0`, `aria-hidden="true"`):**
+  - Montada antes do grid principal em wrapper `pointer-events-none absolute inset-0 z-0 overflow-hidden`:
+    - **Canvas WebGL1** ([src/components/ui/silk-shader-background.tsx](../src/components/ui/silk-shader-background.tsx)) com shader Silk de fluxo contínuo na paleta `#02010A`, `#04052E`, `#3D2C8D` e `#916BBF`, DPR limitado a `2` (`Math.min(window.devicePixelRatio || 1, 2)`), pausa automática quando fora da viewport (`IntersectionObserver`) ou aba oculta (`visibilitychange`), e fallback estático (`timeSeconds = 0`) para `prefers-reduced-motion: reduce`.
+    - **Véu de legibilidade:** `bg-linear-to-r from-background/50 via-background/20 to-background/40` preservando contraste WCAG sobre as bandas luminosas `#916BBF`.
+    - **Transição inferior contínua:** `h-32 bg-linear-to-b from-transparent to-background md:h-44` fundindo a base de `#hero` ao fundo `#0D0D0D` de `#sobre`.
 - **Grid de Composição (Desktop `>= 1024px`):**
-  - Estrutura de 2 colunas assimétricas ocupando `h-full` (`max-w-[1600px]`):
-    - `mx-auto grid h-full max-w-[1600px] grid-cols-1 gap-8 lg:grid-cols-[minmax(0,1.25fr)_minmax(0,0.75fr)] lg:items-stretch lg:gap-8 xl:gap-10`
+  - Estrutura de 2 colunas assimétricas acima do fundo (`relative z-10`) ocupando `h-full` (`max-w-[1600px]`):
+    - `mx-auto relative z-10 grid h-full max-w-[1600px] grid-cols-1 gap-8 lg:grid-cols-[minmax(0,1.25fr)_minmax(0,0.75fr)] lg:items-stretch lg:gap-8 xl:gap-10`
   - A **Coluna 1 (Esquerda)** concentra o bloco principal de identidade (`Mateus Araujo` em escala monumental, tag de cargo e localização e texto introdutório), centralizado verticalmente na altura disponível (`lg:justify-center`), com largura generosa (`1.25fr`) para que o título escalonado jamais sofra recorte horizontal (`1024px`–`1920px`).
   - A **Coluna 2 (Direita)** (`lg:h-full lg:items-end lg:justify-end`) ancora o **Mapa do Git (`ContributionSkyline`)** compacto na **parte inferior direita** (`lg:mt-auto lg:mb-4 lg:self-end`), logo acima do indicador de scroll (`Role para explorar ↓`) fixado no **canto inferior direito**.
 - **Responsividade Mobile (`< 1024px`):**
-  - Coluna única vertical natural (`grid-cols-1`): Nome `Mateus Araujo` → Tag `Desenvolvedor FullStack · Aracaju, SE` → Frase introdutória → `ContributionSkyline` → `Role para explorar ↓`.
+  - Coluna única vertical natural (`grid-cols-1`): Nome `Mateus Araujo` → Tag `Desenvolvedor FullStack · Aracaju, SE` → Proposta de valor e mini-bio → `ContributionSkyline` → `Role para explorar ↓`.
 
 ### Lado Esquerdo (Coluna Esquerda — Identidade & Narrativa)
 
@@ -117,7 +129,7 @@ Disposição vertical de cima para baixo dentro da coluna esquerda (espelhando o
    - Tipografia:
      - Família: `font-display` (`Space Grotesk`)
      - Peso: `font-medium` (`500`)
-     - Escala fluida: `text-[clamp(4.5rem,13vw,14.5rem)]` *(presença monumental calibrada para caber integralmente na coluna esquerda em `1024px`, `1280px`, `1440px` e `1920px` dentro de `100svh` junto ao header superior)*
+     - Escala fluida: `text-[clamp(4.5rem,13vw,14.5rem)] lg:text-[clamp(4.5rem,min(13vw,20svh),14.5rem)]` *(presença monumental calibrada para caber integralmente na coluna esquerda em `1024×720`, `1280×720`, `1440px` e `1920px` dentro de `100svh` junto ao header superior e aos dois parágrafos introdutórios)*
      - Entrelinha e Tracking: `leading-[0.84] tracking-[-0.055em]`
    - **Estrutura DOM para GSAP (split por caractere):**
      - `aria-label="Mateus Araujo"` no `<h1>` para leitura limpa em leitores de tela.
@@ -134,11 +146,15 @@ Disposição vertical de cima para baixo dentro da coluna esquerda (espelhando o
      - Separador: `<span class="h-3.5 w-px bg-white/20" aria-hidden="true" />`
      - Localização: `<span class="text-muted-foreground">Aracaju, SE</span>`
 
-3. **Pequeno Texto Introdutório (`.hero-lead`):**
-   - Posicionado logo abaixo da tag (`mt-6 max-w-[46ch]`).
-   - Tipografia: `font-sans` (`Montserrat`), `text-[clamp(0.95rem,1.2vw,1.125rem)]` (`15px–18px`), `leading-[1.6]`, `text-muted-foreground`.
-   - Destaques em `<strong class="font-medium text-foreground">`.
-   - Conteúdo inicial: *Lorem ipsum* estruturado no arquivo de dados `src/data/home.ts` como placeholder até o copy final.
+3. **Pequeno Texto Introdutório (`.hero-lead`) + Bio Complementar (`.hero-bio`):**
+   - **Proposta de valor (`.hero-lead`):**
+     - Posicionada logo abaixo da tag (`mt-5 max-w-[48ch]`).
+     - Tipografia: `font-sans` (`Montserrat`), `text-[clamp(0.95rem,1.15vw,1.125rem)]`, `leading-[1.55]`, `text-muted-foreground`, com destaques em `<strong class="font-medium text-foreground">`.
+     - Conteúdo (`leadSegments` em `src/data/home.ts`): *"Trabalho com tecnologia para transformar suas dores e ideias em **soluções sob medida, simples de usar e eficazes.**"*
+   - **Bio complementar (`.hero-bio` / `bioSegments`):**
+     - Posicionada logo abaixo de `.hero-lead` (`mt-3 max-w-[52ch]`) dentro de `.hero-parallax-copy`, com `data-hero-fade=""` para sincronizar entrada e parallax.
+     - Tipografia: `font-sans` (`Montserrat`), `text-[clamp(0.875rem,1.02vw,0.975rem)]`, `leading-[1.6]`, `text-muted-foreground/90`, com destaques em `<strong class="font-medium text-foreground/95">`.
+     - Conteúdo (`bioSegments` em `src/data/home.ts`): *"**Embaixador da Google**, desenvolvedor fullstack e estudante de **Análise e Desenvolvimento de Sistemas**, sempre me mantenho envolvido no ecossistema tecnológico, **conectando comunidade, aprendizado e inovação.**"*
 
 ### Lado Direito (Coluna Direita — Mapa do Git & Indicador de Scroll)
 
@@ -234,16 +250,17 @@ const heroIn = gsap.timeline({ paused: true, defaults: { ease: "expo.out" } })
 ```
 - Os elementos com `data-hero-fade` são:
   1. `.hero-eyebrow` (tag de cargo + localização)
-  2. `.hero-lead` (texto introdutório)
-  3. Container do **Mapa do Git** (coluna direita)
-  4. `.hero-foot` (canto inferior direito — `Role para explorar ↓`)
+  2. `.hero-lead` (proposta de valor introdutória)
+  3. `.hero-bio` (bio complementar — `bioSegments`)
+  4. Container do **Mapa do Git** (coluna direita)
+  5. `.hero-foot` (canto inferior direito — `Role para explorar ↓`)
 
 ### Comportamento no Scroll (Parallax em Camadas sem `pin`)
 - **Scroll contínuo natural (sem `pin: true`):** Ao sair da Hero rumo à seção `Sobre`, a página flui naturalmente com a suavidade do **Lenis**, sem travar a viewport (`pin`).
 - **Parallax de 3 planos no desktop (`min-width: 1024px` e `prefers-reduced-motion: no-preference`):**
   - Sincronizado via `ScrollTrigger` (`trigger: #hero`, `start: "top top"`, `end: "bottom top"`, `scrub: true`, `invalidateOnRefresh: true`) sobre wrappers **isolados** dos alvos de `heroIn` (`.char` e `[data-hero-fade]`):
     1. **Plano 1 — Título monumental (mais lento):** `.hero-parallax-title-1` (`y: 48, opacity: 0.22`) e `.hero-parallax-title-2` (`y: 78, opacity: 0.18`), aplicadas nas máscaras `.line` externas de `Mateus` e `Araujo` (sem tocar em `.char` nem `.line-inner`, preservando o descendente do `j`).
-    2. **Plano 2 — Narrativa (ritmo intermediário):** `.hero-parallax-copy` (`y: -22, opacity: 0.28`), envolvendo `.hero-eyebrow` e `.hero-lead`.
+    2. **Plano 2 — Narrativa (ritmo intermediário):** `.hero-parallax-copy` (`y: -22, opacity: 0.28`), envolvendo `.hero-eyebrow`, `.hero-lead` e `.hero-bio`.
     3. **Plano 3 — Mapa do Git & Scroll Cue (mais rápido):** `.hero-parallax-map` (`y: -76, opacity: 0.15`), envolvendo o container do `ContributionSkyline`, e `.hero-parallax-foot` (`y: -36, opacity: 0`), envolvendo `.hero-foot`.
   - Em `scrollY = 0`, todas as camadas permanecem em `y: 0, opacity: 1` (nenhuma alteração na dobra inicial); em `(prefers-reduced-motion: reduce)`, todas as propriedades de entrada e parallax são limpas via `clearProps: "opacity,visibility,transform"`.
 
@@ -315,6 +332,10 @@ export interface HeroContent {
     text: string;
     highlight?: boolean;
   }>;
+  bioSegments: Array<{
+    text: string;
+    highlight?: boolean;
+  }>;
   scrollHint: {
     label: string;
     targetHref: `#${string}`;
@@ -354,7 +375,8 @@ export const homeData: HomePageData = {
     ],
     cta: {
       label: "Fale comigo",
-      href: "#contato",
+      href: "https://wa.me/5579988081797",
+      external: true,
     },
   },
   hero: {
@@ -363,9 +385,25 @@ export const homeData: HomePageData = {
     role: "Desenvolvedor FullStack",
     location: "Aracaju, SE",
     leadSegments: [
-      { text: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. " },
-      { text: "Sed do eiusmod tempor incididunt", highlight: true },
-      { text: " ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation." },
+      {
+        text: "Trabalho com tecnologia para transformar suas dores e ideias em ",
+      },
+      {
+        text: "soluções sob medida, simples de usar e eficazes.",
+        highlight: true,
+      },
+    ],
+    bioSegments: [
+      { text: "Embaixador da Google", highlight: true },
+      { text: ", desenvolvedor fullstack e estudante de " },
+      { text: "Análise e Desenvolvimento de Sistemas", highlight: true },
+      {
+        text: ", sempre me mantenho envolvido no ecossistema tecnológico, ",
+      },
+      {
+        text: "conectando comunidade, aprendizado e inovação.",
+        highlight: true,
+      },
     ],
     scrollHint: {
       label: "Role para explorar",
@@ -396,8 +434,9 @@ export const homeData: HomePageData = {
 
 ## 7. Decisões Fechadas (Home)
 
-- ✅ **Header — Dock único flutuante centralizado:** Sem fundo externo (`fixed top-4 inset-x-0 flex justify-center`), abrigando dentro do mesmo container de vidro luminoso com arredondamento concêntrico (`--dock-radius: 14px`, `--dock-pad: 6px` → `--dock-inner-radius: 8px`) o ícone da marca (`/icon.svg`, `268x239`, com microinteração hover/focus `-rotate-12` e `scale-110`) à esquerda, os links de navegação (`Início`, `Sobre`, `Projetos`, `Jornada`, `Skills`, `Contato`) com sliding pill (`useLayoutEffect`) ao centro e o botão roxo tátil `Fale comigo ↗` (`h-10`) à direita (com menu fullscreen abaixo de `1024px` e `max-w-full` seguro em `375px`).
-- ✅ **Hero — Lado Esquerdo:** Nome `Mateus Araujo` em escala monumental (`clamp(4.5rem, 13vw, 14.5rem)`, `leading-[0.84]`, `Mateus` alinhado à esquerda e `Araujo` deslocado para a direita com `pl-[0.75em] lg:pl-[0.85em]`) dentro de coluna `1.25fr` + tag pulsante `Desenvolvedor FullStack · Aracaju, SE` + texto *Lorem ipsum* inicial.
+- ✅ **Header — Dock flutuante adaptativo (`scrollY <= 36` → `scrollY > 36`):** Sem fundo externo (`fixed top-4 inset-x-0 flex justify-center px-[clamp(20px,4vw,56px)]`). No topo da página (`window.scrollY <= 36`), inicia centralizado (`w-max max-w-full`) e totalmente sem fundo, borda, sombra ou blur (`border-transparent bg-transparent shadow-none backdrop-blur-none`) com as 3 partes separadas por `60px` (`w-[52px] lg:w-[60px]` após a logo e `w-[52px] + pl-2` antes do CTA); ao cruzar `window.scrollY > 36`, fecha as folgas suavemente para o dock compacto de vidro luminoso centralizado (`--dock-radius: 14px`, `--dock-pad: 6px` → `--dock-inner-radius: 8px`, `border-white/25`, `backdrop-blur-xl`), preservando o sliding pill (`useLayoutEffect`), a microinteração da marca (`/icon.svg`, `268x239`, `-rotate-12 scale-110`) e o menu fullscreen abaixo de `1024px`.
+- ✅ **Hero — Fundo Shader Silk WebGL1 (`SilkShaderBackground`):** Canvas em [src/components/ui/silk-shader-background.tsx](../src/components/ui/silk-shader-background.tsx) em `z-0` com paleta `#02010A`, `#04052E`, `#3D2C8D`, `#916BBF`, DPR cap `2`, pausa por visibilidade/offscreen, fallback estático para `prefers-reduced-motion`, véu de legibilidade (`from-background/50 via-background/20 to-background/40`) e fade inferior contínuo (`h-32 md:h-44`) para `#sobre` (`#0D0D0D`), com o conteúdo principal isolado em `relative z-10`.
+- ✅ **Hero — Lado Esquerdo:** Nome `Mateus Araujo` em escala monumental (`clamp(4.5rem, 13vw, 14.5rem)` / `lg:clamp(4.5rem, min(13vw, 20svh), 14.5rem)`, `leading-[0.84]`, `Mateus` alinhado à esquerda e `Araujo` deslocado para a direita com `pl-[0.75em] lg:pl-[0.85em]`) dentro de coluna `1.25fr` + tag pulsante `Desenvolvedor FullStack · Aracaju, SE` + proposta de valor introdutória (`.hero-lead`) e mini-bio complementar (`.hero-bio`) em `pt-BR`.
 - ✅ **Hero — Lado Direito:** `ContributionSkyline` (21st.dev) em escala compacta (`max-w-[400px] xl:max-w-[440px]`, `heightScale={0.78}`, paleta roxa e `pt-BR`), posicionado na **parte inferior direita** (`lg:mt-auto lg:mb-4 lg:self-end`), alimentado pelos dados reais de `@teuaraujoo` via Server Component (`https://github-contributions-api.jogruber.de/v4/teuaraujoo?y=last` com `revalidate: 3600` e fallback local), em modo minimalista flutuante sem fundo e sem bordas (`showStats={false}`, `showLegend={false}`, `showToggle={true}`, `footer={null}`, `bg-transparent border-0 p-0`) exibindo apenas o total anual de contribuições, alternância 2D/3D e o mapa interativo sobre `#0D0D0D`, junto ao indicador de scroll (`Role para explorar ↓`) ancorado no canto inferior direito.
 - ✅ **Scroll da Hero:** Scroll contínuo natural com **Lenis** (sem `pin: true`) + parallax em 3 planos via `ScrollTrigger` (`scrub: true`, `min-width: 1024px`) em wrappers isolados da entrada `heroIn`.
 - **Status:** Todas as decisões da Seção 1 (Preloader + Home) implementadas e sincronizadas com o layout final.

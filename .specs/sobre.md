@@ -18,7 +18,7 @@ A seção **Sobre (`#sobre`)** combina elementos visuais e comportamentais das d
 Seguindo [ARCHITECTURE.md](../docs/ARCHITECTURE.md):
 
 - **Camada de dados tipada (`src/data/sobre.ts`):**
-  - Centraliza eyebrow, segmentos da citação (com o tipo de anotação e delay de cada trecho), dados do retrato (`/foto_rosto.jpg`, `alt`, legenda), dados do gatilho/modal editorial (`SobreModalContent`: labels acessíveis, título, subtítulo e array `paragraphs: string[]`) e array das 3 métricas (`value`, `suffix`, `label`).
+  - Centraliza eyebrow, segmentos da citação (com o tipo de anotação e delay de cada trecho), dados do retrato (`/foto_rosto.jpg`, `alt`, legenda), dados do gatilho/modal editorial (`SobreModalContent`: labels acessíveis, título, subtítulo e array `paragraphs: string[]`) e array das 3 métricas (`value`, `prefix`, `suffix`, `label`).
   - Estruturada para `pt-BR` agora e pronta para internacionalização (`en`) ou API no futuro.
 - **Componentes de anotação reutilizáveis (`src/components/portfolio/hand-drawn-annotations.tsx`):**
   - Exporta `BrushHighlight`, `HandCircle`, `SparkAsterisk` e `DoubleUnderline`.
@@ -98,13 +98,13 @@ Componente dedicado para exibir a história completa de Mateus ao clicar no retr
   - **Proibição explícita:** Diferente de `vitorcg.com.br`, **NÃO há botões de redes sociais**, **nem abas**, **nem cards/stats extras** dentro deste dialog — apenas cabeçalho editorial (título + subtítulo), botão fechar e os parágrafos de texto corrido.
 
 ### Bloco Inferior — Faixa de Métricas Centralizada (`.about-stats`)
-Seguindo a referência de `victordeveloper.com`, com posicionamento centralizado abaixo do grid de 2 colunas e 3 contadores placeholder iniciais:
+Seguindo a referência de `victordeveloper.com`, com posicionamento centralizado abaixo do grid de 2 colunas e 3 contadores reais (`+5 projetos`, `+10 certificados`, `+2 formações`):
 - **Container:** `<ul className="about-stats mx-auto mt-20 grid max-w-4xl grid-cols-1 gap-x-8 border-t border-border sm:grid-cols-3 lg:mt-28">`
-- **Cada Item (`<li>`):**
+- **Cada Item (`<li className="about-stat-item ...">`):**
   - `flex flex-col items-center gap-3 border-b border-border py-6 text-center md:py-8`
   - **Número Monumental (`.stat-num`):**
     - `font-display font-medium text-[clamp(3rem,6.2vw,6.25rem)] leading-[0.9] tracking-[-0.045em] text-foreground tabular-nums`
-    - Sufixo opcional (ex.: `+`) em `<sup className="-top-[1.05em] ml-1 text-[0.34em] tracking-normal text-brand-bright">`.
+    - Prefixo opcional (ex.: `+`) imediatamente antes do contador em `<sup className="-top-[1.05em] mr-1 text-[0.34em] tracking-normal text-brand-bright">` e sufixo opcional em `<sup className="-top-[1.05em] ml-1 text-[0.34em] tracking-normal text-brand-bright">`.
   - **Rótulo Inferior:**
     - `font-sans text-[11px] font-medium uppercase tracking-[0.08em] text-muted-foreground`
 
@@ -138,7 +138,8 @@ Adaptando a paleta da referência (`vitorcg.com.br`) para os tokens de [src/app/
    - **Entrada por recorte:** `.about-photo-inner` de `{ clipPath: "inset(100% 0% 0% 0%)" }` para `{ clipPath: "inset(0% 0% 0% 0%)", duration: 1.4, ease: "expo.inOut" }`, `scrollTrigger: { trigger: ".about-photo", start: "top 80%", once: true }`.
    - **Parallax contínuo:** `.about-photo-parallax` de `{ yPercent: -8 }` para `{ yPercent: 0, ease: "none" }`, `scrollTrigger: { trigger: ".about-photo", start: "top bottom", end: "bottom top", scrub: true }`.
 3. **Contagem das Métricas (`GSAP + ScrollTrigger`):**
-   - Para cada `[data-count]` em `.about-stats`: ao atingir `start: "top 90%"` (`once: true`), anima um objeto `{ value: 0 }` até `targetValue` em `duration: 1.8`, `ease: "power2.out"`, atualizando `textContent` com `Math.round(value)` (sem layout shift graças a `tabular-nums`).
+   - **Entrada sincronizada:** `.about-stat-item` anima com `gsap.from` (`y: 18`, `autoAlpha: 0`, `duration: 0.75`, `stagger: 0.12`, `ease: "expo.out"`, `clearProps: "opacity,visibility,transform"`) disparado por `scrollTrigger: { trigger: ".about-stats", start: "top 80%", once: true }`.
+   - **Contadores (`[data-count]`):** cada item (índice `i`) é inicializado com `textContent = "0"` antes de entrar na tela e, ao atingir `trigger: ".about-stats"` / `start: "top 80%"` (`once: true`), anima `{ value: 0 }` até `targetValue` com `duration: 1.5`, `delay: i * 0.14` e `ease: "power1.out"`, atualizando `textContent` com `Math.floor(counter.value)` em `onUpdate` e finalizando com `String(targetValue)` em `onComplete` (sem layout shift graças a `tabular-nums`; restaura `String(targetValue)` no cleanup/`prefers-reduced-motion: reduce`).
 4. **Dialog Radial de Biografia (`SobreDialog`):**
    - Ao clicar no retrato ou na tag flutuante, calcula a origem `(--ox, --oy)` (ou centro do botão via teclado) e o raio dinâmico `--or`, expandindo o overlay com `clip-path: circle(0px at var(--ox) var(--oy))` → `clip-path: circle(var(--or) at var(--ox) var(--oy))` e `scale` suave em `cubic-bezier(0.16, 1, 0.3, 1)`.
    - Bloqueia o scroll do Lenis (`data-lenis-prevent`) enquanto o modal estiver aberto, move o foco para o botão fechar (`z-20 cursor-pointer`) e restaura o foco ao gatilho no fechamento (`Escape`, backdrop ou botão fechar).
@@ -167,6 +168,7 @@ export interface QuoteSegment {
 export interface SobreStat {
   id: string;
   value: number;
+  prefix?: string;
   suffix?: string;
   label: string;
 }
@@ -195,12 +197,12 @@ export interface SobreContent {
 }
 ```
 
-### Conteúdo Inicial Definido (`src/data/sobre.ts`)
-Por decisão do usuário, a versão inicial utiliza **Lorem ipsum** na citação (mantendo a densidade e a sequência dos 4 tipos de marcações SVG animadas da referência `vitorcg.com.br`) e **métricas fake/placeholder** centralizadas nos 3 contadores inferiores:
+### Conteúdo Definido (`src/data/sobre.ts`)
+A versão atual utiliza a **citação real aprovada pelo usuário** em português (mantendo a densidade, a sequência dos 4 tipos de marcações SVG animadas da referência `vitorcg.com.br` e a restrição de largura em mobile para `circle` e `underline`) e **métricas reais** centralizadas nos 3 contadores inferiores (enquanto os parágrafos do modal seguem em *Lorem ipsum* aguardando definição):
 
 - **Eyebrow:** `"Sobre mim"`
-- **Citação (`Lorem ipsum`):**
-  > *"Lorem ipsum **dolor sit** (`brush:brand`, `150ms`) amet, consectetur adipiscing elit sed **eiusmod** (`circle`, `600ms`) tempor incididunt. Labore **et dolore magna** (`brush:bright` + `sparkAfter`, `1050ms`): aliqua ut enim ad minim veniam **quis nostrud** (`brush:subtle`, `1550ms`), exercitation ullamco **nisi aliquip.** (`underline`, `2000ms`)"*
+- **Citação Principal:**
+  > *"Escolhi a tecnologia por ser **autodidata** (`brush:brand`, `150ms`) e gostar de resolver **problemas** (`circle`, `600ms`) com autonomia. Hoje atuo construindo **produtos digitais completos** (`brush:bright` + `sparkAfter`, `1050ms`), **da interface** (`brush:subtle`, `1550ms`) até o deploy, sem deixar **pontas soltas.** (`underline`, `2000ms`)"*
 - **Retrato (direita):**
   - `src`: `"/foto_rosto.jpg"`
   - `alt`: `"Retrato de Mateus Araujo"`
@@ -213,19 +215,19 @@ Por decisão do usuário, a versão inicial utiliza **Lorem ipsum** na citação
   - `title`: `"Mateus Araujo"`
   - `subtitle`: `"Desenvolvedor FullStack · Aracaju, SE"`
   - `paragraphs`: 3 parágrafos de texto corrido em **Lorem ipsum** (sem botões de redes sociais, abas ou stats extras).
-- **Métricas placeholder (3 itens centralizados abaixo do grid em `mx-auto max-w-4xl`):**
-  - `12+` — `"Lorem ipsum"`
-  - `37` — `"Dolor sit amet"`
-  - `15+` — `"Consectetur elit"`
+- **Métricas (3 itens centralizados abaixo do grid em `mx-auto max-w-4xl`):**
+  - `+5` — `"projetos"`
+  - `+10` — `"certificados"`
+  - `+2` — `"formações"`
 
 ---
 
-## 7. Status das Definições (Fechado)
+## 7. Status das Definições (Atualizado)
 
-Todas as definições da **Seção 2 (`#sobre`)** foram fechadas pelo usuário e consolidadas em [src/data/sobre.ts](../src/data/sobre.ts):
+As definições da **Seção 2 (`#sobre`)** consolidadas em [src/data/sobre.ts](../src/data/sobre.ts):
 
-1. **Citação (Lado Esquerdo):** Texto placeholder em **Lorem ipsum** mantendo exatamente as 4 marcações SVG animadas (`brush`, `circle`, `sparkAfter`, `underline`) distribuídas em sequência.
+1. **Citação (Lado Esquerdo):** Texto real aprovado pelo usuário (*"Escolhi a tecnologia por ser autodidata e gostar de resolver problemas com autonomia. Hoje atuo construindo produtos digitais completos, da interface até o deploy, sem deixar pontas soltas."*), mantendo as 4 marcações SVG animadas (`brush`, `circle`, `sparkAfter`, `underline`) distribuídas em sequência, com `circle` (`"problemas"`) e `underline` (`"pontas soltas."`) em expressões curtas (`1–2` palavras) para evitar overflow horizontal em viewports mobile (`375px`).
 2. **Retrato + Tag Interativa (Lado Direito):** Foto quadrada (`/foto_rosto.jpg`) envolvida por botão acessível com tag flutuante (`Sobre mim`, linha conectora e ponto pulsante roxo `#793CFF`, sem mini foto repetida), revelação vertical por `clip-path`, parallax no scroll e legenda técnica (`Mateus Araujo` / `Aracaju, SE`).
-3. **Dialog Radial de Biografia (`SobreDialog`):** Abre com `clip-path: circle(var(--or) ...)` + `scale` suave em `cubic-bezier(0.16, 1, 0.3, 1)` a partir do ponto do clique, botão fechar `z-20 cursor-pointer`, exibindo apenas título, subtítulo e 3 parágrafos em *Lorem ipsum* (sem botões de redes sociais).
-4. **Métricas Inferiores (`.about-stats`):** 3 contadores placeholder (`12+`, `37`, `15+`) em bloco centralizado abaixo do grid de 2 colunas (`mx-auto max-w-4xl`, `items-center text-center`).
+3. **Dialog Radial de Biografia (`SobreDialog`):** Abre com `clip-path: circle(var(--or) ...)` + `scale` suave em `cubic-bezier(0.16, 1, 0.3, 1)` a partir do ponto do clique, botão fechar `z-20 cursor-pointer`, exibindo apenas título, subtítulo e 3 parágrafos em *Lorem ipsum* (aguardando texto final, sem botões de redes sociais).
+4. **Métricas Inferiores (`.about-stats`):** 3 contadores reais (`+5 projetos`, `+10 certificados`, `+2 formações`, com `prefix?: string` antes do valor e `suffix?: string` opcional após) em bloco centralizado abaixo do grid de 2 colunas (`mx-auto max-w-4xl`, `items-center text-center`).
 5. **Cabeçalho da Seção:** Eyebrow limpo (`"Sobre mim"`) acima da citação, estilo `vitorcg.com.br`.
