@@ -3,17 +3,32 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
+import type { ContatoContent } from "@/data/contato";
+import type { FooterContent } from "@/data/footer";
 import type { ContributionDay, HomePageData } from "@/data/home";
+import type { JornadaContent } from "@/data/jornada";
+import type { ProjetosContent } from "@/data/projetos";
+import type { SkillsContent } from "@/data/skills";
 import type { SobreContent } from "@/data/sobre";
+import { Contato } from "./contato";
+import { Footer } from "./footer";
 import { Header } from "./header";
 import { Hero } from "./hero";
+import { Jornada } from "./jornada";
 import { Preloader } from "./preloader";
+import { Projetos } from "./projetos";
+import { Skills } from "./skills";
 import { SmoothScrollProvider } from "./smooth-scroll";
 import { Sobre } from "./sobre";
 
 export interface HomeShellProps {
   data: HomePageData;
   sobre: SobreContent;
+  projetos: ProjetosContent;
+  jornada: JornadaContent;
+  skills: SkillsContent;
+  contato: ContatoContent;
+  footer: FooterContent;
   contributions?: ContributionDay[];
 }
 
@@ -21,7 +36,16 @@ export interface HomeShellProps {
  * Orchestrates smooth scrolling, Preloader handoff, synchronized Header entrance,
  * and Hero timeline playback.
  */
-export function HomeShell({ data, sobre, contributions }: HomeShellProps) {
+export function HomeShell({
+  data,
+  sobre,
+  projetos,
+  jornada,
+  skills,
+  contato,
+  footer,
+  contributions,
+}: HomeShellProps) {
   const [heroActive, setHeroActive] = useState(false);
   const shellRef = useRef<HTMLDivElement>(null);
   const navTimelineRef = useRef<gsap.core.Timeline | null>(null);
@@ -104,7 +128,12 @@ export function HomeShell({ data, sobre, contributions }: HomeShellProps) {
             active={heroActive}
           />
           <Sobre content={sobre} />
+          <Projetos content={projetos} />
+          <Jornada content={jornada} />
+          <Skills content={skills} />
+          <Contato content={contato} />
         </main>
+        <Footer content={footer} />
       </div>
     </SmoothScrollProvider>
   );
