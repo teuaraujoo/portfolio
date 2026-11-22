@@ -59,6 +59,10 @@ export interface HeroContent {
     text: string;
     highlight?: boolean;
   }>;
+  bioSegments: Array<{
+    text: string;
+    highlight?: boolean;
+  }>;
   scrollHint: {
     label: string;
     targetHref: `#${string}`;
@@ -95,7 +99,8 @@ export const homeData: HomePageData = {
     ],
     cta: {
       label: "Fale comigo",
-      href: "#contato",
+      href: "https://wa.me/5579988081797",
+      external: true,
     },
   },
   hero: {
@@ -104,9 +109,24 @@ export const homeData: HomePageData = {
     role: "Desenvolvedor FullStack",
     location: "Aracaju, SE",
     leadSegments: [
-      { text: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. " },
-      { text: "Sed do eiusmod tempor incididunt", highlight: true },
-      { text: " ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation." },
+      {
+        text: "Trabalho com tecnologia para transformar suas dores e ideias em ",
+      },
+      {
+        text: "soluções sob medida, simples de usar e eficazes.",
+        highlight: true,
+      },
+    ],
+    bioSegments: [
+      { text: "Embaixador da Google", highlight: true },
+      { text: ", desenvolvedor fullstack e estudante de " },
+      { text: "Análise e Desenvolvimento de Sistemas", highlight: true },
+      {
+        text: ", sempre me mantenho envolvido no ecossistema tecnológico, conectando ",
+      },
+      {
+        text: "comunidade, aprendizado e inovação.", highlight: true
+      }
     ],
     scrollHint: {
       label: "Role para explorar",

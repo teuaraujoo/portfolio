@@ -19,19 +19,24 @@ export interface HeaderProps {
 
 const MANUAL_SCROLL_LOCK_MS = 1000;
 const DESKTOP_BREAKPOINT_PX = 1024;
+const SCROLL_THRESHOLD_PX = 36;
 
 /**
- * Floating centered glass dock navbar housing the brand mark, sliding-pill
- * section links, primary CTA, and accessible mobile/tablet drawer trigger.
+ * Floating glass dock navbar that starts completely transparent and centered
+ * with ~60px spacing between its 3 sections at the top of the page, then
+ * merges into a compact frosted-glass dock once the user scrolls past 36px.
  */
 export function Header({ content }: HeaderProps) {
   const [activeId, setActiveId] = useState<string>(() => content.items[0]?.id ?? "inicio");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
 
+  const dockRef = useRef<HTMLDivElement>(null);
   const navRef = useRef<HTMLElement>(null);
   const indicatorRef = useRef<HTMLSpanElement>(null);
   const linkRefs = useRef<Map<string, HTMLAnchorElement>>(new Map());
   const hasPositionedRef = useRef(false);
+  const isScrolledRef = useRef(false);
 
   const menuButtonRef = useRef<HTMLButtonElement>(null);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
@@ -66,6 +71,23 @@ export function Header({ content }: HeaderProps) {
   }, [activeId]);
 
   useLayoutEffect(() => {
+    const initialScrolled = window.scrollY > SCROLL_THRESHOLD_PX;
+    isScrolledRef.current = initialScrolled;
+    if (initialScrolled) {
+      const dockEl = dockRef.current;
+      if (dockEl) {
+        dockEl.style.transition = "none";
+        setIsScrolled(true);
+        requestAnimationFrame(() => {
+          if (dockRef.current) {
+            dockRef.current.style.transition = "";
+          }
+        });
+      } else {
+        setIsScrolled(true);
+      }
+    }
+
     updateIndicator();
 
     window.addEventListener("resize", updateIndicator, { passive: true });
@@ -97,6 +119,13 @@ export function Header({ content }: HeaderProps) {
     let rafId = 0;
 
     const updateActiveSection = () => {
+      const scrollY = window.scrollY;
+      const nextScrolled = scrollY > SCROLL_THRESHOLD_PX;
+      if (nextScrolled !== isScrolledRef.current) {
+        isScrolledRef.current = nextScrolled;
+        setIsScrolled(nextScrolled);
+      }
+
       if (performance.now() < manualLockUntilRef.current) {
         return;
       }
@@ -104,7 +133,6 @@ export function Header({ content }: HeaderProps) {
       const anchorItems = content.items.filter((item) => item.href.startsWith("#"));
       if (anchorItems.length === 0) return;
 
-      const scrollY = window.scrollY;
       if (scrollY <= 40) {
         setActiveId(anchorItems[0].id);
         return;
@@ -143,7 +171,7 @@ export function Header({ content }: HeaderProps) {
       rafId = requestAnimationFrame(updateActiveSection);
     };
 
-    rafId = requestAnimationFrame(updateActiveSection);
+    updateActiveSection();
     window.addEventListener("scroll", handleScroll, { passive: true });
     window.addEventListener("resize", handleScroll, { passive: true });
 
@@ -232,9 +260,25 @@ export function Header({ content }: HeaderProps) {
     <>
       <header
         id="navbar"
-        className="pointer-events-none fixed inset-x-0 top-4 z-50 flex justify-center px-4"
+        className="pointer-events-none fixed inset-x-0 top-4 z-50 flex justify-center px-[clamp(20px,4vw,56px)]"
       >
-        <div className="pointer-events-auto relative flex w-max max-w-full items-center gap-1 rounded-(--dock-radius) border border-white/25 bg-linear-to-b from-white/18 to-white/6 p-(--dock-pad) shadow-[inset_0_1px_0_rgb(255_255_255/0.35),0_12px_40px_-12px_rgb(0_0_0/0.5)] backdrop-blur-xl backdrop-saturate-150 [--dock-radius:14px] [--dock-pad:6px] [--dock-inner-radius:max(4px,calc(var(--dock-radius)_-_var(--dock-pad)))]">
+        <div
+          ref={dockRef}
+          className={cn(
+            "pointer-events-auto relative flex w-max max-w-full items-center rounded-(--dock-radius) border p-(--dock-pad) [--dock-radius:14px] [--dock-pad:6px] [--dock-inner-radius:max(4px,calc(var(--dock-radius)_-_var(--dock-pad)))] transition-[background-color,border-color,box-shadow,backdrop-filter] duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] motion-reduce:transition-none",
+            isScrolled
+              ? "border-white/25 bg-transparent shadow-[inset_0_1px_0_rgb(255_255_255/0.35),0_12px_40px_-12px_rgb(0_0_0/0.5)] backdrop-blur-xl backdrop-saturate-150"
+              : "border-transparent bg-transparent shadow-none backdrop-blur-none",
+          )}
+        >
+          <span
+            aria-hidden="true"
+            className={cn(
+              "pointer-events-none absolute inset-0 -z-10 rounded-[calc(var(--dock-radius)-1px)] bg-linear-to-b from-white/18 to-white/6 transition-opacity duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] motion-reduce:transition-none",
+              isScrolled ? "opacity-100" : "opacity-0",
+            )}
+          />
+
           <a
             href={content.brandHref}
             onClick={(event) => navigateToHref(event, content.brandHref, content.items[0]?.id)}
@@ -252,13 +296,24 @@ export function Header({ content }: HeaderProps) {
 
           <span
             aria-hidden="true"
-            className="mx-1 hidden h-5 w-px shrink-0 bg-white/15 lg:block"
+            className={cn(
+              "shrink-0 transition-[width] duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] motion-reduce:transition-none",
+              isScrolled ? "w-0" : "w-[52px] lg:w-[60px]",
+            )}
+          />
+
+          <span
+            aria-hidden="true"
+            className={cn(
+              "hidden h-5 shrink-0 bg-white/15 transition-[width,margin,opacity] duration-500 motion-reduce:transition-none lg:block",
+              isScrolled ? "mx-2 w-px opacity-100" : "mx-0 w-0 opacity-0",
+            )}
           />
 
           <nav
             ref={navRef}
             aria-label="Navegação principal"
-            className="relative hidden items-center gap-1 lg:flex"
+            className="relative hidden shrink-0 items-center gap-1 lg:flex"
           >
             <span
               ref={indicatorRef}
@@ -291,33 +346,43 @@ export function Header({ content }: HeaderProps) {
             })}
           </nav>
 
-          <a
-            href={content.cta.href}
-            target={ctaIsExternal ? "_blank" : undefined}
-            rel={ctaIsExternal ? "noopener noreferrer" : undefined}
-            onClick={(event) => navigateToHref(event, content.cta.href)}
-            className="group ml-1 hidden h-10 shrink-0 items-center gap-1.5 rounded-(--dock-inner-radius) bg-brand px-3.5 font-sans text-sm font-bold tracking-[-0.01em] whitespace-nowrap text-foreground shadow-[inset_0_1px_0_rgb(255_255_255/0.25)] transition-[filter] duration-300 hover:brightness-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/80 min-[420px]:flex sm:px-4 lg:text-[0.95rem]"
-          >
-            <span>{content.cta.label}</span>
-            <ArrowUpRight
-              strokeWidth={2.5}
-              className="size-4 shrink-0 transition-transform duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
-              aria-hidden="true"
-            />
-          </a>
+          <span
+            aria-hidden="true"
+            className={cn(
+              "hidden shrink-0 transition-[width] duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] motion-reduce:transition-none lg:block",
+              isScrolled ? "w-0" : "w-[52px]",
+            )}
+          />
 
-          <button
-            ref={menuButtonRef}
-            type="button"
-            aria-expanded={mobileMenuOpen}
-            aria-controls="mobile-menu"
-            aria-label={mobileMenuOpen ? "Fechar menu de navegação" : "Abrir menu de navegação"}
-            onClick={() => setMobileMenuOpen((prev) => !prev)}
-            className="ml-1 flex h-10 min-w-[44px] shrink-0 items-center justify-center gap-1.5 rounded-(--dock-inner-radius) bg-white/12 px-3 font-sans text-xs font-semibold text-white transition-colors duration-200 hover:bg-white/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70 sm:text-sm lg:hidden"
-          >
-            <Menu className="size-4 shrink-0" aria-hidden="true" />
-            <span>Menu</span>
-          </button>
+          <div className="flex shrink-0 items-center gap-2 pl-2">
+            <a
+              href={content.cta.href}
+              target={ctaIsExternal ? "_blank" : undefined}
+              rel={ctaIsExternal ? "noopener noreferrer" : undefined}
+              onClick={(event) => navigateToHref(event, content.cta.href)}
+              className="group hidden h-10 shrink-0 items-center gap-1.5 rounded-(--dock-inner-radius) bg-brand px-3.5 font-sans text-sm font-bold tracking-[-0.01em] whitespace-nowrap text-foreground shadow-[inset_0_1px_0_rgb(255_255_255/0.25)] transition-[filter] duration-300 hover:brightness-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/80 min-[420px]:flex sm:px-4 lg:text-[0.95rem]"
+            >
+              <span>{content.cta.label}</span>
+              <ArrowUpRight
+                strokeWidth={2.5}
+                className="size-4 shrink-0 transition-transform duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
+                aria-hidden="true"
+              />
+            </a>
+
+            <button
+              ref={menuButtonRef}
+              type="button"
+              aria-expanded={mobileMenuOpen}
+              aria-controls="mobile-menu"
+              aria-label={mobileMenuOpen ? "Fechar menu de navegação" : "Abrir menu de navegação"}
+              onClick={() => setMobileMenuOpen((prev) => !prev)}
+              className="flex h-10 min-w-[44px] shrink-0 items-center justify-center gap-1.5 rounded-(--dock-inner-radius) bg-white/12 px-3 font-sans text-xs font-semibold text-white transition-colors duration-200 hover:bg-white/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70 sm:text-sm lg:hidden"
+            >
+              <Menu className="size-4 shrink-0" aria-hidden="true" />
+              <span>Menu</span>
+            </button>
+          </div>
         </div>
       </header>
 

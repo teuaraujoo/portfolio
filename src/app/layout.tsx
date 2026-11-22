@@ -22,6 +22,14 @@ export const metadata: Metadata = {
   },
   description:
     "Portfólio de Mateus Araujo, Desenvolvedor FullStack em Aracaju, SE.",
+  icons: {
+    icon: [
+      { url: "/icon.svg", type: "image/svg+xml" },
+      { url: "/icon.png", type: "image/png" },
+    ],
+    shortcut: "/icon.png",
+    apple: "/icon.png",
+  },
 };
 
 export default function RootLayout({ children }: Readonly<{ children: ReactNode }>) {
@@ -30,6 +38,13 @@ export default function RootLayout({ children }: Readonly<{ children: ReactNode 
       lang="pt-BR"
       className={`${spaceGrotesk.variable} ${montserrat.variable} h-full antialiased`}
     >
+      <head>
+        <link
+          rel="stylesheet"
+          type="text/css"
+          href="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/devicon.min.css"
+        />
+      </head>
       <body className="min-h-full">
         <noscript>
           <style>{"#intro { display: none !important; }"}</style>

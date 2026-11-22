@@ -5,6 +5,7 @@ import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { ContributionSkyline } from "@/components/ui/contribution-skyline";
+import { SilkShaderBackground } from "@/components/ui/silk-shader-background";
 import type { ContributionDay, HeroContent } from "@/data/home";
 
 if (typeof window !== "undefined") {
@@ -148,11 +149,22 @@ export function Hero({ content, contributions, active }: HeroProps) {
       aria-label="Apresentação"
       className="relative min-h-svh lg:h-svh w-full overflow-hidden bg-background text-foreground px-[clamp(20px,4vw,56px)] pt-24 pb-6 md:pt-28 md:pb-8"
     >
-      <div className="mx-auto grid h-full max-w-[1600px] grid-cols-1 gap-8 lg:grid-cols-[minmax(0,1.25fr)_minmax(0,0.75fr)] lg:items-stretch lg:gap-8 xl:gap-10">
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 z-0 overflow-hidden"
+      >
+        <SilkShaderBackground className="size-full" />
+        {/* Subtle readability veil preserving WCAG contrast over luminous #916BBF bands */}
+        <div className="absolute inset-0 bg-linear-to-r from-background/50 via-background/20 to-background/40" />
+        {/* Seamless bottom transition into #sobre (#0D0D0D) */}
+        <div className="absolute inset-x-0 bottom-0 h-32 bg-linear-to-b from-transparent to-background md:h-44" />
+      </div>
+
+      <div className="mx-auto relative z-10 grid h-full max-w-[1600px] grid-cols-1 gap-8 lg:grid-cols-[minmax(0,1.25fr)_minmax(0,0.75fr)] lg:items-stretch lg:gap-8 xl:gap-10">
         <div className="flex flex-col items-start lg:justify-center">
           <h1
             aria-label={`${content.firstName} ${content.lastName}`}
-            className="hero-name max-w-full font-display font-medium text-[clamp(4.5rem,13vw,14.5rem)] leading-[0.84] tracking-[-0.055em]"
+            className="hero-name max-w-full font-display font-medium text-[clamp(4.5rem,13vw,14.5rem)] lg:text-[clamp(4.5rem,min(13vw,20svh),14.5rem)] leading-[0.84] tracking-[-0.055em]"
           >
             <span
               className="line hero-parallax-title-1 ml-[-0.04em] block overflow-hidden pt-[0.04em] pb-[0.06em] will-change-transform"
@@ -188,11 +200,26 @@ export function Hero({ content, contributions, active }: HeroProps) {
 
             <p
               data-hero-fade=""
-              className="hero-lead mt-6 max-w-[46ch] font-sans text-[clamp(0.95rem,1.2vw,1.125rem)] leading-[1.6] text-muted-foreground"
+              className="hero-lead mt-5 max-w-[48ch] font-sans text-[clamp(0.95rem,1.15vw,1.125rem)] leading-[1.55] text-muted-foreground"
             >
               {content.leadSegments.map((segment, index) =>
                 segment.highlight ? (
                   <strong key={index} className="font-medium text-foreground">
+                    {segment.text}
+                  </strong>
+                ) : (
+                  <Fragment key={index}>{segment.text}</Fragment>
+                ),
+              )}
+            </p>
+
+            <p
+              data-hero-fade=""
+              className="hero-bio mt-3 max-w-[52ch] font-sans text-[clamp(0.875rem,1.02vw,0.975rem)] leading-[1.6] text-muted-foreground/90"
+            >
+              {content.bioSegments.map((segment, index) =>
+                segment.highlight ? (
+                  <strong key={index} className="font-medium text-foreground/95">
                     {segment.text}
                   </strong>
                 ) : (
