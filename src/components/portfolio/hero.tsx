@@ -1,102 +1,233 @@
 "use client";
 
-import { useRef } from "react";
+import { Fragment, useEffect, useRef } from "react";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { ContributionSkyline } from "@/components/ui/contribution-skyline";
+import type { ContributionDay, HeroContent } from "@/data/home";
 
-const stack = ["Next.js", "Tailwind", "shadcn/ui", "GSAP"];
+if (typeof window !== "undefined") {
+  gsap.registerPlugin(ScrollTrigger);
+}
 
-export function Hero() {
+export interface HeroProps {
+  content: HeroContent;
+  contributions?: ContributionDay[];
+  active: boolean;
+}
+
+function splitChars(text: string, prefix: string) {
+  return Array.from(text).map((char, index) => (
+    <span
+      key={`${prefix}-${index}`}
+      className="char inline-block will-change-transform"
+    >
+      {char === " " ? "\u00A0" : char}
+    </span>
+  ));
+}
+
+/**
+ * Full-viewport editorial Hero section with asymmetrical 2-column layout
+ * (left identity & narrative, right GitHub Contribution Skyline & scroll cue),
+ * staggered character reveal, and reduced-motion support.
+ */
+export function Hero({ content, contributions, active }: HeroProps) {
   const scope = useRef<HTMLElement>(null);
+  const timelineRef = useRef<gsap.core.Timeline | null>(null);
+  const activeRef = useRef(active);
+  const hasCompletedRef = useRef(false);
 
   useGSAP(
     () => {
-      const media = gsap.matchMedia();
+      const mm = gsap.matchMedia();
 
-      media.add("(prefers-reduced-motion: no-preference)", () => {
-        const timeline = gsap.timeline({ defaults: { ease: "expo.out" } });
-
-        timeline
-          .from("[data-reveal='nav']", { autoAlpha: 0, y: -20, duration: 0.8 })
-          .from(
-            "[data-reveal='hero']",
-            { autoAlpha: 0, y: 56, duration: 1.1, stagger: 0.1 },
-            "-=0.45",
-          )
-          .from(
-            "[data-reveal='stack']",
-            { autoAlpha: 0, x: -18, duration: 0.7, stagger: 0.07 },
-            "-=0.65",
-          );
+      mm.add("(prefers-reduced-motion: reduce)", () => {
+        hasCompletedRef.current = true;
+        gsap.set(
+          [
+            ".hero-name .char",
+            "[data-hero-fade]",
+            ".hero-parallax-title-1",
+            ".hero-parallax-title-2",
+            ".hero-parallax-copy",
+            ".hero-parallax-map",
+            ".hero-parallax-foot",
+          ],
+          {
+            clearProps: "opacity,visibility,transform",
+          },
+        );
       });
 
-      return () => media.revert();
+      mm.add("(prefers-reduced-motion: no-preference)", () => {
+        const timeline = gsap.timeline({
+          paused: true,
+          defaults: { ease: "expo.out" },
+          onComplete: () => {
+            hasCompletedRef.current = true;
+          },
+        });
+
+        timeline
+          .from(
+            ".hero-name .char",
+            { yPercent: 135, duration: 1.4, stagger: 0.045 },
+            0.1,
+          )
+          .from(
+            "[data-hero-fade]",
+            { y: 20, autoAlpha: 0, duration: 1.2, stagger: 0.08 },
+            0.5,
+          );
+
+        timelineRef.current = timeline;
+
+        if (hasCompletedRef.current) {
+          timeline.progress(1);
+        } else if (activeRef.current) {
+          timeline.play();
+        }
+
+        return () => {
+          timelineRef.current = null;
+        };
+      });
+
+      mm.add(
+        "(min-width: 1024px) and (prefers-reduced-motion: no-preference)",
+        () => {
+          if (!scope.current) return;
+
+          const parallaxTl = gsap.timeline({
+            scrollTrigger: {
+              trigger: scope.current,
+              start: "top top",
+              end: "bottom top",
+              scrub: true,
+              invalidateOnRefresh: true,
+            },
+          });
+
+          parallaxTl
+            .to(
+              ".hero-parallax-title-1",
+              { y: 48, opacity: 0.22, ease: "none" },
+              0,
+            )
+            .to(
+              ".hero-parallax-title-2",
+              { y: 78, opacity: 0.18, ease: "none" },
+              0,
+            )
+            .to(".hero-parallax-copy", { y: -22, opacity: 0.28, ease: "none" }, 0)
+            .to(".hero-parallax-map", { y: -76, opacity: 0.15, ease: "none" }, 0)
+            .to(".hero-parallax-foot", { y: -36, opacity: 0, ease: "none" }, 0);
+        },
+      );
+
+      return () => {
+        mm.revert();
+      };
     },
     { scope },
   );
 
+  useEffect(() => {
+    activeRef.current = active;
+    if (active && timelineRef.current && !hasCompletedRef.current) {
+      timelineRef.current.play();
+    }
+  }, [active]);
+
   return (
-    <main ref={scope} className="relative isolate min-h-[100dvh] overflow-hidden px-4 py-6 sm:px-8">
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-px bg-gradient-to-r from-transparent via-brand-bright to-transparent opacity-70"
-      />
-
-      <nav
-        data-reveal="nav"
-        aria-label="Navegação principal"
-        className="mx-auto flex max-w-[90rem] items-center justify-between"
-      >
-        <a href="#inicio" className="font-display text-sm font-semibold tracking-[-0.02em]">
-          Portfolio<span className="text-brand-bright">.</span>
-        </a>
-        <span className="flex items-center gap-2 text-[0.65rem] font-medium uppercase tracking-[0.18em] text-muted-foreground">
-          <span className="size-1.5 rounded-full bg-brand-bright" aria-hidden="true" />
-          Em construção
-        </span>
-      </nav>
-
-      <section
-        id="inicio"
-        className="mx-auto grid min-h-[calc(100dvh-4.5rem)] max-w-[90rem] content-center gap-16 py-24 md:grid-cols-[minmax(0,1fr)_18rem] md:items-end md:gap-8 md:py-32"
-      >
-        <div className="max-w-5xl">
-          <p
-            data-reveal="hero"
-            className="mb-8 text-[0.65rem] font-semibold uppercase tracking-[0.22em] text-brand-bright"
+    <section
+      ref={scope}
+      id="hero"
+      aria-label="Apresentação"
+      className="relative min-h-svh lg:h-svh w-full overflow-hidden bg-background text-foreground px-[clamp(20px,4vw,56px)] pt-24 pb-6 md:pt-28 md:pb-8"
+    >
+      <div className="mx-auto grid h-full max-w-[1600px] grid-cols-1 gap-8 lg:grid-cols-[minmax(0,1.25fr)_minmax(0,0.75fr)] lg:items-stretch lg:gap-8 xl:gap-10">
+        <div className="flex flex-col items-start lg:justify-center">
+          <h1
+            aria-label={`${content.firstName} ${content.lastName}`}
+            className="hero-name max-w-full font-display font-medium text-[clamp(4.5rem,13vw,14.5rem)] leading-[0.84] tracking-[-0.055em]"
           >
-            Creative developer · 2026
-          </p>
-          <h1 className="font-display text-[clamp(4rem,12vw,11rem)] font-medium leading-[0.8] tracking-[-0.075em]">
-            <span data-reveal="hero" className="block">
-              Digital
+            <span
+              className="line hero-parallax-title-1 ml-[-0.04em] block overflow-hidden pt-[0.04em] pb-[0.06em] will-change-transform"
+              aria-hidden="true"
+            >
+              <span className="line-inner block pr-[0.04em] will-change-transform">
+                {splitChars(content.firstName, "first")}
+              </span>
             </span>
-            <span data-reveal="hero" className="block text-muted-foreground">
-              experiences
-            </span>
-            <span data-reveal="hero" className="block">
-              with intent<span className="text-brand-bright">.</span>
+            <span
+              className="line hero-parallax-title-2 -mt-[0.04em] block overflow-hidden pt-[0.04em] pb-[0.22em] will-change-transform"
+              aria-hidden="true"
+            >
+              <span className="line-inner block pl-[0.75em] pr-[0.04em] lg:pl-[0.85em] will-change-transform">
+                {splitChars(content.lastName, "last")}
+              </span>
             </span>
           </h1>
-        </div>
 
-        <div className="md:pb-2">
-          <p data-reveal="hero" className="mb-8 max-w-xs text-sm leading-7 text-muted-foreground">
-            Uma base enxuta para construir um portfólio autoral, performático e guiado por movimento.
-          </p>
-          <div className="flex flex-wrap gap-x-4 gap-y-3" aria-label="Tecnologias principais">
-            {stack.map((item) => (
+          <div className="hero-parallax-copy flex max-w-full flex-col items-start will-change-transform">
+            <div
+              data-hero-fade=""
+              className="hero-eyebrow mt-3 inline-flex max-w-full flex-wrap items-center gap-x-3 gap-y-1.5 rounded-full border border-white/14 bg-white/[0.04] px-4 py-2.5 text-[clamp(13px,1.05vw,15px)] leading-none sm:flex-nowrap sm:whitespace-nowrap backdrop-blur-md"
+            >
               <span
-                key={item}
-                data-reveal="stack"
-                className="text-[0.65rem] font-semibold uppercase tracking-[0.16em] text-foreground/70"
-              >
-                {item}
-              </span>
-            ))}
+                className="size-2 shrink-0 rounded-full bg-brand-bright animate-hero-pulse"
+                aria-hidden="true"
+              />
+              <span className="font-medium text-foreground">{content.role}</span>
+              <span className="h-3.5 w-px bg-white/20" aria-hidden="true" />
+              <span className="text-muted-foreground">{content.location}</span>
+            </div>
+
+            <p
+              data-hero-fade=""
+              className="hero-lead mt-6 max-w-[46ch] font-sans text-[clamp(0.95rem,1.2vw,1.125rem)] leading-[1.6] text-muted-foreground"
+            >
+              {content.leadSegments.map((segment, index) =>
+                segment.highlight ? (
+                  <strong key={index} className="font-medium text-foreground">
+                    {segment.text}
+                  </strong>
+                ) : (
+                  <Fragment key={index}>{segment.text}</Fragment>
+                ),
+              )}
+            </p>
           </div>
         </div>
-      </section>
-    </main>
+
+        <div className="flex flex-col items-start lg:h-full lg:items-end lg:justify-end">
+          <div className="hero-parallax-map w-full max-w-[400px] lg:mt-auto lg:mb-4 lg:self-end xl:max-w-[440px] will-change-transform">
+            <div data-hero-fade="">
+              <ContributionSkyline
+                {...content.gitMap}
+                data={contributions ?? content.gitMap.data}
+                animate={active}
+                footer={null}
+              />
+            </div>
+          </div>
+
+          <div className="hero-parallax-foot mt-6 w-full lg:mt-0 will-change-transform">
+            <div data-hero-fade="" className="hero-foot flex w-full justify-end">
+              <a
+                href={content.scrollHint.targetHref}
+                className="inline-flex min-h-[44px] items-center gap-1.5 rounded-md px-1 font-sans text-[11px] font-medium uppercase tracking-[0.08em] text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              >
+                <span>{content.scrollHint.label}</span>
+                <span aria-hidden="true">↓</span>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
   );
 }
