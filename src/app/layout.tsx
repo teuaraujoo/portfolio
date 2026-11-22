@@ -17,11 +17,11 @@ const montserrat = Montserrat({
 
 export const metadata: Metadata = {
   title: {
-    default: "Portfolio — Creative Developer",
-    template: "%s | Portfolio",
+    default: "Mateus Araujo — Desenvolvedor FullStack",
+    template: "%s | Mateus Araujo",
   },
   description:
-    "Portfólio de desenvolvimento criativo, interfaces e experiências digitais.",
+    "Portfólio de Mateus Araujo, Desenvolvedor FullStack em Aracaju, SE.",
 };
 
 export default function RootLayout({ children }: Readonly<{ children: ReactNode }>) {
@@ -30,7 +30,12 @@ export default function RootLayout({ children }: Readonly<{ children: ReactNode 
       lang="pt-BR"
       className={`${spaceGrotesk.variable} ${montserrat.variable} h-full antialiased`}
     >
-      <body className="min-h-full">{children}</body>
+      <body className="min-h-full">
+        <noscript>
+          <style>{"#intro { display: none !important; }"}</style>
+        </noscript>
+        {children}
+      </body>
     </html>
   );
 }
