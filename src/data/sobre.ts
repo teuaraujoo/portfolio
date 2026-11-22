@@ -14,6 +14,7 @@ export interface QuoteSegment {
 export interface SobreStat {
   id: string;
   value: number;
+  prefix?: string;
   suffix?: string;
   label: string;
 }
@@ -45,29 +46,29 @@ export interface SobreContent {
 export const sobreData: SobreContent = {
   eyebrow: "Sobre mim",
   quoteAriaLabel:
-    "Lorem ipsum dolor sit amet, consectetur adipiscing elit sed eiusmod tempor incididunt. Labore et dolore magna: aliqua ut enim ad minim veniam quis nostrud, exercitation ullamco nisi aliquip.",
+    "Escolhi a tecnologia por ser autodidata e gostar de resolver problemas com autonomia. Hoje atuo construindo produtos digitais completos, da interface até o deploy, sem deixar pontas soltas.",
   segments: [
-    { text: "Lorem ipsum ", annotation: "none" },
-    { text: "dolor sit", annotation: "brush", tone: "brand", delayMs: 150 },
-    { text: " amet, consectetur adipiscing elit sed ", annotation: "none" },
-    { text: "eiusmod", annotation: "circle", delayMs: 600 },
-    { text: " tempor incididunt. Labore ", annotation: "none" },
+    { text: "Escolhi a tecnologia por ser ", annotation: "none" },
+    { text: "autodidata", annotation: "brush", tone: "brand", delayMs: 150 },
+    { text: " e gostar de resolver ", annotation: "none" },
+    { text: "problemas", annotation: "circle", delayMs: 600 },
+    { text: " com autonomia. Hoje atuo construindo ", annotation: "none" },
     {
-      text: "et dolore magna",
+      text: "produtos digitais completos",
       annotation: "brush",
       tone: "bright",
       sparkAfter: true,
       delayMs: 1050,
     },
-    { text: ": aliqua ut enim ad minim veniam ", annotation: "none" },
+    { text: ", ", annotation: "none" },
     {
-      text: "quis nostrud",
+      text: "da interface",
       annotation: "brush",
       tone: "subtle",
       delayMs: 1550,
     },
-    { text: ", exercitation ullamco ", annotation: "none" },
-    { text: "nisi aliquip.", annotation: "underline", delayMs: 2000 },
+    { text: " até o deploy, sem deixar ", annotation: "none" },
+    { text: "pontas soltas.", annotation: "underline", delayMs: 2000 },
   ],
   photo: {
     src: "/foto_rosto.jpg",
@@ -88,8 +89,8 @@ export const sobreData: SobreContent = {
     ],
   },
   stats: [
-    { id: "stat-1", value: 12, suffix: "+", label: "Lorem ipsum" },
-    { id: "stat-2", value: 37, label: "Dolor sit amet" },
-    { id: "stat-3", value: 15, suffix: "+", label: "Consectetur elit" },
+    { id: "stat-1", value: 5, prefix: "+", label: "projetos" },
+    { id: "stat-2", value: 10, prefix: "+", label: "certificados" },
+    { id: "stat-3", value: 2, prefix: "+", label: "formações" },
   ],
 };

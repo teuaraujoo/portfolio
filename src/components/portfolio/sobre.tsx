@@ -116,6 +116,8 @@ export function Sobre({ content }: SobreProps) {
       mm.add("(prefers-reduced-motion: reduce)", () => {
         gsap.set(".about-photo-inner", { clearProps: "clipPath" });
         gsap.set(".about-photo-parallax", { clearProps: "transform" });
+        gsap.set(".about-stats-separator", { clearProps: "all" });
+        gsap.set(".about-stat-item", { clearProps: "opacity,visibility,transform" });
 
         const counters = gsap.utils.toArray<HTMLElement>("[data-count]", scope.current);
         for (const el of counters) {
@@ -156,31 +158,67 @@ export function Sobre({ content }: SobreProps) {
           },
         );
 
-        const counters = gsap.utils.toArray<HTMLElement>("[data-count]", scope.current);
-        for (const el of counters) {
-          const targetValue = Number(el.dataset.count ?? 0);
-          if (!Number.isFinite(targetValue)) continue;
+        gsap.from(".about-stats-separator", {
+          autoAlpha: 0,
+          duration: 0.85,
+          ease: "power2.out",
+          clearProps: "opacity,visibility",
+          scrollTrigger: {
+            trigger: ".about-stats",
+            start: "top 80%",
+            once: true,
+          },
+        });
 
+        gsap.from(".about-stat-item", {
+          y: 18,
+          autoAlpha: 0,
+          duration: 0.75,
+          stagger: 0.12,
+          ease: "expo.out",
+          clearProps: "opacity,visibility,transform",
+          scrollTrigger: {
+            trigger: ".about-stats",
+            start: "top 80%",
+            once: true,
+          },
+        });
+
+        const counters = gsap.utils.toArray<HTMLElement>("[data-count]", scope.current);
+        const restoreTargets: Array<{ el: HTMLElement; targetValue: number }> = [];
+
+        counters.forEach((el, i) => {
+          const targetValue = Number(el.dataset.count ?? 0);
+          if (!Number.isFinite(targetValue)) return;
+
+          restoreTargets.push({ el, targetValue });
           const counter = { value: 0 };
           el.textContent = "0";
 
           gsap.to(counter, {
             value: targetValue,
-            duration: 1.8,
-            ease: "power2.out",
+            duration: 1.5,
+            delay: i * 0.14,
+            ease: "power1.out",
             scrollTrigger: {
-              trigger: el,
-              start: "top 90%",
+              trigger: ".about-stats",
+              start: "top 80%",
               once: true,
             },
             onUpdate: () => {
-              el.textContent = String(Math.round(counter.value));
+              el.textContent = String(Math.floor(counter.value));
             },
             onComplete: () => {
               el.textContent = String(targetValue);
             },
           });
-        }
+        });
+
+        return () => {
+          for (const { el, targetValue } of restoreTargets) {
+            el.textContent = String(targetValue);
+          }
+        };
       });
 
       return () => {
@@ -277,14 +315,23 @@ export function Sobre({ content }: SobreProps) {
           </figure>
         </div>
 
-        <div className="mx-auto mt-20 max-w-4xl border-t border-border lg:mt-28">
+        <div className="mx-auto mt-20 max-w-4xl lg:mt-28">
+          <div
+            aria-hidden="true"
+            className="about-stats-separator h-px w-full bg-border"
+          />
           <ul className="about-stats grid grid-cols-1 gap-x-8 sm:grid-cols-3">
             {content.stats.map((stat) => (
               <li
                 key={stat.id}
-                className="flex flex-col items-center gap-3 border-b border-border py-6 text-center md:py-8"
+                className="about-stat-item flex flex-col items-center gap-3 border-b border-border py-6 text-center md:py-8"
               >
                 <span className="stat-num font-display text-[clamp(3rem,6vw,6rem)] font-medium leading-[0.9] tracking-[-0.045em] text-foreground tabular-nums">
+                  {stat.prefix ? (
+                    <sup className="-top-[1.05em] mr-1 text-[0.34em] tracking-normal text-brand-bright">
+                      {stat.prefix}
+                    </sup>
+                  ) : null}
                   <span data-count={stat.value}>{stat.value}</span>
                   {stat.suffix ? (
                     <sup className="-top-[1.05em] ml-1 text-[0.34em] tracking-normal text-brand-bright">
