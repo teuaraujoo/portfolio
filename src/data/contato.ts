@@ -80,7 +80,7 @@ export const contatoContent: ContatoContent = {
     resetLabel: "Enviar outra mensagem",
     successTitle: "Mensagem recebida!",
     successDescription:
-      "Obrigado pelo contato. Lorem ipsum dolor sit amet, consectetur adipiscing elit — retornarei assim que possível.",
+      "Obrigado pelo contato. Sua mensagem foi encaminhada e retornarei o mais breve possível.",
     errorMessage:
       "Não foi possível enviar sua mensagem. Tente novamente ou utilize uma das redes abaixo.",
     validation: {

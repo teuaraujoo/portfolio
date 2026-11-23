@@ -83,9 +83,9 @@ export const sobreData: SobreContent = {
     title: "Mateus Araujo",
     subtitle: "Desenvolvedor FullStack · Aracaju, SE",
     paragraphs: [
-      "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua, ut enim ad minim veniam quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
-      "Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum curabitur pretium.",
-      "Integer nec odio praesent libero sed cursus ante dapibus diam. Sed nisi nulla quis sem at nibh elementum imperdiet, duis sagittis ipsum praesent mauris fusce nec tellus sed augue semper porta mauris massa.",
+      "Sou autodidata e encontrei na tecnologia o caminho para resolver problemas do meu jeito. Iniciei minha base técnica em desenvolvimento fullstack pelo programa Jovem Tech (INOVA-SE em parceria com o MCTI) e atualmente curso Análise e Desenvolvimento de Sistemas na UNIT-SE.",
+      "Atuo como Desenvolvedor FullStack na DelFinance, uma das maiores fintechs de Sergipe, transformando necessidades reais em soluções digitais completas — da interface e experiência do usuário até a arquitetura de backend, banco de dados e deploy.",
+      "Também participo ativamente da comunidade tecnológica como Embaixador Estudantil da Google e em iniciativas como o HackAI, conectando aprendizado contínuo, troca técnica e desenvolvimento de produtos como o Anatolab, CMF, Civix e Mapae.",
     ],
   },
   stats: [
