@@ -162,10 +162,10 @@ export function Hero({ content, contributions, active }: HeroProps) {
 
       <div className="mx-auto relative z-10 grid h-full max-w-[1600px] grid-cols-1 gap-8 lg:grid-cols-[minmax(0,1.25fr)_minmax(0,0.75fr)] lg:items-stretch lg:gap-8 xl:gap-10">
         <div className="flex flex-col items-start lg:justify-center">
-          <h1
-            aria-label={`${content.firstName} ${content.lastName}`}
-            className="hero-name max-w-full font-display font-medium text-[clamp(4.5rem,13vw,14.5rem)] lg:text-[clamp(4.5rem,min(13vw,20svh),14.5rem)] leading-[0.84] tracking-[-0.055em]"
-          >
+          <h1 className="hero-name max-w-full font-display font-medium text-[clamp(4.5rem,13vw,14.5rem)] lg:text-[clamp(4.5rem,min(13vw,20svh),14.5rem)] leading-[0.84] tracking-[-0.055em]">
+            <span className="sr-only">
+              {`${content.firstName} ${content.lastName} — ${content.role} em ${content.location}`}
+            </span>
             <span
               className="line hero-parallax-title-1 ml-[-0.04em] block overflow-hidden pt-[0.04em] pb-[0.06em] will-change-transform"
               aria-hidden="true"

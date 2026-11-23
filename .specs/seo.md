@@ -22,7 +22,7 @@ Esta especificação define a arquitetura de **SEO Técnico** (*Search Engine Op
    - [src/data/contato.ts](../src/data/contato.ts) (linha 83): texto interno em `contatoContent.form.successDescription`.
 7. **CSS externo bloqueante e não versionado:** `<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/devicon.min.css" />` no `<head>` de [src/app/layout.tsx](../src/app/layout.tsx) (linhas 41–47), consumido pelas classes de [src/components/portfolio/skill-icons.tsx](../src/components/portfolio/skill-icons.tsx).
 8. **Imagens sem otimização `next/image` (parcialmente convertidas para WebP):** Jornada (`public/jornada/*.webp`) e projetos em destaque (`anatolab`, `cmf`, `civix`, `bahia` em `.webp`) já foram convertidos para WebP (com os `.png` de backup removidos) e referenciados em WebP; apenas [public/foto_rosto.jpg](../public/foto_rosto.jpg) (~924 KB) e as 3 capas de arquivo (`calculadora`, `lista-tarefas`, `lampada` em `capa.png`) permanecem em formato não-WebP servidos via tags `<img>` diretas aguardando adoção de `next/image`.
-9. **7 arquivos não referenciados em `public/`:** `file.svg`, `globe.svg`, `next.svg`, `vercel.svg`, `window.svg`, `log.svg` e `logo.png` permanecem sem uso no código-fonte.
+9. **6 arquivos não referenciados em `public/`:** `file.svg`, `globe.svg`, `next.svg`, `vercel.svg`, `window.svg` e `logo.png` permanecem sem uso no código-fonte (`public/log.svg` foi renomeado para `public/logo.svg` e passou a ser utilizado no Footer).
 
 ---
 
@@ -270,16 +270,15 @@ Ativos acima de ~200 KB identificados em `public/` devem ser comprimidos (WebP/A
 - **Únicos ativos restantes em formato não-WebP (pendentes de conversão para WebP/AVIF e `next/image`):** [public/foto_rosto.jpg](../public/foto_rosto.jpg) (~924 KB, consumido em [src/components/portfolio/sobre.tsx](../src/components/portfolio/sobre.tsx), linha 281) e os 3 `capa.png` do arquivo (`calculadora`, `lista-tarefas`, `lampada`).
 
 #### 5.4 Limpeza de Arquivos Não Utilizados em `public/`
-Remover os 7 arquivos de template/legado sem referência no código:
+Remover os 6 arquivos de template/legado sem referência no código:
 - `public/file.svg`
 - `public/globe.svg`
 - `public/next.svg`
 - `public/vercel.svg`
 - `public/window.svg`
-- `public/log.svg`
 - `public/logo.png`
 
-*(Manter `public/icon.svg` e `public/icon.png`, que são usados pelo header e pelos ícones do documento.)*
+*(Manter `public/icon.svg`, `public/icon.png` — usados pelo header e pelos ícones do documento — e `public/logo.svg`, ativo na barra inferior do Footer.)*
 
 ---
 
@@ -307,7 +306,7 @@ Confirmar status `HTTP 200` e conteúdo válido em:
 - [ ] Zero ocorrências de `"Lorem ipsum"` em `src/` e no HTML final.
 - [ ] Zero `<link>` bloqueante para `devicon@latest` no `<head>`.
 - [ ] Headers `X-Content-Type-Options`, `Referrer-Policy`, `X-Frame-Options` e `Permissions-Policy` presentes nas respostas HTTP.
-- [ ] Os 7 arquivos legados removidos de `public/` sem quebrar referências existentes.
+- [ ] Os 6 arquivos legados removidos de `public/` sem quebrar referências existentes.
 
 ### 4.4 Verificação Pós-Deploy em Produção
 Após publicar no domínio definitivo (`NEXT_PUBLIC_SITE_URL`):

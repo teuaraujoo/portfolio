@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Montserrat, Space_Grotesk } from "next/font/google";
 import type { ReactNode } from "react";
+import { DeviconStylesheet } from "@/components/portfolio/devicon-stylesheet";
+import { getSiteMetadata } from "@/lib/seo";
 import "./globals.css";
 
 const spaceGrotesk = Space_Grotesk({
@@ -15,22 +17,7 @@ const montserrat = Montserrat({
   display: "swap",
 });
 
-export const metadata: Metadata = {
-  title: {
-    default: "Mateus Araujo — Desenvolvedor FullStack",
-    template: "%s | Mateus Araujo",
-  },
-  description:
-    "Portfólio de Mateus Araujo, Desenvolvedor FullStack em Aracaju, SE.",
-  icons: {
-    icon: [
-      { url: "/icon.svg", type: "image/svg+xml" },
-      { url: "/icon.png", type: "image/png" },
-    ],
-    shortcut: "/icon.png",
-    apple: "/icon.png",
-  },
-};
+export const metadata: Metadata = getSiteMetadata();
 
 export default function RootLayout({ children }: Readonly<{ children: ReactNode }>) {
   return (
@@ -39,16 +26,13 @@ export default function RootLayout({ children }: Readonly<{ children: ReactNode 
       className={`${spaceGrotesk.variable} ${montserrat.variable} h-full antialiased`}
     >
       <head>
-        <link
-          rel="stylesheet"
-          type="text/css"
-          href="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/devicon.min.css"
-        />
+        <link rel="dns-prefetch" href="https://cdn.jsdelivr.net" />
       </head>
       <body className="min-h-full">
         <noscript>
           <style>{"#intro { display: none !important; }"}</style>
         </noscript>
+        <DeviconStylesheet />
         {children}
       </body>
     </html>
