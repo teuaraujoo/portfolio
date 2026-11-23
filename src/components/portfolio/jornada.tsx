@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { Timeline } from "@/components/ui/timeline";
 import type {
   JornadaCategoryMeta,
@@ -67,17 +68,14 @@ function JornadaStopCard({
         >
           <div className="journey-stop-media relative aspect-square w-full overflow-hidden rounded-[12px] border border-white/10 bg-card transition-colors duration-300 group-hover/stop-photo:border-brand-bright/50 motion-reduce:transition-none">
             <div className="journey-stop-media-inner size-full">
-              <div className="size-full transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover/stop-photo:scale-[1.03] motion-reduce:transition-none">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
+              <div className="relative size-full transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover/stop-photo:scale-[1.03] motion-reduce:transition-none">
+                <Image
                   src={stop.media.src}
                   alt={stop.media.alt}
-                  width={800}
-                  height={800}
-                  loading="lazy"
-                  decoding="async"
+                  fill
+                  sizes="(min-width: 900px) 320px, 92vw"
                   draggable={false}
-                  className="size-full object-cover object-center"
+                  className="object-cover object-center"
                 />
               </div>
             </div>
@@ -106,18 +104,15 @@ function JornadaStopCard({
               {stop.media.images.map((image) => (
                 <div
                   key={image.src}
-                  className="aspect-[4/5] overflow-hidden rounded-[8px]"
+                  className="relative aspect-[4/5] overflow-hidden rounded-[8px]"
                 >
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
+                  <Image
                     src={image.src}
                     alt={image.alt}
-                    width={640}
-                    height={800}
-                    loading="lazy"
-                    decoding="async"
+                    fill
+                    sizes="(min-width: 900px) 220px, 46vw"
                     draggable={false}
-                    className="size-full object-cover object-center transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover/stop-photo:scale-[1.03] motion-reduce:transition-none"
+                    className="object-cover object-center transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover/stop-photo:scale-[1.03] motion-reduce:transition-none"
                   />
                 </div>
               ))}

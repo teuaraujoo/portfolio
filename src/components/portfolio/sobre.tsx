@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { Fragment, useEffect, useRef, useState, type MouseEvent } from "react";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
@@ -277,16 +278,15 @@ export function Sobre({ content }: SobreProps) {
             >
               <div className="about-photo-inner relative aspect-square w-full overflow-hidden rounded-[12px] border border-white/10 bg-card transition-colors duration-300 group-hover/photo:border-brand-bright/50 motion-reduce:transition-none">
                 <div className="h-full w-full transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover/photo:scale-[1.03] motion-reduce:transition-none">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={content.photo.src}
-                    alt={content.photo.alt}
-                    width={800}
-                    height={800}
-                    loading="lazy"
-                    decoding="async"
-                    className="about-photo-parallax h-[115%] w-full max-w-none object-cover object-[50%_25%] will-change-transform"
-                  />
+                  <div className="about-photo-parallax relative h-[115%] w-full will-change-transform">
+                    <Image
+                      src={content.photo.src}
+                      alt={content.photo.alt}
+                      fill
+                      sizes="(min-width: 1024px) 400px, 92vw"
+                      className="object-cover object-[50%_25%]"
+                    />
+                  </div>
                 </div>
               </div>
 

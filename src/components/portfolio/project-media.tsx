@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useEffect, useRef } from "react";
 import type { ProjectMedia as ProjectMediaData } from "@/data/projetos";
 import { cn } from "@/lib/utils";
@@ -579,14 +580,17 @@ export function ProjectMedia({
   if (media.type === "image") {
     return (
       <div className={cn("relative size-full overflow-hidden bg-[#0D0D0D]", className)}>
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
+        <Image
           src={media.src}
           alt={media.alt}
-          loading={priority ? "eager" : "lazy"}
-          decoding="async"
+          fill
+          priority={priority}
+          sizes={
+            interactive
+              ? "(min-width: 1024px) 960px, 95vw"
+              : "(min-width: 900px) 58vw, 95vw"
+          }
           className={cn(
-            "size-full",
             media.fit === "cover" ? "object-cover" : "object-contain",
             media.fit === "contain" && "p-2 sm:p-4",
           )}
