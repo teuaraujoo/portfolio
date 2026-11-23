@@ -27,11 +27,11 @@ Conforme definido pelo usuário, **não** utilizaremos o layout nem a paleta do 
 Seguindo [ARCHITECTURE.md](../docs/ARCHITECTURE.md):
 
 - **Camada de dados tipada (`src/data/footer.ts`):**
-  - Centraliza `wordmark` (`"Mateus Araujo"`), `copyright` (`"© 2026 Mateus Araujo. Todos os direitos reservados."`), `backToTopLabel` (`"Voltar para topo"`), `backToTopAriaLabel` (`"Voltar para o topo da página"`), `wordmarkWeight` (`450`) e `enableLens` (`true`).
+  - Centraliza `wordmark` (`"Mateus Araujo"`), `copyright` (`"© 2026 Mateus Araujo. Todos os direitos reservados."`), `logoSrc` (`"/logo.svg"`), `logoAlt` (`"teuaraujoo — Mateus Araujo"`), `backToTopLabel` (`"Voltar para topo"`), `backToTopAriaLabel` (`"Voltar para o topo da página"`), `wordmarkWeight` (`450`) e `enableLens` (`true`).
 - **Primitive isolada do efeito (`src/components/ui/kiln-wordmark.tsx`):**
   - `"use client"` — implementa `<KilnWordmark />` reutilizável em largura total (`w-full`) com `Space Grotesk` variável, auto-fit via `ResizeObserver` + `document.fonts.ready`, travamento de largura por slot de caractere, lente gaussiana em `rAF` e carimbo via Web Animations API.
 - **Componente do Footer (`src/components/portfolio/footer.tsx`):**
-  - `"use client"` — renderiza a tag semântica `<footer>` minimalista: nome gigante ocupando a largura da tela via `<KilnWordmark />`, separador horizontal e barra inferior com aviso de copyright à esquerda e botão **`Voltar para topo ↑`** à direita abaixo do separador.
+  - `"use client"` — renderiza a tag semântica `<footer>` minimalista: nome gigante ocupando a largura da tela via `<KilnWordmark />`, separador horizontal e barra inferior com aviso de copyright à esquerda, logo da marca (`/logo.svg`) centralizada e botão **`Voltar para topo ↑`** à direita abaixo do separador.
 - **Integração:**
   - Renderizado em [src/components/portfolio/home-shell.tsx](../src/components/portfolio/home-shell.tsx) logo após `<main>` (fechando o documento fora de `<main>`), alimentado por `footerContent` passado de [src/app/page.tsx](../src/app/page.tsx).
 
@@ -59,14 +59,17 @@ Estrutura estritamente minimalista conforme pedido do usuário (apenas 3 blocos 
 - Posicionado logo abaixo do nome gigante (`mt-2 md:mt-3`):
 - `<div aria-hidden="true" className="h-px w-full bg-border" />`.
 
-### 3. Barra Inferior (`Copyright` à esquerda + `Voltar para topo` à direita)
-- Alinhamento responsivo abaixo do separador (`flex-col-reverse` no mobile com `gap-3`, e linha horizontal `sm:flex-row sm:items-center justify-between` em telas maiores):
-- `<div className="mt-4 flex flex-col-reverse items-start justify-between gap-3 sm:flex-row sm:items-center md:mt-5">`
-- **Copyright à esquerda (`<p>`):**
-  - Classes: `font-sans text-xs font-medium tracking-[0.04em] text-muted-foreground`
+### 3. Barra Inferior (`Copyright` à esquerda + `Logo` centralizada + `Voltar para topo` à direita)
+- Alinhamento responsivo abaixo do separador (`flex-col-reverse items-center justify-between gap-4` no mobile — exibindo `Voltar para topo` no topo, logo ao meio e copyright abaixo — e grid de 3 slots `md:grid md:grid-cols-[1fr_auto_1fr] md:items-center md:gap-6` em telas médias/desktop para manter a logo estritamente centralizada):
+- `<div className="mt-4 flex flex-col-reverse items-center justify-between gap-4 md:mt-5 md:grid md:grid-cols-[1fr_auto_1fr] md:items-center md:gap-6">`
+- **Slot 1 — Copyright à esquerda (`<p>`):**
+  - Classes: `text-center font-sans text-xs font-medium tracking-[0.04em] text-muted-foreground md:justify-self-start md:text-left`
   - **Conteúdo:** `{content.copyright}` (`"© 2026 Mateus Araujo. Todos os direitos reservados."`).
-- **Botão à direita (`<button type="button" onClick={() => scrollTo(0)}>`):**
-  - Classes: `group inline-flex min-h-[44px] cursor-pointer items-center gap-2 rounded-full px-2 py-1 font-sans text-xs font-medium uppercase tracking-[0.12em] text-muted-foreground transition-colors duration-200 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-bright`
+- **Slot 2 — Logo centralizada (`<a href="#hero">` + `next/image`):**
+  - Link: `inline-flex items-center justify-center rounded-md px-1 py-1 opacity-90 transition-opacity duration-200 hover:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-bright md:justify-self-center`, `aria-label={content.logoAlt}`.
+  - Imagem: `<Image src={content.logoSrc} alt={content.logoAlt} width={1193} height={240} unoptimized className="h-5 w-auto md:h-6" />` (exibe `public/logo.svg`, preservando o vetor sem reprocessamento).
+- **Slot 3 — Botão à direita (`<button type="button" onClick={() => scrollTo(0)}>`):**
+  - Classes: `group inline-flex min-h-[44px] cursor-pointer items-center gap-2 rounded-full px-2 py-1 font-sans text-xs font-medium uppercase tracking-[0.12em] text-muted-foreground transition-colors duration-200 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-bright md:justify-self-end`
   - **Conteúdo:** `"Voltar para topo"` + `ArrowUp` (`lucide-react`, `size-4`).
   - **Comportamento ao clicar:** chama `scrollTo(0)` do `useSmoothScroll()` (rolando suavemente via Lenis até o topo da Home).
 
@@ -97,6 +100,8 @@ Estrutura estritamente minimalista conforme pedido do usuário (apenas 3 blocos 
 export interface FooterContent {
   wordmark: string;
   copyright: string;
+  logoSrc: string;
+  logoAlt: string;
   backToTopLabel: string;
   backToTopAriaLabel: string;
   wordmarkWeight?: number;
@@ -106,6 +111,8 @@ export interface FooterContent {
 export const footerContent: FooterContent = {
   wordmark: "Mateus Araujo",
   copyright: "© 2026 Mateus Araujo. Todos os direitos reservados.",
+  logoSrc: "/logo.svg",
+  logoAlt: "teuaraujoo — Mateus Araujo",
   backToTopLabel: "Voltar para topo",
   backToTopAriaLabel: "Voltar para o topo da página",
   wordmarkWeight: 450,
@@ -117,7 +124,7 @@ export const footerContent: FooterContent = {
 
 ## 6. Checklist de Verificação da Implementação
 
-- [x] `<footer>` contém **exclusivamente**: wordmark gigante ocupando a largura da tela (`"Mateus Araujo"` em `Space Grotesk`), separador horizontal abaixo dele e barra inferior com aviso de copyright à esquerda (`"© 2026 Mateus Araujo. Todos os direitos reservados."`) e `"Voltar para topo"` com seta à direita.
+- [x] `<footer>` contém **exclusivamente**: wordmark gigante ocupando a largura da tela (`"Mateus Araujo"` em `Space Grotesk`), separador horizontal abaixo dele e barra inferior com aviso de copyright à esquerda (`"© 2026 Mateus Araujo. Todos os direitos reservados."`), logo `/logo.svg` centralizada (`md:grid-cols-[1fr_auto_1fr]`) e `"Voltar para topo"` com seta à direita.
 - [x] Estilo tipográfico alinhado ao Hero da Home (`font-display font-medium tracking-[-0.055em]`, `pb-[0.15em]`), sem recortes no descendente do `j` de `375px` a `1920px+`.
 - [x] Passar o mouse sobre as letras em desktop engrossa suavemente os caracteres próximos ao cursor (`wght` + `scale`) via lente gaussiana sem causar reflow; clicar em uma letra executa o pulso elástico com flash `--brand-bright` (`stamp`); a entrada na viewport revela as letras da linha de base.
 - [x] Clicar em `"Voltar para topo"` rola suavemente ao topo via `useSmoothScroll().scrollTo(0)` (Lenis).

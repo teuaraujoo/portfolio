@@ -1,6 +1,8 @@
 export interface FooterContent {
   wordmark: string;
   copyright: string;
+  logoSrc: string;
+  logoAlt: string;
   backToTopLabel: string;
   backToTopAriaLabel: string;
   wordmarkWeight?: number;
@@ -11,6 +13,8 @@ export interface FooterContent {
 export const footerContent: FooterContent = {
   wordmark: "Mateus Araujo",
   copyright: "© 2026 Mateus Araujo. Todos os direitos reservados.",
+  logoSrc: "/logo.svg",
+  logoAlt: "teuaraujoo — Mateus Araujo",
   backToTopLabel: "Voltar para topo",
   backToTopAriaLabel: "Voltar para o topo da página",
   wordmarkWeight: 450,

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import Image from "next/image";
 import { ArrowUp } from "lucide-react";
 import { KilnWordmark } from "@/components/ui/kiln-wordmark";
 import type { FooterContent } from "@/data/footer";
@@ -13,7 +14,7 @@ export interface FooterProps {
 
 /**
  * Minimalist Editorial-Tech footer featuring the full-width interactive
- * Space Grotesk wordmark, a hairline separator, copyright notice, and a smooth-scroll back-to-top action.
+ * Space Grotesk wordmark, a hairline separator, copyright notice, centered brand logo, and a smooth-scroll back-to-top action.
  */
 export function Footer({ content }: FooterProps) {
   const { scrollTo } = useSmoothScroll();
@@ -65,15 +66,29 @@ export function Footer({ content }: FooterProps) {
         )}
       />
 
-      <div className="mt-4 flex flex-col-reverse items-start justify-between gap-3 sm:flex-row sm:items-center md:mt-5">
-        <p className="font-sans text-xs font-medium tracking-[0.04em] text-muted-foreground">
+      <div className="mt-4 flex flex-col-reverse items-center justify-between gap-4 md:mt-5 md:grid md:grid-cols-[1fr_auto_1fr] md:items-center md:gap-6">
+        <p className="text-center font-sans text-xs font-medium tracking-[0.04em] text-muted-foreground md:justify-self-start md:text-left">
           {content.copyright}
         </p>
+        <a
+          href="#hero"
+          aria-label={content.logoAlt}
+          className="inline-flex items-center justify-center rounded-md px-1 py-1 opacity-90 transition-opacity duration-200 hover:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-bright md:justify-self-center"
+        >
+          <Image
+            src={content.logoSrc}
+            alt={content.logoAlt}
+            width={1193}
+            height={240}
+            unoptimized
+            className="h-5 w-auto md:h-6"
+          />
+        </a>
         <button
           type="button"
           onClick={() => scrollTo(0)}
           aria-label={content.backToTopAriaLabel}
-          className="group inline-flex min-h-[44px] cursor-pointer items-center gap-2 rounded-full px-2 py-1 font-sans text-xs font-medium uppercase tracking-[0.12em] text-muted-foreground transition-colors duration-200 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-bright"
+          className="group inline-flex min-h-[44px] cursor-pointer items-center gap-2 rounded-full px-2 py-1 font-sans text-xs font-medium uppercase tracking-[0.12em] text-muted-foreground transition-colors duration-200 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-bright md:justify-self-end"
         >
           <span>{content.backToTopLabel}</span>
           <ArrowUp
