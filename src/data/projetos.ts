@@ -105,7 +105,7 @@ export const projetosContent: ProjetosContent = {
       repoUrl: "https://github.com/teuaraujoo/anato-lab",
       cover: {
         type: "image",
-        src: "/projects/anatolab/capa.png",
+        src: "/projects/anatolab/capa.webp",
         alt: "Anatolab - Anatomia Humana em 3D — capa do projeto",
       },
       details: {
@@ -123,22 +123,22 @@ export const projetosContent: ProjetosContent = {
         gallery: [
           {
             type: "image",
-            src: "/projects/anatolab/capa.png",
+            src: "/projects/anatolab/capa.webp",
             alt: "Anatolab - Anatomia Humana em 3D — capa do projeto",
           },
           {
             type: "image",
-            src: "/projects/anatolab/imagem2.png",
+            src: "/projects/anatolab/imagem2.webp",
             alt: "Anatolab - Anatomia Humana em 3D — tela 2",
           },
           {
             type: "image",
-            src: "/projects/anatolab/imagem3.png",
+            src: "/projects/anatolab/imagem3.webp",
             alt: "Anatolab - Anatomia Humana em 3D — tela 3",
           },
           {
             type: "image",
-            src: "/projects/anatolab/imagem4.png",
+            src: "/projects/anatolab/imagem4.webp",
             alt: "Anatolab - Anatomia Humana em 3D — tela 4",
           },
         ],
@@ -159,7 +159,7 @@ export const projetosContent: ProjetosContent = {
       techs: ["Next.js", "TypeScript", "PostgreSQL", "Redis", "Figma"],
       cover: {
         type: "image",
-        src: "/projects/cmf/capa.png",
+        src: "/projects/cmf/capa.webp",
         alt: "CMF - Sistema de Gerenciamento — capa do projeto",
       },
       details: {
@@ -180,27 +180,27 @@ export const projetosContent: ProjetosContent = {
         gallery: [
           {
             type: "image",
-            src: "/projects/cmf/capa.png",
+            src: "/projects/cmf/capa.webp",
             alt: "CMF - Sistema de Gerenciamento — capa do projeto",
           },
           {
             type: "image",
-            src: "/projects/cmf/imagem2.png",
+            src: "/projects/cmf/imagem2.webp",
             alt: "CMF - Sistema de Gerenciamento — tela 2",
           },
           {
             type: "image",
-            src: "/projects/cmf/image3.png",
+            src: "/projects/cmf/imagem3.webp",
             alt: "CMF - Sistema de Gerenciamento — tela 3",
           },
           {
             type: "image",
-            src: "/projects/cmf/image4.png",
+            src: "/projects/cmf/imagem4.webp",
             alt: "CMF - Sistema de Gerenciamento — tela 4",
           },
           {
             type: "image",
-            src: "/projects/cmf/imagem5-celular.png",
+            src: "/projects/cmf/imagem5-celular.webp",
             alt: "CMF - Sistema de Gerenciamento — versão mobile",
             fit: "contain",
           },
@@ -222,7 +222,7 @@ export const projetosContent: ProjetosContent = {
       techs: ["React", "TypeScript", "n8n", "Express", "Tailwind CSS", "Figma", "PostgreSQL", "Lenis", "GSAP"],
       cover: {
         type: "image",
-        src: "/projects/civix/capa.png",
+        src: "/projects/civix/capa.webp",
         alt: "Civix - Chatbot para Construção Civil — capa do projeto",
       },
       details: {
@@ -242,22 +242,22 @@ export const projetosContent: ProjetosContent = {
         gallery: [
           {
             type: "image",
-            src: "/projects/civix/capa.png",
+            src: "/projects/civix/capa.webp",
             alt: "Civix - Chatbot para Construção Civil — capa do projeto",
           },
           {
             type: "image",
-            src: "/projects/civix/imagem2.png",
+            src: "/projects/civix/imagem2.webp",
             alt: "Civix - Chatbot para Construção Civil — tela 2",
           },
           {
             type: "image",
-            src: "/projects/civix/imagem3.png",
+            src: "/projects/civix/imagem3.webp",
             alt: "Civix - Chatbot para Construção Civil — tela 3",
           },
           {
             type: "image",
-            src: "/projects/civix/imagem4.png",
+            src: "/projects/civix/imagem4.webp",
             alt: "Civix - Chatbot para Construção Civil — tela 4",
           },
         ],
@@ -280,7 +280,7 @@ export const projetosContent: ProjetosContent = {
       repoUrl: "https://github.com/teuaraujoo/atletaBahia",
       cover: {
         type: "image",
-        src: "/projects/bahia/capa.png",
+        src: "/projects/bahia/capa.webp",
         alt: "José William - Portfolio Pessoal — capa do projeto",
       },
       details: {
@@ -298,22 +298,22 @@ export const projetosContent: ProjetosContent = {
         gallery: [
           {
             type: "image",
-            src: "/projects/bahia/capa.png",
+            src: "/projects/bahia/capa.webp",
             alt: "José William - Portfolio Pessoal — capa do projeto",
           },
           {
             type: "image",
-            src: "/projects/bahia/imagem2.png",
+            src: "/projects/bahia/imagem2.webp",
             alt: "José William - Portfolio Pessoal — tela 2",
           },
           {
             type: "image",
-            src: "/projects/bahia/imagem3.png",
+            src: "/projects/bahia/imagem3.webp",
             alt: "José William - Portfolio Pessoal — tela 3",
           },
           {
             type: "image",
-            src: "/projects/bahia/imagem4.png",
+            src: "/projects/bahia/imagem4.webp",
             alt: "José William - Portfolio Pessoal — tela 4",
           },
         ],

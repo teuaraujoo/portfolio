@@ -236,7 +236,7 @@ export interface ProjetosContent {
 - **Cabeçalho:** `"03 — Projetos"`, `"Projetos em / destaque."`, lead `"Uma seleção de projetos em que transformei ideias e desafios em soluções digitais, da ideia à implementação."`.
 - **4 Projetos em Destaque (`featured: true`)** na pilha *Sticky Card Stacking* com fotos reais em `public/projects/`:
   1. `01` — **Anatolab - Anatomia Humana em 3D** (`"anatolab"`, `visibility: "public"`, `status: "completed"`, `liveUrl` + `repoUrl`, imagens em `/projects/anatolab/`)
-  2. `02` — **CMF - Sistema de Gerenciamento** (`"cmf"`, `visibility: "private"`, `status: "completed"`, sem links públicos, imagens em `/projects/cmf/` incluindo `imagem5-celular.png` com `fit: "contain"`)
+  2. `02` — **CMF - Sistema de Gerenciamento** (`"cmf"`, `visibility: "private"`, `status: "completed"`, sem links públicos, imagens em `/projects/cmf/` incluindo `imagem5-celular.webp` com `fit: "contain"`)
   3. `03` — **Civix - Chatbot para Construção Civil** (`"civix"`, `visibility: "private"`, `status: "completed"`, sem links públicos, imagens em `/projects/civix/`)
   4. `04` — **José William - Portfolio Pessoal** (`"jose-william"`, `visibility: "public"`, `status: "completed"`, `liveUrl` + `repoUrl`, imagens em `/projects/bahia/`)
 - **3 Projetos Adicionais (`featured: false`)** na lista `"Mais projetos"` (exibindo apenas título + foto no hover na lista, e apenas **Descrição geral**, galeria e tecnologias `HTML`, `CSS`, `JavaScript` no `ProjectDialog`, com `challenge`, `solution` e `highlights` omitidos):
