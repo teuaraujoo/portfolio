@@ -15,7 +15,10 @@ import {
   InteractiveHoverLinks,
   type InteractiveHoverLinkItem,
 } from "@/components/ui/interactive-hover-links";
-import type { ProjectItem, ProjetosContent } from "@/data/projetos";
+import {
+  type ProjectItem,
+  type ProjetosContent,
+} from "@/data/projetos";
 import { ProjectDialog } from "./project-dialog";
 import { ProjectMedia } from "./project-media";
 
@@ -47,9 +50,6 @@ export function Projetos({ content }: ProjetosProps) {
       id: project.slug,
       indexLabel: String(featuredItems.length + index + 1).padStart(2, "0"),
       heading: project.title,
-      subheading: project.summary,
-      category: project.category,
-      year: project.year,
       preview: <ProjectMedia media={project.cover} />,
       onClick: (triggerEl) => handleOpenProject(project, triggerEl),
       ariaHasPopup: "dialog",
@@ -335,7 +335,7 @@ export function Projetos({ content }: ProjetosProps) {
                         project.accentColor ?? "var(--brand-bright)",
                     } as CSSProperties
                   }
-                  className="project-card-inner group/card relative flex cursor-pointer flex-col origin-top overflow-hidden rounded-[24px] border border-white/10 bg-card p-3 shadow-[0_24px_80px_-24px_rgba(0,0,0,0.85)] transition-colors duration-300 hover:border-white/20 will-change-transform md:p-5 min-[900px]:grid min-[900px]:h-[min(74svh,680px)] min-[900px]:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)]"
+                  className="project-card-inner group/card relative flex cursor-pointer flex-col origin-top overflow-hidden rounded-[24px] border border-white/10 bg-card p-3 shadow-[0_24px_80px_-24px_rgba(0,0,0,0.85)] transition-colors duration-300 hover:border-white/20 will-change-transform md:p-5 min-[900px]:grid min-[900px]:h-auto min-[900px]:min-h-[400px] min-[900px]:grid-cols-[minmax(0,1.45fr)_minmax(0,1fr)] min-[900px]:items-stretch"
                 >
                   <div
                     aria-hidden="true"
@@ -360,8 +360,8 @@ export function Projetos({ content }: ProjetosProps) {
                     }}
                   />
 
-                  <div className="relative aspect-[16/10] overflow-hidden rounded-[14px] border border-white/8 bg-background min-[900px]:aspect-auto min-[900px]:h-full">
-                    <div className="size-full transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover/card:scale-[1.03] motion-reduce:transition-none">
+                  <div className="relative aspect-[19/9] w-full self-center overflow-hidden rounded-[14px] border border-white/8 bg-[#0D0D0D]">
+                    <div className="size-full transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover/card:scale-[1.01] motion-reduce:transition-none">
                       <ProjectMedia
                         media={project.cover}
                         priority={index === 0}
@@ -370,10 +370,7 @@ export function Projetos({ content }: ProjetosProps) {
                   </div>
 
                   <div className="relative z-10 flex flex-col justify-between gap-6 p-4 pt-6 min-[900px]:p-8 xl:p-10">
-                    <div className="flex items-start justify-between gap-4">
-                      <p className="font-sans text-xs font-medium uppercase tracking-[0.1em] text-brand-bright">
-                        {project.category} · {project.year}
-                      </p>
+                    <div className="flex items-start justify-end">
                       <span
                         aria-hidden="true"
                         className="font-display text-3xl font-semibold leading-none text-white/18 tabular-nums"
@@ -422,38 +419,6 @@ export function Projetos({ content }: ProjetosProps) {
                         <span>{content.ctaCaseLabel}</span>
                         <ArrowUpRight className="size-4" aria-hidden="true" />
                       </button>
-
-                      {project.liveUrl ? (
-                        <a
-                          href={project.liveUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          onClick={(event) => event.stopPropagation()}
-                          className="inline-flex items-center gap-1.5 rounded-full border border-white/15 bg-white/[0.03] px-4 py-2.5 text-sm font-medium text-foreground/90 transition-colors duration-200 hover:border-white/30 hover:bg-white/[0.06] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-card"
-                        >
-                          <span>{content.ctaLiveLabel}</span>
-                          <ArrowUpRight
-                            className="size-3.5"
-                            aria-hidden="true"
-                          />
-                        </a>
-                      ) : null}
-
-                      {project.repoUrl ? (
-                        <a
-                          href={project.repoUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          onClick={(event) => event.stopPropagation()}
-                          className="inline-flex items-center gap-1.5 rounded-full border border-white/15 bg-white/[0.03] px-4 py-2.5 text-sm font-medium text-foreground/90 transition-colors duration-200 hover:border-white/30 hover:bg-white/[0.06] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-card"
-                        >
-                          <span>{content.ctaRepoLabel}</span>
-                          <ArrowUpRight
-                            className="size-3.5"
-                            aria-hidden="true"
-                          />
-                        </a>
-                      ) : null}
                     </div>
                   </div>
 

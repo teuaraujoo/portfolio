@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { ArrowLeft, ArrowRight, ArrowUpRight, X } from "lucide-react";
-import type { ProjectItem } from "@/data/projetos";
+import { ArrowLeft, ArrowRight, ArrowUpRight, Maximize2, X } from "lucide-react";
+import { PROJECT_STATUS_META, type ProjectItem } from "@/data/projetos";
 import { cn } from "@/lib/utils";
 import { ProjectMedia } from "./project-media";
 import { useSmoothScroll } from "./smooth-scroll";
@@ -19,8 +19,8 @@ export interface ProjectDialogProps {
 const EXIT_DURATION_MS = 420;
 
 /**
- * Full Case Study modal dialog displaying the project's navigable media gallery,
- * mandatory narrative blocks (Descrição geral, O desafio, A solução), highlights,
+ * Case Study modal dialog displaying the project's navigable media gallery,
+ * overview narrative, optional deep-dive blocks (O desafio, A solução, highlights),
  * technology stack, and external links.
  */
 export function ProjectDialog({
@@ -32,22 +32,45 @@ export function ProjectDialog({
   ctaRepoLabel = "Ver código no GitHub",
 }: ProjectDialogProps) {
   const panelRef = useRef<HTMLDivElement>(null);
+  const fullscreenRef = useRef<HTMLDivElement>(null);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
+  const fullscreenCloseRef = useRef<HTMLButtonElement>(null);
+  const fullscreenTriggerRef = useRef<HTMLButtonElement>(null);
   const onCloseRef = useRef(onClose);
+  const isFullscreenRef = useRef(false);
+  const wasFullscreenRef = useRef(false);
   const { stop, start } = useSmoothScroll();
 
   const [cachedProject, setCachedProject] = useState<ProjectItem | null>(project);
   const [slideIndex, setSlideIndex] = useState(0);
   const [isActive, setIsActive] = useState(false);
+  const [isFullscreen, setIsFullscreen] = useState(false);
 
   if (project && project !== cachedProject) {
     setCachedProject(project);
     setSlideIndex(0);
+    setIsFullscreen(false);
   }
 
   useEffect(() => {
     onCloseRef.current = onClose;
   }, [onClose]);
+
+  useEffect(() => {
+    isFullscreenRef.current = isFullscreen;
+    if (isFullscreen) {
+      wasFullscreenRef.current = true;
+      fullscreenCloseRef.current?.focus({ preventScroll: true });
+      return;
+    }
+
+    if (wasFullscreenRef.current) {
+      wasFullscreenRef.current = false;
+      if (open) {
+        fullscreenTriggerRef.current?.focus({ preventScroll: true });
+      }
+    }
+  }, [isFullscreen, open]);
 
   useEffect(() => {
     if (open && project) {
@@ -59,6 +82,7 @@ export function ProjectDialog({
 
     const raf = window.requestAnimationFrame(() => {
       setIsActive(false);
+      setIsFullscreen(false);
     });
 
     const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -102,6 +126,10 @@ export function ProjectDialog({
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
         event.preventDefault();
+        if (isFullscreenRef.current) {
+          setIsFullscreen(false);
+          return;
+        }
         onCloseRef.current();
         return;
       }
@@ -121,10 +149,12 @@ export function ProjectDialog({
       }
 
       if (event.key === "Tab") {
-        const panel = panelRef.current;
-        if (!panel) return;
+        const container = isFullscreenRef.current
+          ? fullscreenRef.current
+          : panelRef.current;
+        if (!container) return;
 
-        const focusables = panel.querySelectorAll<HTMLElement>(
+        const focusables = container.querySelectorAll<HTMLElement>(
           'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])',
         );
 
@@ -137,7 +167,7 @@ export function ProjectDialog({
         const last = focusables[focusables.length - 1];
         const active = document.activeElement;
 
-        if (!panel.contains(active)) {
+        if (!container.contains(active)) {
           event.preventDefault();
           first.focus();
         } else if (event.shiftKey && active === first) {
@@ -169,6 +199,10 @@ export function ProjectDialog({
 
   const currentMedia = gallery[safeIndex] ?? cachedProject.cover;
   const accentColor = cachedProject.accentColor ?? "#793CFF";
+  const statusMeta = PROJECT_STATUS_META[cachedProject.status];
+  const showLiveLink = Boolean(cachedProject.liveUrl);
+  const showRepoLink =
+    cachedProject.visibility === "public" && Boolean(cachedProject.repoUrl);
 
   const handlePrevSlide = () => {
     if (totalSlides < 2) return;
@@ -227,6 +261,13 @@ export function ProjectDialog({
                 ·
               </span>
               <span className="text-muted-foreground tabular-nums">{cachedProject.year}</span>
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/[0.03] px-2.5 py-0.5 text-[10px] font-medium tracking-[0.08em] text-foreground/80">
+                <span
+                  aria-hidden="true"
+                  className={cn("size-1.5 rounded-full", statusMeta.dotClass)}
+                />
+                <span>{statusMeta.label}</span>
+              </span>
             </div>
 
             <button
@@ -258,13 +299,41 @@ export function ProjectDialog({
 
           {/* Gallery viewer */}
           <div className="mt-7">
-            <div className="relative aspect-[16/9] w-full overflow-hidden rounded-xl border border-white/10 bg-[#0D0D0D]">
-              <ProjectMedia
-                key={`${cachedProject.slug}-${safeIndex}`}
-                media={currentMedia}
-                priority
-                interactive
-              />
+            <div className="relative aspect-[19/9] w-full overflow-hidden rounded-xl border border-white/10 bg-[#0D0D0D]">
+              {currentMedia.type === "image" ? (
+                <button
+                  type="button"
+                  aria-label="Ampliar imagem em tela cheia"
+                  onClick={() => setIsFullscreen(true)}
+                  className="block size-full cursor-zoom-in focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset"
+                >
+                  <ProjectMedia
+                    key={`${cachedProject.slug}-${safeIndex}`}
+                    media={currentMedia}
+                    priority
+                    interactive
+                  />
+                </button>
+              ) : (
+                <ProjectMedia
+                  key={`${cachedProject.slug}-${safeIndex}`}
+                  media={currentMedia}
+                  priority
+                  interactive
+                />
+              )}
+
+              {currentMedia.type === "image" ? (
+                <button
+                  ref={fullscreenTriggerRef}
+                  type="button"
+                  aria-label="Ver imagem em tela cheia"
+                  onClick={() => setIsFullscreen(true)}
+                  className="absolute top-3 right-3 z-20 inline-flex min-h-[36px] min-w-[36px] cursor-pointer items-center justify-center rounded-full border border-white/15 bg-[#0D0D0D]/80 text-white/90 backdrop-blur-md transition-[background-color,border-color,color] duration-200 hover:border-brand-bright/70 hover:bg-[#141318] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:top-4 sm:right-4"
+                >
+                  <Maximize2 className="size-4" aria-hidden="true" />
+                </button>
+              ) : null}
 
               {totalSlides >= 2 ? (
                 <>
@@ -331,36 +400,41 @@ export function ProjectDialog({
                 >
                   Descrição geral
                 </h3>
-                <p className="mt-2.5 max-w-[65ch] font-sans text-[15px] leading-[1.7] text-muted-foreground sm:text-base">
+                <p className="mt-2.5 max-w-[65ch] whitespace-pre-line font-sans text-[15px] leading-[1.7] text-muted-foreground sm:text-base">
                   {cachedProject.details.overview}
                 </p>
               </section>
 
-              <section aria-labelledby="case-challenge-heading">
-                <h3
-                  id="case-challenge-heading"
-                  className="font-display text-lg font-semibold tracking-[-0.02em] text-foreground sm:text-xl"
-                >
-                  O desafio
-                </h3>
-                <p className="mt-2.5 max-w-[65ch] font-sans text-[15px] leading-[1.7] text-muted-foreground sm:text-base">
-                  {cachedProject.details.challenge}
-                </p>
-              </section>
+              {cachedProject.details.challenge ? (
+                <section aria-labelledby="case-challenge-heading">
+                  <h3
+                    id="case-challenge-heading"
+                    className="font-display text-lg font-semibold tracking-[-0.02em] text-foreground sm:text-xl"
+                  >
+                    O desafio
+                  </h3>
+                  <p className="mt-2.5 max-w-[65ch] whitespace-pre-line font-sans text-[15px] leading-[1.7] text-muted-foreground sm:text-base">
+                    {cachedProject.details.challenge}
+                  </p>
+                </section>
+              ) : null}
 
-              <section aria-labelledby="case-solution-heading">
-                <h3
-                  id="case-solution-heading"
-                  className="font-display text-lg font-semibold tracking-[-0.02em] text-foreground sm:text-xl"
-                >
-                  A solução
-                </h3>
-                <p className="mt-2.5 max-w-[65ch] font-sans text-[15px] leading-[1.7] text-muted-foreground sm:text-base">
-                  {cachedProject.details.solution}
-                </p>
-              </section>
+              {cachedProject.details.solution ? (
+                <section aria-labelledby="case-solution-heading">
+                  <h3
+                    id="case-solution-heading"
+                    className="font-display text-lg font-semibold tracking-[-0.02em] text-foreground sm:text-xl"
+                  >
+                    A solução
+                  </h3>
+                  <p className="mt-2.5 max-w-[65ch] whitespace-pre-line font-sans text-[15px] leading-[1.7] text-muted-foreground sm:text-base">
+                    {cachedProject.details.solution}
+                  </p>
+                </section>
+              ) : null}
 
-              {cachedProject.details.highlights.length > 0 ? (
+              {cachedProject.details.highlights &&
+              cachedProject.details.highlights.length > 0 ? (
                 <section aria-labelledby="case-highlights-heading">
                   <h3
                     id="case-highlights-heading"
@@ -404,13 +478,13 @@ export function ProjectDialog({
                 </ul>
               </div>
 
-              {cachedProject.liveUrl || cachedProject.repoUrl ? (
+              {showLiveLink || showRepoLink ? (
                 <div className="space-y-3 border-t border-border pt-6">
                   <h3 className="font-sans text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
                     Links
                   </h3>
                   <div className="flex flex-col gap-2.5">
-                    {cachedProject.liveUrl ? (
+                    {showLiveLink ? (
                       <a
                         href={cachedProject.liveUrl}
                         target="_blank"
@@ -422,7 +496,7 @@ export function ProjectDialog({
                       </a>
                     ) : null}
 
-                    {cachedProject.repoUrl ? (
+                    {showRepoLink ? (
                       <a
                         href={cachedProject.repoUrl}
                         target="_blank"
@@ -440,6 +514,67 @@ export function ProjectDialog({
           </div>
         </div>
       </div>
+
+      {open && isFullscreen && currentMedia.type === "image" ? (
+        <div
+          ref={fullscreenRef}
+          role="dialog"
+          aria-modal="true"
+          aria-label={`Visualização em tela cheia — ${cachedProject.title}`}
+          data-lenis-prevent
+          onClick={(event) => {
+            if (event.target === event.currentTarget) {
+              setIsFullscreen(false);
+            }
+          }}
+          className="fixed inset-0 z-[130] flex items-center justify-center bg-black/95 p-4 backdrop-blur-md sm:p-8"
+        >
+          <button
+            ref={fullscreenCloseRef}
+            type="button"
+            aria-label="Fechar visualização em tela cheia"
+            onClick={() => setIsFullscreen(false)}
+            className="absolute top-4 right-4 z-20 inline-flex size-11 cursor-pointer items-center justify-center rounded-full border border-white/15 bg-[#0D0D0D]/85 text-white/90 backdrop-blur-md transition-[background-color,border-color,color,rotate] duration-200 hover:rotate-90 hover:border-white/30 hover:bg-white/15 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:top-6 sm:right-6"
+          >
+            <X className="size-5" aria-hidden="true" />
+          </button>
+
+          {totalSlides >= 2 ? (
+            <>
+              <button
+                type="button"
+                aria-label="Slide anterior"
+                onClick={handlePrevSlide}
+                className="absolute top-1/2 left-3 z-20 inline-flex size-11 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full border border-white/15 bg-[#0D0D0D]/85 text-white/90 backdrop-blur-md transition-[background-color,border-color] duration-200 hover:border-brand-bright/70 hover:bg-[#141318] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:left-6"
+              >
+                <ArrowLeft className="size-4" aria-hidden="true" />
+              </button>
+
+              <button
+                type="button"
+                aria-label="Próximo slide"
+                onClick={handleNextSlide}
+                className="absolute top-1/2 right-3 z-20 inline-flex size-11 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full border border-white/15 bg-[#0D0D0D]/85 text-white/90 backdrop-blur-md transition-[background-color,border-color] duration-200 hover:border-brand-bright/70 hover:bg-[#141318] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:right-6"
+              >
+                <ArrowRight className="size-4" aria-hidden="true" />
+              </button>
+            </>
+          ) : null}
+
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={currentMedia.src}
+            alt={currentMedia.alt}
+            className="max-h-[92svh] max-w-[96vw] rounded-lg object-contain select-none"
+          />
+
+          {totalSlides >= 2 ? (
+            <span className="pointer-events-none absolute bottom-4 left-1/2 -translate-x-1/2 rounded-full border border-white/10 bg-[#0D0D0D]/80 px-3 py-1 font-sans text-xs font-medium tracking-[0.08em] text-white/80 tabular-nums backdrop-blur-md sm:bottom-6">
+              {safeIndex + 1} / {totalSlides}
+            </span>
+          ) : null}
+        </div>
+      ) : null}
     </div>
   );
 }

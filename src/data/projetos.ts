@@ -1,3 +1,14 @@
+export type ProjectVisibility = "public" | "private";
+export type ProjectStatus = "completed" | "in_progress";
+
+export const PROJECT_STATUS_META: Record<
+  ProjectStatus,
+  { label: string; dotClass: string }
+> = {
+  completed: { label: "Concluído", dotClass: "bg-emerald-400" },
+  in_progress: { label: "Em desenvolvimento", dotClass: "bg-amber-400" },
+};
+
 export type ProjectMedia =
   | {
       type: "placeholder";
@@ -8,6 +19,7 @@ export type ProjectMedia =
       type: "image";
       src: string;
       alt: string;
+      fit?: "cover" | "contain";
     }
   | {
       type: "video";
@@ -20,11 +32,11 @@ export interface ProjectCaseDetails {
   /** Descrição geral do projeto (visão macro e contexto) */
   overview: string;
   /** O desafio enfrentado (problema técnico ou de negócio) */
-  challenge: string;
+  challenge?: string;
   /** A solução implementada para resolver o desafio */
-  solution: string;
+  solution?: string;
   /** Principais entregas ou resultados do case */
-  highlights: string[];
+  highlights?: string[];
   /** Mídias exibidas na galeria do modal */
   gallery: ProjectMedia[];
 }
@@ -38,6 +50,8 @@ export interface ProjectItem {
   summary: string;
   accentColor?: string;
   featured: boolean;
+  visibility: ProjectVisibility;
+  status: ProjectStatus;
   techs: string[];
   liveUrl?: string;
   repoUrl?: string;
@@ -64,9 +78,9 @@ export interface ProjetosContent {
 export const projetosContent: ProjetosContent = {
   eyebrow: "03 — Projetos",
   countSuffix: "projetos",
-  titleLine1: "Projetos em",
-  titleLine2: "destaque.",
-  lead: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua ut enim ad minim veniam.",
+  titleLine1: "Projetos feitos",
+  titleLine2: "por mim.",
+  lead: "Uma seleção de projetos em que transformei ideias e desafios em soluções digitais.",
   moreTitle: "Mais projetos",
   moreSubtitle: "Outros experimentos, estudos e entregas.",
   ctaCaseLabel: "Ver case completo",
@@ -75,364 +89,322 @@ export const projetosContent: ProjetosContent = {
   closeDialogAriaLabel: "Fechar case do projeto",
   items: [
     {
-      slug: "lorem-dashboard-ia",
-      title: "Lorem Dashboard IA",
-      subtitle: "Lorem ipsum dolor sit amet telemetry & copilot",
-      category: "Dashboard · IA",
+      slug: "anatolab",
+      title: "Anatolab - Anatomia Humana em 3D",
+      subtitle: "Plataforma interativa para exploração visual de anatomia em 3D",
+      category: "Educação · 3D",
       year: "2026",
       summary:
-        "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+        "Plataforma interativa para exploração visual de estruturas do corpo humano em 3D, construída com TypeScript, Next.js e Three.js.",
       accentColor: "#793CFF",
       featured: true,
-      techs: ["Next.js", "TypeScript", "Tailwind CSS", "AI SDK", "PostgreSQL"],
-      liveUrl: "https://example.com",
-      repoUrl: "https://github.com/teuaraujoo/lorem-dashboard-ia",
+      visibility: "public",
+      status: "completed",
+      techs: ["TypeScript", "Next.js", "Tailwind CSS", "Three.js", "Codex"],
+      liveUrl: "https://anatolab-ten.vercel.app/",
+      repoUrl: "https://github.com/teuaraujoo/anato-lab",
       cover: {
-        type: "placeholder",
-        variant: "dashboard",
-        label: "Lorem Dashboard IA — Painel Analítico & Copilot",
+        type: "image",
+        src: "/projects/anatolab/capa.png",
+        alt: "Anatolab - Anatomia Humana em 3D — capa do projeto",
       },
       details: {
         overview:
-          "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.",
+          "Anatolab é uma plataforma interativa para exploração visual de estruturas do corpo humano em 3D. O projeto começou como um experimento com o GPT-6 Astra e evoluiu para um acervo educacional desenvolvido com TypeScript, Next.js e Three.js.",
         challenge:
-          "Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Curabitur pretium tincidunt lacus, nulla gravida orci a odio nullam varius turpis et commodo pharetra.",
+          "Representar anatomia de forma clara, visual e interativa sem depender de modelos externos complexos. Cada estrutura precisa ser compreensível, permitir exploração por partes e manter uma experiência fluida para estudantes e curiosos.",
         solution:
-          "Integer nec odio praesent libero sed cursus ante dapibus diam. Sed nisi nulla quis sem at nibh elementum imperdiet, duis sagittis ipsum praesent mauris fusce nec tellus sed augue semper porta.",
+          "A aplicação utiliza modelos 3D construídos por código, com estruturas selecionáveis, foco visual, isolamento de elementos e visualizações internas quando necessário. O conteúdo anatômico é organizado em módulos independentes para facilitar a expansão do acervo.",
         highlights: [
-          "Lorem ipsum dolor sit amet — 42% faster query triage",
-          "Consectetur adipiscing elit — streaming telemetry em tempo real",
-          "Sed do eiusmod tempor — arquitetura modular com Server Actions",
-          "Ut labore et dolore magna — cobertura completa de acessibilidade",
+          "Top 1 no ranking de pesquisas do Google de forma 100% orgânica",
+          "Célula animal, olho humano, rim, cérebro e coração em exploração 3D",
+          "Seleção, destaque e separação visual de estruturas anatômicas",
         ],
         gallery: [
           {
-            type: "placeholder",
-            variant: "dashboard",
-            label: "Visão principal de métricas e insights automatizados",
+            type: "image",
+            src: "/projects/anatolab/capa.png",
+            alt: "Anatolab - Anatomia Humana em 3D — capa do projeto",
           },
           {
-            type: "placeholder",
-            variant: "saas",
-            label: "Fluxo de configuração de alertas e modelos",
+            type: "image",
+            src: "/projects/anatolab/imagem2.png",
+            alt: "Anatolab - Anatomia Humana em 3D — tela 2",
           },
           {
-            type: "placeholder",
-            variant: "devtools",
-            label: "Console de logs semânticos e auditoria",
+            type: "image",
+            src: "/projects/anatolab/imagem3.png",
+            alt: "Anatolab - Anatomia Humana em 3D — tela 3",
+          },
+          {
+            type: "image",
+            src: "/projects/anatolab/imagem4.png",
+            alt: "Anatolab - Anatomia Humana em 3D — tela 4",
           },
         ],
       },
     },
     {
-      slug: "dolor-commerce",
-      title: "Dolor Commerce",
-      subtitle: "Consectetur adipiscing headless storefront & checkout",
-      category: "E-commerce · FullStack",
+      slug: "cmf",
+      title: "CMF - Sistema de Gerenciamento",
+      subtitle: "Plataforma de gestão educacional para o Curso Matemática Fácil",
+      category: "SaaS · Gestão Educacional",
       year: "2025",
       summary:
-        "Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat duis aute irure.",
+        "Plataforma para gestão administrativa e pedagógica do Curso Matemática Fácil, reunindo alunos, professores, turmas, calendário, frequência e histórico.",
       accentColor: "#5B3DF5",
       featured: true,
-      techs: ["Next.js", "TypeScript", "Stripe", "Redis", "Prisma"],
-      liveUrl: "https://example.com",
+      visibility: "private",
+      status: "completed",
+      techs: ["Next.js", "TypeScript", "PostgreSQL", "Redis", "Figma"],
       cover: {
-        type: "placeholder",
-        variant: "ecommerce",
-        label: "Dolor Commerce — Vitrine Editorial & Checkout",
+        type: "image",
+        src: "/projects/cmf/capa.png",
+        alt: "CMF - Sistema de Gerenciamento — capa do projeto",
       },
       details: {
         overview:
-          "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Quis autem vel eum iure reprehenderit qui in ea voluptate velit esse quam nihil molestiae consequatur.",
+          "O CMF App é uma plataforma de gestão educacional para o Curso Matemática Fácil. Centraliza a operação administrativa e pedagógica em um único ambiente, reunindo alunos, professores, turmas, modalidades, aulas individuais, calendário, frequência, pendências e histórico acadêmico.\n\nDesenvolvido com Next.js, React, TypeScript, Prisma, PostgreSQL/Supabase e autenticação segura, o sistema transforma rotinas antes dispersas em fluxos digitais rastreáveis e organizados.",
         challenge:
-          "Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt neque porro quisquam est.",
+          "A operação de um curso de reforço envolve diversos dados conectados: alunos matriculados, professores, turmas recorrentes, aulas individuais, disponibilidade de horários e acompanhamento de frequência. Quando esses processos dependem de controles manuais ou planilhas isoladas, aumentam os riscos de conflito de agenda, perda de informação, retrabalho e dificuldade para acompanhar o histórico acadêmico.\n\nO desafio foi criar uma solução que desse visibilidade à operação sem abrir mão de regras importantes, como evitar sobreposição de horários, limitar o acesso de professores às próprias aulas e manter registros consistentes.",
         solution:
-          "At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis praesentium voluptatum deleniti atque corrupti quos dolores et quas molestias excepturi sint occaecati cupiditate.",
+          "O CMF App estrutura a gestão do curso por perfis e fluxos claros. Administradores gerenciam cadastros, turmas, modalidades e aulas; professores acessam o próprio portal para acompanhar, iniciar e finalizar aulas sob sua responsabilidade; alunos podem consultar as informações vinculadas ao seu perfil.",
         highlights: [
-          "Lorem ipsum storefront — Core Web Vitals 99/100",
-          "Dolor sit amet checkout — redução de etapas em dispositivo móvel",
-          "Consectetur cache — revalidação granular por catálogo",
+          "Gestão centralizada de alunos, professores, turmas, modalidades e usuários",
+          "Calendário integrado para visualizar turmas recorrentes e aulas individuais",
+          "Validação automática de conflitos de horário entre alunos, professores, turmas e aulas",
+          "Portal por perfil",
+          "Fluxo completo de aulas: agendamento, início, finalização, anotações e histórico paginado",
+          "Controle de frequência e acompanhamento de pendências",
         ],
         gallery: [
           {
-            type: "placeholder",
-            variant: "ecommerce",
-            label: "Página de produto com galeria interativa",
+            type: "image",
+            src: "/projects/cmf/capa.png",
+            alt: "CMF - Sistema de Gerenciamento — capa do projeto",
           },
           {
-            type: "placeholder",
-            variant: "editorial",
-            label: "Coleção sazonal em layout editorial",
+            type: "image",
+            src: "/projects/cmf/imagem2.png",
+            alt: "CMF - Sistema de Gerenciamento — tela 2",
+          },
+          {
+            type: "image",
+            src: "/projects/cmf/image3.png",
+            alt: "CMF - Sistema de Gerenciamento — tela 3",
+          },
+          {
+            type: "image",
+            src: "/projects/cmf/image4.png",
+            alt: "CMF - Sistema de Gerenciamento — tela 4",
+          },
+          {
+            type: "image",
+            src: "/projects/cmf/imagem5-celular.png",
+            alt: "CMF - Sistema de Gerenciamento — versão mobile",
+            fit: "contain",
           },
         ],
       },
     },
     {
-      slug: "consectetur-cloud-saas",
-      title: "Consectetur Cloud SaaS",
-      subtitle: "Sed do eiusmod multi-tenant orchestration platform",
-      category: "SaaS · Arquitetura",
+      slug: "civix",
+      title: "Civix - Chatbot para Construção Civil",
+      subtitle: "Plataforma SaaS de atendimento inteligente com IA para construção civil",
+      category: "SaaS · IA Comercial",
       year: "2025",
       summary:
-        "Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur excepteur sint occaecat.",
+        "Plataforma SaaS que automatiza o primeiro contato comercial com IA, qualifica leads e entrega contexto completo ao vendedor na construção civil.",
       accentColor: "#8E5CFF",
       featured: true,
-      techs: ["React", "TypeScript", "Node.js", "PostgreSQL", "Docker"],
-      repoUrl: "https://github.com/teuaraujoo/consectetur-cloud-saas",
+      visibility: "private",
+      status: "completed",
+      techs: ["React", "TypeScript", "n8n", "Express", "Tailwind CSS", "Figma", "PostgreSQL", "Lenis", "GSAP"],
       cover: {
-        type: "placeholder",
-        variant: "saas",
-        label: "Consectetur Cloud SaaS — Orquestração Multi-Tenant",
+        type: "image",
+        src: "/projects/civix/capa.png",
+        alt: "Civix - Chatbot para Construção Civil — capa do projeto",
       },
       details: {
         overview:
-          "Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo.",
+          "A Civix é uma plataforma SaaS de atendimento inteligente voltada para negócios e empresas, com foco inicial no setor da construção civil.\n\nA plataforma utiliza Inteligência Artificial para automatizar o primeiro contato entre empresas e clientes, responder dúvidas frequentes, identificar a intenção de compra e qualificar oportunidades comerciais. Após essa etapa, os vendedores recebem o histórico da conversa, as principais necessidades do cliente e o contexto necessário para conduzir o atendimento até a compra ou fechamento do negócio.",
         challenge:
-          "Ut enim ad minima veniam, quis nostrum exercitationem ullam corporis suscipit laboriosam, nisi ut aliquid ex ea commodi consequatur quis autem vel eum iure reprehenderit.",
+          "Empresas enfrentam dificuldades para manter um atendimento rápido, consistente e disponível durante todo o dia. O volume de mensagens repetitivas consome o tempo dos vendedores, enquanto a demora no primeiro contato pode fazer com que oportunidades sejam perdidas.\n\nTambém existe a necessidade de oferecer atendimento humano em diferentes momentos do funil de vendas, sem exigir que a equipe responda manualmente todas as dúvidas desde o início. Conforme a demanda cresce, aumentar o atendimento apenas com novas contratações eleva os custos e dificulta a escala da operação.",
         solution:
-          "Nam libero tempore, cum soluta nobis est eligendi optio cumque nihil impedit quo minus id quod maxime placeat facere possimus, omnis voluptas assumenda est omnis dolor repellendus.",
+          "A Civix automatiza a etapa inicial do atendimento comercial com Inteligência Artificial, oferecendo respostas rápidas e disponibilidade contínua. A IA pode identificar dúvidas, necessidades, perfil e intenção de compra, qualificando o lead antes de encaminhá-lo para um vendedor.\n\nQuando o atendimento humano se torna necessário, o vendedor recebe o histórico completo da conversa e as informações já coletadas pela plataforma. Dessa forma, ele não precisa repetir perguntas básicas e pode concentrar seu tempo em oportunidades mais preparadas para avançar no funil.\n\nA solução também centraliza a gestão de empresas, equipes, conversas, leads e vendas, fornecendo dashboards e métricas para acompanhar o desempenho da operação.",
         highlights: [
-          "Multi-tenant isolation — isolamento lógico por organização",
-          "Lorem billing engine — controle de uso e cotas em tempo real",
-          "Consectetur RBAC — matriz granular de permissões e auditoria",
-          "Eiusmod workers — filas resilientes com retentativa exponencial",
+          "Atendimento inteligente 24/7: disponibilidade contínua para responder clientes e iniciar oportunidades.",
+          "Qualificação automática de leads: identificação de necessidades, perfil e intenção de compra.",
+          "Transição contextual para vendedores: histórico completo e informações relevantes antes do atendimento humano.",
+          "Redução de tarefas repetitivas: vendedores focados em negociação e fechamento.",
+          "Foco na construção civil: atendimento adaptado às necessidades de empresas do setor.",
         ],
         gallery: [
           {
-            type: "placeholder",
-            variant: "saas",
-            label: "Topologia de workspaces e permissões",
+            type: "image",
+            src: "/projects/civix/capa.png",
+            alt: "Civix - Chatbot para Construção Civil — capa do projeto",
           },
           {
-            type: "placeholder",
-            variant: "dashboard",
-            label: "Monitoramento de consumo e faturamento",
+            type: "image",
+            src: "/projects/civix/imagem2.png",
+            alt: "Civix - Chatbot para Construção Civil — tela 2",
           },
           {
-            type: "placeholder",
-            variant: "devtools",
-            label: "Painel de webhooks e chaves de API",
+            type: "image",
+            src: "/projects/civix/imagem3.png",
+            alt: "Civix - Chatbot para Construção Civil — tela 3",
+          },
+          {
+            type: "image",
+            src: "/projects/civix/imagem4.png",
+            alt: "Civix - Chatbot para Construção Civil — tela 4",
           },
         ],
       },
     },
     {
-      slug: "adipiscing-cli-docs",
-      title: "Adipiscing CLI & Docs",
-      subtitle: "Tempor incididunt developer tooling & interactive docs",
-      category: "DevTools · Open Source",
+      slug: "jose-william",
+      title: "José William - Portfolio Pessoal",
+      subtitle: "Portfólio profissional para atleta de basquete",
+      category: "Landing Page · Portfólio",
       year: "2024",
       summary:
-        "Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum curabitur.",
+        "Portfólio desenvolvido para o atleta de basquete José William apresentar suas habilidades, conquistas e melhores momentos em quadra.",
       accentColor: "#4811ED",
       featured: true,
-      techs: ["TypeScript", "Node.js", "MDX", "Playwright", "Turborepo"],
-      liveUrl: "https://example.com",
-      repoUrl: "https://github.com/teuaraujoo/adipiscing-cli-docs",
+      visibility: "public",
+      status: "completed",
+      techs: ["HTML", "CSS", "JavaScript", "Figma", "GSAP"],
+      liveUrl: "https://josewilliam.vercel.app/",
+      repoUrl: "https://github.com/teuaraujoo/atletaBahia",
       cover: {
-        type: "placeholder",
-        variant: "devtools",
-        label: "Adipiscing CLI & Docs — Terminal & Documentação",
+        type: "image",
+        src: "/projects/bahia/capa.png",
+        alt: "José William - Portfolio Pessoal — capa do projeto",
       },
       details: {
         overview:
-          "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip.",
+          "Landing page desenvolvida para o atleta de basquete José William. O objetivo do site é servir como portfólio pessoal e ferramenta de divulgação profissional, apresentando suas habilidades, conquistas e melhores momentos em quadra.",
         challenge:
-          "Temporibus autem quibusdam et aut officiis debitis aut rerum necessitatibus saepe eveniet ut et voluptates repudiandae sint et molestiae non recusandae.",
+          "Estruturar uma apresentação digital com presença marcante para destacar a trajetória esportiva do atleta de forma clara e profissional, facilitando a avaliação rápida por clubes, olheiros e parceiros.",
         solution:
-          "Itaque earum rerum hic tenetur a sapiente delectus, ut aut reiciendis voluptatibus maiores alias consequatur aut perferendis doloribus asperiores repellat.",
+          "Interface prototipada no Figma e construída com HTML, CSS, JavaScript e animações fluidas em GSAP, organizando perfil esportivo, conquistas e melhores momentos em uma navegação direta e responsiva.",
         highlights: [
-          "Lorem CLI — scaffolding determinístico em menos de 2 segundos",
-          "Dolor MDX docs — busca instantânea com exemplos executáveis",
-          "Amet test suite — validação automatizada em pipelines de CI",
+          "Apresentação dedicada de habilidades, conquistas e melhores momentos em quadra",
+          "Layout prototipado no Figma com animações e ritmo visual em GSAP",
+          "Estrutura responsiva voltada à divulgação profissional do atleta",
         ],
         gallery: [
           {
-            type: "placeholder",
-            variant: "devtools",
-            label: "Saída estruturada do CLI e diagnósticos",
+            type: "image",
+            src: "/projects/bahia/capa.png",
+            alt: "José William - Portfolio Pessoal — capa do projeto",
           },
           {
-            type: "placeholder",
-            variant: "editorial",
-            label: "Portal de documentação e guias interativos",
+            type: "image",
+            src: "/projects/bahia/imagem2.png",
+            alt: "José William - Portfolio Pessoal — tela 2",
+          },
+          {
+            type: "image",
+            src: "/projects/bahia/imagem3.png",
+            alt: "José William - Portfolio Pessoal — tela 3",
+          },
+          {
+            type: "image",
+            src: "/projects/bahia/imagem4.png",
+            alt: "José William - Portfolio Pessoal — tela 4",
           },
         ],
       },
     },
     {
-      slug: "eiusmod-design-system",
-      title: "Eiusmod Design System",
-      subtitle: "Lorem ipsum tokens, primitives & accessible components",
-      category: "Design System · UI",
+      slug: "calculadora",
+      title: "Calculadora",
+      subtitle: "Calculadora web minimalista com operações aritméticas básicas",
+      category: "Frontend · JavaScript",
       year: "2024",
       summary:
-        "Lorem ipsum dolor sit amet, consectetur adipiscing elit sed do eiusmod tempor incididunt ut labore.",
+        "Aplicação web de calculadora em HTML, CSS e JavaScript para operações aritméticas do dia a dia em uma interface limpa.",
       accentColor: "#793CFF",
       featured: false,
-      techs: ["React", "TypeScript", "Tailwind CSS", "Radix UI", "Storybook"],
-      repoUrl: "https://github.com/teuaraujoo/eiusmod-design-system",
+      visibility: "private",
+      status: "completed",
+      techs: ["HTML", "CSS", "JavaScript"],
       cover: {
-        type: "placeholder",
-        variant: "editorial",
-        label: "Eiusmod Design System — Tokens & Componentes",
+        type: "image",
+        src: "/projects/calculadora/capa.png",
+        alt: "Calculadora — capa do projeto",
       },
       details: {
         overview:
-          "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer nec odio praesent libero sed cursus ante dapibus diam, sed nisi nulla quis sem at nibh elementum imperdiet.",
-        challenge:
-          "Duis sagittis ipsum praesent mauris fusce nec tellus sed augue semper porta. Mauris massa vestibulum lacinia arcu eget nulla class aptent taciti sociosqu ad litora torquent.",
-        solution:
-          "Curabitur sodales ligula in libero sed dignissim lacinia nunc. Curabitur tortor pellentesque nibh aenean quam in scelerisque sem at dolor maecenas mattis.",
-        highlights: [
-          "Lorem tokens — sincronização automática de variáveis CSS",
-          "Dolor primitives — 32 componentes acessíveis via teclado",
-          "Amet documentation — catálogo visual com testes de contraste",
-        ],
+          "Calculadora web desenvolvida com HTML, CSS e JavaScript para realizar operações matemáticas básicas: adição, subtração, multiplicação e divisão, além de limpeza e correção de dígitos. Construída com interface centralizada em tema escuro para proporcionar leitura clara dos botões e uso direto no navegador.",
         gallery: [
           {
-            type: "placeholder",
-            variant: "editorial",
-            label: "Escala tipográfica e tokens de cor",
-          },
-          {
-            type: "placeholder",
-            variant: "devtools",
-            label: "Playground interativo de variantes e estados",
+            type: "image",
+            src: "/projects/calculadora/capa.png",
+            alt: "Calculadora — tela principal",
           },
         ],
       },
     },
     {
-      slug: "tempor-auth-gateway",
-      title: "Tempor Auth Gateway",
-      subtitle: "Consectetur edge session & OAuth token broker",
-      category: "Segurança · Backend",
+      slug: "lista-de-tarefas",
+      title: "Lista de Tarefas",
+      subtitle: "Aplicação simples para criação e gerenciamento de tarefas",
+      category: "Frontend · JavaScript",
       year: "2024",
       summary:
-        "Quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat duis aute irure.",
+        "Lista de tarefas interativa desenvolvida com HTML, CSS e JavaScript para adicionar e remover atividades do dia a dia.",
       accentColor: "#5B3DF5",
       featured: false,
-      techs: ["TypeScript", "Cloudflare Workers", "JWT", "OAuth 2.0", "Redis"],
-      liveUrl: "https://example.com",
+      visibility: "private",
+      status: "completed",
+      techs: ["HTML", "CSS", "JavaScript"],
       cover: {
-        type: "placeholder",
-        variant: "saas",
-        label: "Tempor Auth Gateway — Autenticação na Edge",
+        type: "image",
+        src: "/projects/lista-tarefas/capa.png",
+        alt: "Lista de Tarefas — capa do projeto",
       },
       details: {
         overview:
-          "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed non risus suspendisse lectus tortor dignissim sit amet adipiscing nec ultricies sed dolor.",
-        challenge:
-          "Cras elementum ultrices diam maecenas ligula massa varius a semper congue euismod non mi. Proin porttitor orci nec nonummy molestie enim est eleifend mi.",
-        solution:
-          "Non fermentum diam nisl sit amet erat duis semper. Duis arcu massa scelerisque vitae consequat in pretium a enim pellentesque congue.",
-        highlights: [
-          "Edge validation — latência média abaixo de 12 ms",
-          "Token rotation — revogação imediata de sessões comprometidas",
-          "Audit trail — registro estruturado de eventos críticos",
-        ],
+          "Aplicação de lista de tarefas criada com HTML, CSS e JavaScript para organizar atividades cotidianas de forma prática. Permite digitar e adicionar novas tarefas pelo campo de entrada e remover itens individualmente, mantendo o foco em manipulação dinâmica do DOM e interface direta.",
         gallery: [
           {
-            type: "placeholder",
-            variant: "saas",
-            label: "Diagrama de fluxo OAuth e rotação de chaves",
-          },
-          {
-            type: "placeholder",
-            variant: "dashboard",
-            label: "Métricas de latência e tentativas bloqueadas",
+            type: "image",
+            src: "/projects/lista-tarefas/capa.png",
+            alt: "Lista de Tarefas — tela principal",
           },
         ],
       },
     },
     {
-      slug: "labore-analytics-sdk",
-      title: "Labore Analytics SDK",
-      subtitle: "Dolor sit amet lightweight privacy-first event pipeline",
-      category: "SDK · Telemetria",
+      slug: "lampada-interativa",
+      title: "Lâmpada Interativa",
+      subtitle: "Experimento interativo de manipulação visual de estados com DOM",
+      category: "Frontend · JavaScript",
       year: "2023",
       summary:
-        "Ut labore et dolore magna aliqua ut enim ad minim veniam quis nostrud exercitation ullamco.",
+        "Projeto interativo em HTML, CSS e JavaScript que altera o estado visual de uma lâmpada em resposta às interações do usuário.",
       accentColor: "#8E5CFF",
       featured: false,
-      techs: ["TypeScript", "Vite", "ClickHouse", "Zod", "Vitest"],
-      liveUrl: "https://example.com",
-      repoUrl: "https://github.com/teuaraujoo/labore-analytics-sdk",
+      visibility: "private",
+      status: "completed",
+      techs: ["HTML", "CSS", "JavaScript"],
       cover: {
-        type: "placeholder",
-        variant: "devtools",
-        label: "Labore Analytics SDK — Coleta Leve & Tipada",
+        type: "image",
+        src: "/projects/lampada/capa.png",
+        alt: "Lâmpada Interativa — capa do projeto",
       },
       details: {
         overview:
-          "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut purus elit vestibulum ut placerat ac adipiscing vitae felis curabitur dictum gravida mauris.",
-        challenge:
-          "Nam arcu libero nonummy eget consectetuer id vulputate a magna. Donec vehicula augue eu neque pellentesque habitant morbi tristique senectus et netus.",
-        solution:
-          "Mauris ut leo cras viverra metus rhoncus sem nulla et lectus vestibulum urna fringilla ultrices phasellus eu tellus sit amet tortor gravida placerat.",
-        highlights: [
-          "Zero-dependency bundle — menos de 3.2 kB gzipped",
-          "Batching inteligente — envio resiliente via sendBeacon",
-          "Esquemas tipados — validação estrita em tempo de compilação",
-        ],
+          "Experimento web desenvolvido com HTML, CSS e JavaScript em torno de uma lâmpada interativa centralizada em cena. O projeto explora manipulação de eventos e atualização dinâmica de elementos do DOM para alternar estados visuais da lâmpada diretamente pela interface.",
         gallery: [
           {
-            type: "placeholder",
-            variant: "devtools",
-            label: "Contrato de eventos tipados e inspetor local",
-          },
-          {
-            type: "placeholder",
-            variant: "dashboard",
-            label: "Funis de conversão e retenção sem cookies",
-          },
-        ],
-      },
-    },
-    {
-      slug: "magna-portfolio-engine",
-      title: "Magna Portfolio Engine",
-      subtitle: "Editorial motion architecture & scroll choreography",
-      category: "Editorial · Motion",
-      year: "2023",
-      summary:
-        "Excepteur sint occaecat cupidatat non proident sunt in culpa qui officia deserunt mollit anim.",
-      accentColor: "#4811ED",
-      featured: false,
-      techs: ["Next.js", "GSAP", "Lenis", "Tailwind CSS", "TypeScript"],
-      cover: {
-        type: "placeholder",
-        variant: "editorial",
-        label: "Magna Portfolio Engine — Coreografia Editorial",
-      },
-      details: {
-        overview:
-          "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia curae.",
-        challenge:
-          "Praesent blandit laoreet nibh fusce convallis metus id felis luctus adipiscing. Pellentesque egestas neque sit amet convallis pulvinar justo nulla eleifend augue.",
-        solution:
-          "Pellentesque auctor neque nec urna proin sapien ipsum porta a auctor quis euismod ut mi. Aenean viverra rhoncus pede pellentesque habitant morbi tristique.",
-        highlights: [
-          "Scroll sincronizado — GSAP ScrollTrigger integrado ao Lenis",
-          "Reduced motion — degradação elegante para acessibilidade",
-          "Layout editorial — tipografia fluida com clamp e grid responsivo",
-        ],
-        gallery: [
-          {
-            type: "placeholder",
-            variant: "editorial",
-            label: "Composição tipográfica e ritmo vertical",
-          },
-          {
-            type: "placeholder",
-            variant: "dashboard",
-            label: "Perfil de frames a 60 fps durante transições",
-          },
-          {
-            type: "placeholder",
-            variant: "ecommerce",
-            label: "Grade de vitrine com cartões concêntricos",
+            type: "image",
+            src: "/projects/lampada/capa.png",
+            alt: "Lâmpada Interativa — tela principal",
           },
         ],
       },

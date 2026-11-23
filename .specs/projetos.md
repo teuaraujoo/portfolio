@@ -6,15 +6,16 @@ A seção **Projetos (`#projetos`)** adapta o padrão **Sticky Card Stacking** (
 
 1. **Referência 1 — `victordeveloper.com` (Profundidade no Scroll + Lista Secundária + Modal de Case):**
    - **Empilhamento com recuo físico:** Conforme o card seguinte sobe no scroll (`GSAP + ScrollTrigger` com `scrub: true`), o card anterior encolhe suavemente (`scale: 0.92`, `transform-origin: 50% 0%`) e recebe um escurecimento progressivo (`.project-shade` até `opacity: 0.65`), criando hierarquia clara entre o projeto em foco e os projetos já arquivados atrás dele.
-   - **Bloco secundário `"Mais projetos"`:** Abaixo da pilha principal, uma lista editorial compacta exibe projetos adicionais com numeração, resumo, categoria e abertura de case.
-   - **Dialog de Case Completo (Obrigatório para todos os projetos):** Clicar em qualquer card da pilha ou linha da lista *"Mais projetos"* abre um modal estruturado como **Case Study**, exibindo obrigatoriamente **Descrição geral**, **O desafio** e **A solução** (além de galeria, destaques e tecnologias).
-2. **Referência 2 — `ruancostadev.com.br` (Escala Fullscreen + Ritmo de Leitura + Spotlight + Ações Diretas):**
-   - **Escala panorâmica de tela cheia:** Cards altos (`md:h-[min(74svh,680px)]`) e largura generosa alinhada ao grid de `1600px`, com cantos concêntricos e degrau superior escalonado (`--stack-index`).
+   - **Bloco secundário `"Mais projetos"`:** Abaixo da pilha principal, uma lista editorial compacta exibe 3 projetos adicionais com numeração, título, preview fotográfico no hover e abertura de case.
+   - **Dialog de Case (Obrigatório para todos os projetos):** Clicar em qualquer card da pilha ou linha da lista *"Mais projetos"* abre um modal estruturado de projeto, exibindo obrigatoriamente **Descrição geral**, galeria e tecnologias, além dos blocos opcionais **O desafio**, **A solução** e **Destaques** quando preenchidos (cases completos em destaque exibem todos os blocos; projetos mais simples da lista *"Mais projetos"* exibem apenas **Descrição geral**, galeria e tecnologias).
+2. **Referência 2 — `ruancostadev.com.br` (Escala Fullscreen + Ritmo de Leitura + Spotlight):**
+   - **Escala panorâmica de tela cheia:** Cards proporcionais à largura generosa do grid de `1600px` (`min-[900px]:min-h-[400px]`, mídia widescreen `aspect-[19/9]`), com cantos concêntricos e degrau superior escalonado (`--stack-index`).
    - **Ritmo de scroll controlado:** Espaçadores proporcionais à viewport entre os cards (`md:h-[36vh]`) garantem tempo de leitura confortável antes que o próximo card cubra o anterior.
-   - **Spotlight sutil de ponteiro + links rápidos:** Em desktop, um brilho radial discreto (`#793CFF` / `#4811ED`) reage ao cursor na borda e superfície do card (sem tilt 3D agressivo, mantendo o card arquitetonicamente firme durante o `scale` do scroll) e botões secundários permitem acessar **Live Demo** ou **Repositório** diretamente.
+   - **Spotlight sutil de ponteiro + CTA único no card:** Em desktop, um brilho radial discreto (`#793CFF` / `#4811ED`) reage ao cursor na borda e superfície do card (sem tilt 3D agressivo, mantendo o card arquitetonicamente firme durante o `scale` do scroll) e o rodapé do card apresenta apenas o CTA **`Ver case completo`**, mantendo os links externos (**`Acessar`** e **`GitHub`** condicional) exclusivamente no dialog de Case Study.
 
 > [!NOTE]
-> **Conteúdo Inicial (Placeholder):** Seguindo o padrão já adotado em Home e Sobre, os projetos iniciais utilizam títulos/contextos de exemplo + textos descritivos em **Lorem ipsum** em [src/data/projetos.ts](../src/data/projetos.ts) e **mockups visuais placeholder estilizados** em dark + roxo (preparados para receber prints reais, vídeos `.mp4`/`.webm` ou dados vindos de API/CMS no futuro).
+> **Conteúdo Atual:** Os **4 projetos em destaque (`featured: true`)** utilizam títulos, capas, galerias reais (`public/projects/`) e links reais em [src/data/projetos.ts](../src/data/projetos.ts), mantendo textos descritivos em **Lorem ipsum** enquanto os cases completos estão em redação. Os **3 projetos adicionais (`featured: false`)** na lista *"Mais projetos"* (`Calculadora`, `Lista de Tarefas` e `Lâmpada Interativa`) utilizam capas reais em `public/projects/` e textos reais em português em [src/data/projetos.ts](../src/data/projetos.ts) — exibindo apenas título e preview fotográfico na lista e somente **Descrição geral**, galeria e tecnologias (`HTML`, `CSS`, `JavaScript`) no modal, omitindo `challenge`, `solution` e `highlights`.
+> Os projetos suportam `visibility` (`"public" | "private"`) para controlar a exibição de links de repositório e `status` (`"completed" | "in_progress"`) exibido como badge editorial (`Concluído` / `Em desenvolvimento`) dentro do modal `ProjectDialog`.
 
 ---
 
@@ -23,9 +24,9 @@ A seção **Projetos (`#projetos`)** adapta o padrão **Sticky Card Stacking** (
 Seguindo [ARCHITECTURE.md](../docs/ARCHITECTURE.md):
 
 - **Camada de dados tipada (`src/data/projetos.ts`):**
-  - Centraliza `eyebrow`, título e subtítulo da seção, **4 projetos em destaque (`featured`)** para a pilha Sticky e **4 projetos adicionais (`archive`)** para a lista `"Mais projetos"`, além de labels reutilizáveis de botões e modal (`pt-BR` agora, pronto para `en` ou API).
+  - Centraliza `eyebrow`, título e subtítulo da seção, **4 projetos em destaque (`featured`)** para a pilha Sticky e **3 projetos adicionais (`archive`)** para a lista `"Mais projetos"`, além de labels reutilizáveis de botões e modal (`pt-BR` agora, pronto para `en` ou API).
 - **Preview Visual Placeholder / Mídia (`src/components/portfolio/project-media.tsx`):**
-  - Renderiza mídia real (`<video>` com `IntersectionObserver` ou `<img>` otimizada) quando `media.type` for `"video"` ou `"image"`, ou um **Mockup Visual Editorial-Tech** em SVG/HTML estilizado (`#0D0D0D`, grade sutil, elementos de UI abstratos e acento `#793CFF`/`#4811ED`) quando `media.type === "placeholder"`, com container queries (`@container`, breakpoints `@[300px]` / `@[420px]`) para manter nitidez tanto nos cards grandes quanto no preview flutuante compacto (`h-36 w-60 lg:h-44 lg:w-72`).
+  - Renderiza mídia real (`<video>` com `IntersectionObserver` ou `<img>` com `object-contain` por padrão sobre `#0D0D0D` para preservar 100% das bordas sem zoom/recorte, respeitando `fit?: "cover" | "contain"` onde `"contain"` aplica respiro `p-2 sm:p-4` para screenshots verticais mobile) quando `media.type` for `"video"` ou `"image"`, ou um **Mockup Visual Editorial-Tech** em SVG/HTML estilizado (`#0D0D0D`, grade sutil, elementos de UI abstratos e acento `#793CFF`/`#4811ED`) quando `media.type === "placeholder"`, com container queries (`@container`, breakpoints `@[300px]` / `@[420px]`) para manter nitidez tanto nos cards grandes quanto no preview flutuante compacto (`aspect-[19/9] w-64 lg:w-80`).
 - **Primitivo UI da Lista Interativa (`src/components/ui/interactive-hover-links.tsx`):**
   - `"use client"` reutilizável adaptado do padrão **Interactive Hover Links** (21st.dev), implementado sem dependência extra de `motion` utilizando CSS transitions nativas, variáveis CSS rastreadas por ponteiro (`--hover-x` / `--hover-y`), stagger por caractere no título (`22ms` por letra até `320ms`) e preview flutuante inclinado alimentado por `ProjectMedia` (ou `imgSrc`).
 - **Dialog de Case Completo (`src/components/portfolio/project-dialog.tsx`):**
@@ -52,10 +53,10 @@ Seguindo [ARCHITECTURE.md](../docs/ARCHITECTURE.md):
 1. **Barra de Metadados (topo):**
    - `mb-10 flex items-center justify-between border-b border-border pb-4 font-sans text-[11px] font-medium uppercase tracking-[0.12em] text-muted-foreground`
    - Esquerda: `"03 — Projetos"`
-   - Direita: `"8 projetos"` *(contagem dinâmica `featured.length + archive.length`)*
+   - Direita: `"7 projetos"` *(contagem dinâmica `featured.length + archive.length`)*
 2. **Bloco Introdutório (`grid` 2 colunas em `lg`):**
    - **Esquerda (`<h2 id="projetos-title">`):** `font-display font-semibold text-[clamp(2.25rem,5vw,4.5rem)] leading-[1.02] tracking-[-0.04em] text-foreground` (`"Projetos em / destaque."`).
-   - **Direita (Lead):** `max-w-[46ch] text-[clamp(0.95rem,1.15vw,1.1rem)] leading-[1.65] text-muted-foreground` (`Lorem ipsum` curto convidando a explorar os cases).
+   - **Direita (Lead):** `max-w-[46ch] text-[clamp(0.95rem,1.15vw,1.1rem)] leading-[1.65] text-muted-foreground` (`"Uma seleção de projetos em que transformei ideias e desafios em soluções digitais, da ideia à implementação."`).
 
 ### B) Pilha de Cards (`Sticky Card Stacking`)
 - **Container da Pilha (`.projects-stack`):**
@@ -71,24 +72,24 @@ Seguindo [ARCHITECTURE.md](../docs/ARCHITECTURE.md):
   - Definição exata de concêntrico:
     - Externo: `rounded-[24px]` (`24px`)
     - Padding no frame da mídia: `p-3 md:p-5` com mídia `rounded-[14px]` (`24px - 10px ≈ 14px`, paralelo ao canto externo).
-  - Estrutura: `group/card relative grid cursor-pointer overflow-hidden rounded-[24px] border border-white/10 bg-card shadow-[0_24px_80px_-24px_rgba(0,0,0,0.85)] transition-colors duration-300 hover:border-white/20 min-[900px]:h-[min(74svh,680px)] min-[900px]:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)]`
+  - Estrutura: `group/card relative flex cursor-pointer flex-col origin-top overflow-hidden rounded-[24px] border border-white/10 bg-card p-3 shadow-[0_24px_80px_-24px_rgba(0,0,0,0.85)] transition-colors duration-300 hover:border-white/20 will-change-transform md:p-5 min-[900px]:grid min-[900px]:h-auto min-[900px]:min-h-[400px] min-[900px]:grid-cols-[minmax(0,1.45fr)_minmax(0,1fr)] min-[900px]:items-stretch`
   - `transform-origin: 50% 0%` + `will-change: transform`.
   - **Camadas Visuais do Card:**
     1. **Spotlight sutil de ponteiro (desktop apenas, `pointer-events-none hidden min-[900px]:block motion-reduce:hidden`):**
        - Glow radial interno no cursor (`size-72 rounded-full blur-3xl opacity-0 group-hover/card:opacity-100 transition-opacity duration-300`) usando a cor de acento do projeto (padrão `--brand-bright` / `#793CFF` com opacidade baixa `0.14`).
        - Realce de borda via máscara CSS (`radial-gradient(380px circle at var(--mx) var(--my), rgba(121, 60, 255, 0.55), transparent 65%)` com `mask-composite: exclude`).
     2. **Coluna Esquerda — Mídia (`ProjectMedia`):**
-       - Container `relative overflow-hidden rounded-[14px] bg-[#0D0D0D] border border-white/8 aspect-[16/10] min-[900px]:aspect-auto min-[900px]:h-full`.
-       - Hover suave na mídia: `transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover/card:scale-[1.03] motion-reduce:transition-none`.
+       - Container `relative aspect-[19/9] w-full self-center overflow-hidden rounded-[14px] border border-white/8 bg-[#0D0D0D]` para enquadramento widescreen sem corte lateral.
+       - Hover suave na mídia: `transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover/card:scale-[1.01] motion-reduce:transition-none`.
     3. **Coluna Direita — Conteúdo Editorial (`flex flex-col justify-between gap-6 p-4 pt-6 min-[900px]:p-8 xl:p-10`):**
-       - **Topo:** Linha com categoria/ano à esquerda (`font-sans text-xs font-medium uppercase tracking-[0.1em] text-brand-bright`) e índice monumental à direita (`01`, `02`, `03`, `04` em `font-display text-3xl font-semibold text-white/18 tabular-nums`).
+       - **Topo:** Exibe apenas o índice monumental alinhado à direita (`01`, `02`, `03`, `04` em `font-display text-3xl font-semibold text-white/18 tabular-nums` dentro de `flex items-start justify-end`), enquanto categoria, ano e badge de status (`PROJECT_STATUS_META[project.status]`: `"Concluído"` ou `"Em desenvolvimento"`) permanecem exclusivamente no `ProjectDialog`.
        - **Centro:**
          - Título (`<h3 className="font-display text-[clamp(1.6rem,2.6vw,2.75rem)] font-semibold leading-[1.08] tracking-[-0.03em] text-foreground">`) + subtítulo curto (`mt-2 text-sm font-medium text-muted-foreground`).
          - Descrição concisa (`mt-4 max-w-[44ch] text-[0.95rem] leading-[1.65] text-muted-foreground`).
          - Pills de tecnologias (`mt-6 flex flex-wrap gap-2`): `rounded-full border border-white/10 bg-white/[0.03] px-3 py-1 text-[11px] font-medium tracking-[0.02em] text-foreground/80`.
-       - **Base (`mt-auto pt-4 flex flex-wrap items-center gap-3`):**
-         - Botão principal: **`Ver case completo`** (`bg-brand text-foreground hover:brightness-110 rounded-full px-5 py-2.5 text-sm font-semibold cursor-pointer`).
-         - Links diretos opcionais (se presentes no item): **`Acessar ↗`** e **`GitHub ↗`** em botões secundários `border border-white/15 bg-white/[0.03] hover:border-white/30` (com `e.stopPropagation()` para não abrir o modal ao clicar no link externo).
+       - **Base (`mt-auto flex flex-wrap items-center gap-3 pt-4`):**
+         - Exibe exclusivamente o botão principal **`Ver case completo`** (`ctaCaseLabel`, em `bg-brand text-foreground hover:brightness-110 rounded-full px-5 py-2.5 text-sm font-semibold cursor-pointer`).
+         - Os links externos (**`Acessar ↗`** via `ctaLiveLabel` quando `Boolean(project.liveUrl)` e **`GitHub ↗`** via `ctaRepoLabel` quando `project.visibility === "public" && Boolean(project.repoUrl)`) são exibidos apenas dentro do `ProjectDialog`.
     4. **Scrim de Profundidade (`.project-shade`):**
        - `<div aria-hidden="true" className="project-shade pointer-events-none absolute inset-0 z-20 bg-background opacity-0" />`
        - Animado pelo GSAP quando o card seguinte avança sobre ele (`0` → `0.65`).
@@ -97,11 +98,11 @@ Seguindo [ARCHITECTURE.md](../docs/ARCHITECTURE.md):
 Logo abaixo da pilha de cards (`mt-20 md:mt-28`, sem `overflow-hidden` na `.projects-more` nem na `.projects-list` para não recortar verticalmente o preview flutuante):
 - **Cabeçalho:** Título `"Mais projetos"` (`font-display text-[clamp(1.5rem,2.4vw,2.25rem)] font-semibold tracking-[-0.02em]`) + texto auxiliar discreto (`"Outros experimentos, estudos e entregas."`).
 - **Lista Editorial (`<InteractiveHoverLinks className="projects-list mt-6 border-t border-border" rowClassName="project-row" ... />`):**
-  - Cada item de `archiveItems` é mapeado para `InteractiveHoverLinkItem` (`id`, `indexLabel`, `heading`, `subheading`, `category`, `year`, `preview: <ProjectMedia media={project.cover} />`, `onClick`, `ariaHasPopup: "dialog"`, `ariaExpanded`) e renderizado como `<button type="button">` interativo e acessível (`group/row`).
+  - Cada item de `archiveItems` é mapeado para `InteractiveHoverLinkItem` com apenas `id`, `indexLabel`, `heading: project.title`, `preview: <ProjectMedia media={project.cover} />`, `onClick`, `ariaHasPopup: "dialog"` e `ariaExpanded` (omitindo `subheading`, `category` e `year`), sendo renderizado como `<button type="button">` interativo e acessível (`group/row`).
   - **Comportamento por linha (`.project-row`):**
-    1. **Índice + Título com Stagger por Caractere:** Número (`05`–`08` em `tabular-nums text-xs text-muted-foreground`) + título (`Space Grotesk`, `text-2xl sm:text-3xl lg:text-4xl`) com `<span className="sr-only">` para leitores de tela e letras tokenizadas que deslocam com stagger (`22ms` por caractere, teto `320ms`, `cubic-bezier(0.34,1.56,0.64,1)`) em hover/focus-visible (`motion-safe`), além de resumo (`line-clamp-2`).
-    2. **Preview Flutuante Inclinado (`md:block`, oculto em `motion-reduce`):** Card flutuante (`h-36 w-60 lg:h-44 lg:w-72`, `rounded-[16px]`, `pointer-events-none`) contendo `<ProjectMedia media={project.cover} />` que transiciona de `opacity-0 [transform:translate(-50%,-50%)_scale(0)_rotate(-12.5deg)]` para `opacity-100 [transform:translate(-50%,-50%)_scale(1)_rotate(10deg)]` e acompanha o cursor via variáveis CSS `--hover-x` / `--hover-y` (ignorando `pointerType === "touch"` e `prefers-reduced-motion: reduce`), enquanto a linha ativa sobe para `hover:z-20` / `focus-visible:z-20`.
-    3. **Metadados & Ação:** Pill de categoria (`hidden sm:inline-flex`), ano (`tabular-nums`) e ícone `ArrowUpRight` com slide-in da esquerda (`md:-translate-x-2 md:opacity-0` → `translate-x-0 opacity-100` em hover/focus-visible) em `text-brand-bright`.
+    1. **Índice + Título com Stagger por Caractere:** Número (`05`–`07` em `tabular-nums text-xs text-muted-foreground`) + título (`Space Grotesk`, `text-2xl sm:text-3xl lg:text-4xl`) com `<span className="sr-only">` para leitores de tela e letras tokenizadas que deslocam com stagger (`22ms` por caractere, teto `320ms`, `cubic-bezier(0.34,1.56,0.64,1)`) em hover/focus-visible (`motion-safe`), exibindo exclusivamente o título na linha.
+    2. **Preview Flutuante Inclinado (`md:block`, oculto em `motion-reduce`):** Card flutuante (`aspect-[19/9] w-64 lg:w-80`, `rounded-[16px]`, `pointer-events-none`) contendo `<ProjectMedia media={project.cover} />` que transiciona de `opacity-0 [transform:translate(-50%,-50%)_scale(0)_rotate(-12.5deg)]` para `opacity-100 [transform:translate(-50%,-50%)_scale(1)_rotate(10deg)]` e acompanha o cursor via variáveis CSS `--hover-x` / `--hover-y` (ignorando `pointerType === "touch"` e `prefers-reduced-motion: reduce`), enquanto a linha ativa sobe para `hover:z-20` / `focus-visible:z-20`.
+    3. **Ação:** Ícone `ArrowUpRight` com slide-in da esquerda (`md:-translate-x-2 md:opacity-0` → `translate-x-0 opacity-100` em hover/focus-visible) em `text-brand-bright`.
     4. **Gatilho de Case Study:** Clicar ou acionar via teclado abre o **`ProjectDialog`** correspondente e restaura o foco ao botão de origem ao fechar.
 
 ---
@@ -116,16 +117,17 @@ Todos os projetos da seção (tanto os cards em destaque quanto os itens de *"Ma
   - Botão de fechar no topo direito com `z-20 cursor-pointer`, foco automático na abertura e devolução do foco ao botão/card de origem ao fechar (`Escape`, clique no backdrop ou botão fechar).
   - Animação de entrada/saída fluida em `cubic-bezier(0.16, 1, 0.3, 1)` (fade + `translateY(16px)` → `0` + `scale(0.98)` → `1`); em `prefers-reduced-motion: reduce`, apenas transição imediata/opacidade.
 - **Estrutura Obrigatória do Case dentro do Modal:**
-  1. **Topo:** Categoria + Ano à esquerda; botão fechar (`X`) à direita.
+  1. **Topo:** Categoria + Ano + badge de status (`PROJECT_STATUS_META[cachedProject.status]`) à esquerda; botão fechar (`X`) à direita.
   2. **Cabeçalho:** Título monumental (`Space Grotesk`) + subtítulo de uma linha.
-  3. **Mídia / Galeria do Case:** Visual ampliado em `aspect-[16/9]` com suporte a múltiplos slides/telas (setas `← →` + indicador `1 / N` + atalho de teclado `ArrowLeft` / `ArrowRight` quando houver 2+ itens).
+  3. **Mídia / Galeria do Case:** Visual ampliado em `aspect-[19/9]` com suporte a imagens reais (`type: "image"`, renderizadas com `object-contain` para zero recorte e `fit?: "contain"` com respiro adicional para capturas mobile verticais), múltiplos slides/telas (setas `← →` + indicador `1 / N` + atalho de teclado `ArrowLeft` / `ArrowRight` quando houver 2+ itens) e visualizador em tela cheia (`z-[130]`, `bg-black/95`, `max-h-[92svh] max-w-[96vw] object-contain`) acionável pelo botão `Maximize2` no canto superior direito ou clique na imagem (`Escape` fecha primeiro a tela cheia antes do modal).
   4. **Corpo do Case em 2 colunas (`lg:grid-cols-[minmax(0,1.4fr)_minmax(0,0.8fr)]`):**
-     - **Coluna Principal — Narrativa do Case (3 blocos obrigatórios em todo projeto):**
-       1. **Descrição geral (`overview`):** Visão macro do produto/projeto, público, contexto e objetivo principal em parágrafo editorial introdutório.
-       2. **O desafio (`challenge`):** Qual problema real ou gargalo técnico/de negócio motivou o desenvolvimento.
-       3. **A solução (`solution`):** Como a arquitetura, o design e a engenharia resolveram o desafio na prática.
-       - *(Bloco complementar)* **Destaques (`highlights`):** Lista objetiva de resultados, métricas ou funcionalidades-chave entregues.
-     - **Coluna Lateral (`aside`):** Stack completa de tecnologias em pills + botões de ação externa (**Acessar projeto ↗**, **Ver código no GitHub ↗**) quando disponíveis.
+     - **Coluna Principal — Narrativa do Case:**
+       1. **Descrição geral (`overview`, obrigatório):** Visão macro do produto/projeto, público, contexto e objetivo principal em parágrafo editorial introdutório.
+       2. **O desafio (`challenge`, opcional):** Qual problema real ou gargalo técnico/de negócio motivou o desenvolvimento (renderizado apenas quando definido).
+       3. **A solução (`solution`, opcional):** Como a arquitetura, o design e a engenharia resolveram o desafio na prática (renderizado apenas quando definido).
+       - *(Bloco complementar opcional)* **Destaques (`highlights`, opcional):** Lista objetiva de resultados, métricas ou funcionalidades-chave entregues (renderizado apenas quando definido e não vazio).
+       - Projetos mais simples em `"Mais projetos"` omitem `challenge`, `solution` e `highlights`, exibindo apenas **Descrição geral** junto à galeria e tecnologias.
+     - **Coluna Lateral (`aside`):** Stack completa de tecnologias em pills + bloco `Links` renderizado condicionalmente quando houver link visível (**Acessar ↗** via `ctaLiveLabel` para `Boolean(liveUrl)` e **GitHub ↗** via `ctaRepoLabel` apenas para `visibility === "public" && Boolean(repoUrl)`).
 
 ---
 
@@ -139,7 +141,7 @@ Todo código GSAP roda isolado em `useGSAP` + `gsap.matchMedia()` dentro de `pro
      - `scrollTrigger`: `{ trigger: next, start: "top bottom", end: () => "top " + (baseTop + (i + 1) * STACK_STEP_PX) + "px", scrub: true, invalidateOnRefresh: true }`
      - `gsap.to(cardInner, { scale: 0.92, ease: "none", scrollTrigger })`
      - `gsap.to(cardShade, { opacity: 0.65, ease: "none", scrollTrigger })`
-   - Nota: Após montar imagens/layouts, chamar `ScrollTrigger.refresh()` se necessário ou usar alturas explícitas (`h-[min(74svh,680px)]`) para evitar recalculo inesperado.
+   - Nota: Após montar imagens/layouts, chamar `ScrollTrigger.refresh()` se necessário ou usar proporções explícitas (`aspect-[19/9]`) para evitar recalculo inesperado.
 2. **Mobile (`(max-width: 899px) and (prefers-reduced-motion: no-preference)`):**
    - Sem `sticky`, sem `scale` e sem `.project-shade` animada.
    - Cada `.project-card` entra suavemente com `gsap.from(card, { y: 40, autoAlpha: 0, duration: 0.9, ease: "expo.out", scrollTrigger: { trigger: card, start: "top 86%", once: true } })`.
@@ -153,6 +155,17 @@ Todo código GSAP roda isolado em `useGSAP` + `gsap.matchMedia()` dentro de `pro
 ## 6. Modelo de Dados TypeScript (`src/data/projetos.ts`)
 
 ```ts
+export type ProjectVisibility = "public" | "private";
+export type ProjectStatus = "completed" | "in_progress";
+
+export const PROJECT_STATUS_META: Record<
+  ProjectStatus,
+  { label: string; dotClass: string }
+> = {
+  completed: { label: "Concluído", dotClass: "bg-emerald-400" },
+  in_progress: { label: "Em desenvolvimento", dotClass: "bg-amber-400" },
+};
+
 export type ProjectMedia =
   | {
       type: "placeholder";
@@ -163,6 +176,7 @@ export type ProjectMedia =
       type: "image";
       src: string;
       alt: string;
+      fit?: "cover" | "contain";
     }
   | {
       type: "video";
@@ -175,11 +189,11 @@ export interface ProjectCaseDetails {
   /** Descrição geral do projeto (visão macro e contexto) */
   overview: string;
   /** O desafio enfrentado (problema técnico ou de negócio) */
-  challenge: string;
+  challenge?: string;
   /** A solução implementada para resolver o desafio */
-  solution: string;
+  solution?: string;
   /** Principais entregas ou resultados do case */
-  highlights: string[];
+  highlights?: string[];
   /** Mídias exibidas na galeria do modal */
   gallery: ProjectMedia[];
 }
@@ -193,6 +207,8 @@ export interface ProjectItem {
   summary: string;
   accentColor?: string;
   featured: boolean;
+  visibility: ProjectVisibility;
+  status: ProjectStatus;
   techs: string[];
   liveUrl?: string;
   repoUrl?: string;
@@ -216,15 +232,17 @@ export interface ProjetosContent {
 }
 ```
 
-### Conteúdo Placeholder Inicial (`src/data/projetos.ts`)
-- **Cabeçalho:** `"03 — Projetos"`, `"Projetos em / destaque."`, lead conciso em *Lorem ipsum*.
-- **4 Projetos em Destaque (`featured: true`)** na pilha *Sticky Card Stacking*:
-  1. `01` — **Lorem Dashboard IA** (`"Dashboard · IA"`, `2026`, `variant: "dashboard"`)
-  2. `02` — **Dolor Commerce** (`"E-commerce · FullStack"`, `2025`, `variant: "ecommerce"`)
-  3. `03` — **Consectetur Cloud SaaS** (`"SaaS · Arquitetura"`, `2025`, `variant: "saas"`)
-  4. `04` — **Adipiscing CLI & Docs** (`"DevTools · Open Source"`, `2024`, `variant: "devtools"`)
-- **4 Projetos Adicionais (`featured: false`)** na lista `"Mais projetos"`:
-  - `05` a `08` com títulos, resumos em *Lorem ipsum*, categorias, anos, stack completa e `details` prontos para abrir no `ProjectDialog`.
+### Projetos em Destaque e Placeholder (`src/data/projetos.ts`)
+- **Cabeçalho:** `"03 — Projetos"`, `"Projetos em / destaque."`, lead `"Uma seleção de projetos em que transformei ideias e desafios em soluções digitais, da ideia à implementação."`.
+- **4 Projetos em Destaque (`featured: true`)** na pilha *Sticky Card Stacking* com fotos reais em `public/projects/`:
+  1. `01` — **Anatolab - Anatomia Humana em 3D** (`"anatolab"`, `visibility: "public"`, `status: "completed"`, `liveUrl` + `repoUrl`, imagens em `/projects/anatolab/`)
+  2. `02` — **CMF - Sistema de Gerenciamento** (`"cmf"`, `visibility: "private"`, `status: "completed"`, sem links públicos, imagens em `/projects/cmf/` incluindo `imagem5-celular.png` com `fit: "contain"`)
+  3. `03` — **Civix - Chatbot para Construção Civil** (`"civix"`, `visibility: "private"`, `status: "completed"`, sem links públicos, imagens em `/projects/civix/`)
+  4. `04` — **José William - Portfolio Pessoal** (`"jose-william"`, `visibility: "public"`, `status: "completed"`, `liveUrl` + `repoUrl`, imagens em `/projects/bahia/`)
+- **3 Projetos Adicionais (`featured: false`)** na lista `"Mais projetos"` (exibindo apenas título + foto no hover na lista, e apenas **Descrição geral**, galeria e tecnologias `HTML`, `CSS`, `JavaScript` no `ProjectDialog`, com `challenge`, `solution` e `highlights` omitidos):
+  1. `05` — **Calculadora** (`"calculadora"`, `visibility: "private"`, `status: "completed"`, imagem em `/projects/calculadora/capa.png`)
+  2. `06` — **Lista de Tarefas** (`"lista-de-tarefas"`, `visibility: "private"`, `status: "completed"`, imagem em `/projects/lista-tarefas/capa.png`)
+  3. `07` — **Lâmpada Interativa** (`"lampada-interativa"`, `visibility: "private"`, `status: "completed"`, imagem em `/projects/lampada/capa.png`)
 
 ---
 
@@ -234,8 +252,8 @@ export interface ProjetosContent {
 - [ ] Ao rolar entre cards em desktop, o card anterior reduz suavemente para `scale: 0.92` e escurece (`0` → `0.65`) sem cortes ou saltos no Lenis.
 - [ ] O topo dos cards empilhados nunca fica coberto pelo header flutuante `#navbar` (`top` ≥ `88px`).
 - [ ] Em mobile (`375px` / `< 900px`), o stacking desativa e os cards fluem verticalmente sem overflow horizontal.
-- [ ] Clicar em qualquer card, botão `Ver case completo` ou linha de `Mais projetos` abre o `ProjectDialog` estruturado como Case Study completo com os blocos obrigatórios **Descrição geral**, **O desafio** e **A solução** (além de galeria navegável por cliques e `←`/`→`, destaques, tecnologias, bloqueio de scroll `data-lenis-prevent`, `Escape` e foco restaurado ao fechar).
-- [ ] Clicar nos links externos (`Acessar ↗` / `GitHub ↗`) dentro do card não dispara abertura indesejada do modal.
+- [ ] Clicar em qualquer card, botão `Ver case completo` ou linha de `Mais projetos` abre o `ProjectDialog` estruturado com **Descrição geral** obrigatória e os blocos opcionais **O desafio**, **A solução** e **Destaques** quando presentes (além de galeria navegável por cliques e `←`/`→`, tecnologias, links externos `Acessar ↗` / `GitHub ↗` quando aplicáveis, bloqueio de scroll `data-lenis-prevent`, `Escape` e foco restaurado ao fechar).
+- [ ] Cada card em destaque exibe exclusivamente o botão `Ver case completo` (`ctaCaseLabel`), mantendo os links externos (`Acessar ↗` via `ctaLiveLabel` e `GitHub ↗` via `ctaRepoLabel`, condicional à visibilidade pública) exclusivamente dentro do `ProjectDialog`.
 - [ ] Na lista `"Mais projetos"` (`InteractiveHoverLinks`), o hover/focus-visible em desktop anima o stagger por letra do título, revela o preview flutuante inclinado (`ProjectMedia`) rastreando o ponteiro sem recortes verticais (`.projects-more`/`.projects-list` sem `overflow-hidden` e `clearProps: "transform"` no GSAP) e desliza a seta `ArrowUpRight`; em touch (`pointerType === "touch"`) e `prefers-reduced-motion: reduce`, o rastreamento de ponteiro, stagger e preview flutuante ficam desativados mantendo toda a linha legível e clicável.
 - [ ] `prefers-reduced-motion: reduce` desativa `sticky`, `scale`, `shade`, spotlight e preview flutuante da lista mantendo tudo legível.
 - [ ] `npm run check` e `npm run build` passam sem erros.

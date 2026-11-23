@@ -160,7 +160,7 @@ export function InteractiveHoverLinks({
             {hasPreview ? (
               <div
                 aria-hidden="true"
-                className="pointer-events-none absolute z-0 hidden h-36 w-60 overflow-hidden rounded-[16px] border border-white/15 bg-card opacity-0 shadow-[0_24px_60px_-16px_rgba(0,0,0,0.85),0_0_0_1px_rgba(121,60,255,0.2)] transition-[transform,opacity,top,left] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] [transform:translate(-50%,-50%)_scale(0)_rotate(-12.5deg)] group-hover/row:opacity-100 group-hover/row:[transform:translate(-50%,-50%)_scale(1)_rotate(10deg)] group-focus-visible/row:opacity-100 group-focus-visible/row:[transform:translate(-50%,-50%)_scale(1)_rotate(10deg)] md:block lg:h-44 lg:w-72 motion-reduce:hidden"
+                className="pointer-events-none absolute z-0 hidden aspect-[19/9] w-64 overflow-hidden rounded-[16px] border border-white/15 bg-card opacity-0 shadow-[0_24px_60px_-16px_rgba(0,0,0,0.85),0_0_0_1px_rgba(121,60,255,0.2)] transition-[transform,opacity,top,left] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] [transform:translate(-50%,-50%)_scale(0)_rotate(-12.5deg)] group-hover/row:opacity-100 group-hover/row:[transform:translate(-50%,-50%)_scale(1)_rotate(10deg)] group-focus-visible/row:opacity-100 group-focus-visible/row:[transform:translate(-50%,-50%)_scale(1)_rotate(10deg)] md:block lg:w-80 motion-reduce:hidden"
                 style={{
                   left: "calc(58% + var(--hover-x, 0) * -12%)",
                   top: "calc(50% + var(--hover-y, 0) * -28%)",

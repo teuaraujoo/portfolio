@@ -585,7 +585,11 @@ export function ProjectMedia({
           alt={media.alt}
           loading={priority ? "eager" : "lazy"}
           decoding="async"
-          className="size-full object-cover"
+          className={cn(
+            "size-full",
+            media.fit === "cover" ? "object-cover" : "object-contain",
+            media.fit === "contain" && "p-2 sm:p-4",
+          )}
         />
       </div>
     );
