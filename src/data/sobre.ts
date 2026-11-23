@@ -83,9 +83,9 @@ export const sobreData: SobreContent = {
     title: "Mateus Araujo",
     subtitle: "Desenvolvedor FullStack · Aracaju, SE",
     paragraphs: [
-      "Sou autodidata e encontrei na tecnologia o caminho para resolver problemas do meu jeito. Iniciei minha base técnica em desenvolvimento fullstack pelo programa Jovem Tech (INOVA-SE em parceria com o MCTI) e atualmente curso Análise e Desenvolvimento de Sistemas na UNIT-SE.",
-      "Atuo como Desenvolvedor FullStack na DelFinance, uma das maiores fintechs de Sergipe, transformando necessidades reais em soluções digitais completas — da interface e experiência do usuário até a arquitetura de backend, banco de dados e deploy.",
-      "Também participo ativamente da comunidade tecnológica como Embaixador Estudantil da Google e em iniciativas como o HackAI, conectando aprendizado contínuo, troca técnica e desenvolvimento de produtos como o Anatolab, CMF, Civix e Mapae.",
+      "Sou Mateus Araujo, Desenvolvedor Full Stack de Aracaju, Brasil. Atualmente trabalho na Delfinance, uma fintech onde desenvolvo e mantenho sistemas de crédito consignado utilizando Node.js, NestJS, TypeScript, TypeORM, MySQL, Redis e BullMQ, além de contribuir com aplicações frontend em Vue.js.",
+      "Meu trabalho inclui APIs REST, fluxos de propostas e contratos de empréstimo, autenticação JWT, autenticação multifator e integrações com serviços de verificação de identidade, enriquecimento de dados, operações bancárias e armazenamento de documentos, como CAF, BigDataCorp, Autbank e AWS S3.",
+      "Em paralelo à minha função, desenvolvo aplicações web como freelancer e também possuo experiência profissional com Salesforce, Apex e Flow. Curso Análise e Desenvolvimento de Sistemas e sigo fortalecendo continuamente minhas habilidades em arquitetura de software, segurança, testes automatizados e desenvolvimento de aplicações fáceis de manter.",
     ],
   },
   stats: [

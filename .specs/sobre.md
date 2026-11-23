@@ -198,7 +198,7 @@ export interface SobreContent {
 ```
 
 ### Conteúdo Definido (`src/data/sobre.ts`)
-A versão atual utiliza a **citação real aprovada pelo usuário** em português (mantendo a densidade, a sequência dos 4 tipos de marcações SVG animadas da referência `vitorcg.com.br` e a restrição de largura em mobile para `circle` e `underline`) e **métricas reais** centralizadas nos 3 contadores inferiores (enquanto os parágrafos do modal seguem em *Lorem ipsum* aguardando definição):
+A versão atual utiliza a **citação real aprovada pelo usuário** em português (mantendo a densidade, a sequência dos 4 tipos de marcações SVG animadas da referência `vitorcg.com.br` e a restrição de largura em mobile para `circle` e `underline`), **biografia real em 3 parágrafos no modal** e **métricas reais** centralizadas nos 3 contadores inferiores:
 
 - **Eyebrow:** `"Sobre mim"`
 - **Citação Principal:**
@@ -214,7 +214,7 @@ A versão atual utiliza a **citação real aprovada pelo usuário** em portuguê
   - `closeAriaLabel`: `"Fechar janela sobre mim"`
   - `title`: `"Mateus Araujo"`
   - `subtitle`: `"Desenvolvedor FullStack · Aracaju, SE"`
-  - `paragraphs`: 3 parágrafos de texto corrido em **Lorem ipsum** (sem botões de redes sociais, abas ou stats extras).
+  - `paragraphs`: 3 parágrafos reais de biografia em português (atuação na Delfinance com Node.js/NestJS/Vue.js, integrações e fluxos de crédito, e experiência paralela como freelancer, Salesforce e formação em ADS — sem botões de redes sociais, abas ou stats extras).
 - **Métricas (3 itens centralizados abaixo do grid em `mx-auto max-w-4xl`):**
   - `+5` — `"projetos"`
   - `+10` — `"certificados"`
@@ -228,6 +228,6 @@ As definições da **Seção 2 (`#sobre`)** consolidadas em [src/data/sobre.ts](
 
 1. **Citação (Lado Esquerdo):** Texto real aprovado pelo usuário (*"Escolhi a tecnologia por ser autodidata e gostar de resolver problemas com autonomia. Hoje atuo construindo produtos digitais completos, da interface até o deploy, sem deixar pontas soltas."*), mantendo as 4 marcações SVG animadas (`brush`, `circle`, `sparkAfter`, `underline`) distribuídas em sequência, com `circle` (`"problemas"`) e `underline` (`"pontas soltas."`) em expressões curtas (`1–2` palavras) para evitar overflow horizontal em viewports mobile (`375px`).
 2. **Retrato + Tag Interativa (Lado Direito):** Foto quadrada (`/foto_rosto.jpg`) envolvida por botão acessível com tag flutuante (`Sobre mim`, linha conectora e ponto pulsante roxo `#793CFF`, sem mini foto repetida), revelação vertical por `clip-path`, parallax no scroll e legenda técnica (`Mateus Araujo` / `Aracaju, SE`).
-3. **Dialog Radial de Biografia (`SobreDialog`):** Abre com `clip-path: circle(var(--or) ...)` + `scale` suave em `cubic-bezier(0.16, 1, 0.3, 1)` a partir do ponto do clique, botão fechar `z-20 cursor-pointer`, exibindo apenas título, subtítulo e 3 parágrafos em *Lorem ipsum* (aguardando texto final, sem botões de redes sociais).
+3. **Dialog Radial de Biografia (`SobreDialog`):** Abre com `clip-path: circle(var(--or) ...)` + `scale` suave em `cubic-bezier(0.16, 1, 0.3, 1)` a partir do ponto do clique, botão fechar `z-20 cursor-pointer`, exibindo apenas título, subtítulo e 3 parágrafos reais de biografia em português (sem botões de redes sociais).
 4. **Métricas Inferiores (`.about-stats`):** 3 contadores reais (`+5 projetos`, `+10 certificados`, `+2 formações`, com `prefix?: string` antes do valor e `suffix?: string` opcional após) em bloco centralizado abaixo do grid de 2 colunas (`mx-auto max-w-4xl`, `items-center text-center`).
 5. **Cabeçalho da Seção:** Eyebrow limpo (`"Sobre mim"`) acima da citação, estilo `vitorcg.com.br`.
