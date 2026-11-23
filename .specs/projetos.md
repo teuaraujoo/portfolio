@@ -15,7 +15,7 @@ A seção **Projetos (`#projetos`)** adapta o padrão **Sticky Card Stacking** (
 
 > [!NOTE]
 > **Conteúdo Atual:** Os **4 projetos em destaque (`featured: true`)** utilizam títulos, capas, galerias reais (`public/projects/`) e links reais em [src/data/projetos.ts](../src/data/projetos.ts), mantendo textos descritivos em **Lorem ipsum** enquanto os cases completos estão em redação. Os **3 projetos adicionais (`featured: false`)** na lista *"Mais projetos"* (`Calculadora`, `Lista de Tarefas` e `Lâmpada Interativa`) utilizam capas reais em `public/projects/` e textos reais em português em [src/data/projetos.ts](../src/data/projetos.ts) — exibindo apenas título e preview fotográfico na lista e somente **Descrição geral**, galeria e tecnologias (`HTML`, `CSS`, `JavaScript`) no modal, omitindo `challenge`, `solution` e `highlights`.
-> Os projetos suportam `visibility` (`"public" | "private"`) para controlar a exibição de links de repositório e `status` (`"completed" | "in_progress"`) exibido como badge editorial (`Concluído` / `Em desenvolvimento`) dentro do modal `ProjectDialog`.
+> Os projetos suportam `visibility` (`"public" | "private"`) para controlar a exibição de links de repositório, enquanto `status` (`"completed" | "in_progress"`) e `category` permanecem estritamente na camada de dados, no JSON-LD de SEO e no `llms-full.txt` (sem barra visual de categoria/ano/status nos cards em destaque ou no cabeçalho do `ProjectDialog`).
 
 ---
 
@@ -82,7 +82,7 @@ Seguindo [ARCHITECTURE.md](../docs/ARCHITECTURE.md):
        - Container `relative aspect-[19/9] w-full self-center overflow-hidden rounded-[14px] border border-white/8 bg-[#0D0D0D]` para enquadramento widescreen sem corte lateral.
        - Hover suave na mídia: `transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover/card:scale-[1.01] motion-reduce:transition-none`.
     3. **Coluna Direita — Conteúdo Editorial (`flex flex-col justify-between gap-6 p-4 pt-6 min-[900px]:p-8 xl:p-10`):**
-       - **Topo:** Exibe apenas o índice monumental alinhado à direita (`01`, `02`, `03`, `04` em `font-display text-3xl font-semibold text-white/18 tabular-nums` dentro de `flex items-start justify-end`), enquanto categoria, ano e badge de status (`PROJECT_STATUS_META[project.status]`: `"Concluído"` ou `"Em desenvolvimento"`) permanecem exclusivamente no `ProjectDialog`.
+       - **Topo:** Exibe apenas o índice monumental alinhado à direita (`01`, `02`, `03`, `04` em `font-display text-3xl font-semibold text-white/18 tabular-nums` dentro de `flex items-start justify-end`). Nem os cards em destaque nem o cabeçalho do `ProjectDialog` renderizam categoria, ano ou badge de status acima do título (`status` e `category` permanecem estritamente no schema de dados, JSON-LD de SEO e `llms-full.txt`).
        - **Centro:**
          - Título (`<h3 className="font-display text-[clamp(1.6rem,2.6vw,2.75rem)] font-semibold leading-[1.08] tracking-[-0.03em] text-foreground">`) + subtítulo curto (`mt-2 text-sm font-medium text-muted-foreground`).
          - Descrição concisa (`mt-4 max-w-[44ch] text-[0.95rem] leading-[1.65] text-muted-foreground`).
@@ -117,10 +117,9 @@ Todos os projetos da seção (tanto os cards em destaque quanto os itens de *"Ma
   - Botão de fechar no topo direito com `z-20 cursor-pointer`, foco automático na abertura e devolução do foco ao botão/card de origem ao fechar (`Escape`, clique no backdrop ou botão fechar).
   - Animação de entrada/saída fluida em `cubic-bezier(0.16, 1, 0.3, 1)` (fade + `translateY(16px)` → `0` + `scale(0.98)` → `1`); em `prefers-reduced-motion: reduce`, apenas transição imediata/opacidade.
 - **Estrutura Obrigatória do Case dentro do Modal:**
-  1. **Topo:** Categoria + Ano + badge de status (`PROJECT_STATUS_META[cachedProject.status]`) à esquerda; botão fechar (`X`) à direita.
-  2. **Cabeçalho:** Título monumental (`Space Grotesk`) + subtítulo de uma linha.
-  3. **Mídia / Galeria do Case:** Visual ampliado em `aspect-[19/9]` com suporte a imagens reais (`type: "image"`, renderizadas com `object-contain` para zero recorte e `fit?: "contain"` com respiro adicional para capturas mobile verticais), múltiplos slides/telas (setas `← →` + indicador `1 / N` + atalho de teclado `ArrowLeft` / `ArrowRight` quando houver 2+ itens) e visualizador em tela cheia (`z-[130]`, `bg-black/95`, `max-h-[92svh] max-w-[96vw] object-contain`) acionável pelo botão `Maximize2` no canto superior direito ou clique na imagem (`Escape` fecha primeiro a tela cheia antes do modal).
-  4. **Corpo do Case em 2 colunas (`lg:grid-cols-[minmax(0,1.4fr)_minmax(0,0.8fr)]`):**
+  1. **Cabeçalho:** Título monumental (`Space Grotesk`) + subtítulo de uma linha à esquerda (`<header className="flex items-start justify-between gap-4">` com `<div className="min-w-0">`), e botão fechar (`X`) alinhado no topo direito (sem barra superior de categoria, ano ou badge de status).
+  2. **Mídia / Galeria do Case:** Visual ampliado em `aspect-[19/9]` com suporte a imagens reais (`type: "image"`, renderizadas com `object-contain` para zero recorte e `fit?: "contain"` com respiro adicional para capturas mobile verticais), múltiplos slides/telas (setas `← →` + indicador `1 / N` + atalho de teclado `ArrowLeft` / `ArrowRight` quando houver 2+ itens) e visualizador em tela cheia (`z-[130]`, `bg-black/95`, `max-h-[92svh] max-w-[96vw] object-contain`) acionável pelo botão `Maximize2` no canto superior direito ou clique na imagem (`Escape` fecha primeiro a tela cheia antes do modal).
+  3. **Corpo do Case em 2 colunas (`lg:grid-cols-[minmax(0,1.4fr)_minmax(0,0.8fr)]`):**
      - **Coluna Principal — Narrativa do Case:**
        1. **Descrição geral (`overview`, obrigatório):** Visão macro do produto/projeto, público, contexto e objetivo principal em parágrafo editorial introdutório.
        2. **O desafio (`challenge`, opcional):** Qual problema real ou gargalo técnico/de negócio motivou o desenvolvimento (renderizado apenas quando definido).

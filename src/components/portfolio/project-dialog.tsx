@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { ArrowLeft, ArrowRight, ArrowUpRight, Maximize2, X } from "lucide-react";
-import { PROJECT_STATUS_META, type ProjectItem } from "@/data/projetos";
+import type { ProjectItem } from "@/data/projetos";
 import { cn } from "@/lib/utils";
 import { ProjectMedia } from "./project-media";
 import { useSmoothScroll } from "./smooth-scroll";
@@ -199,7 +199,6 @@ export function ProjectDialog({
 
   const currentMedia = gallery[safeIndex] ?? cachedProject.cover;
   const accentColor = cachedProject.accentColor ?? "#793CFF";
-  const statusMeta = PROJECT_STATUS_META[cachedProject.status];
   const showLiveLink = Boolean(cachedProject.liveUrl);
   const showRepoLink =
     cachedProject.visibility === "public" && Boolean(cachedProject.repoUrl);
@@ -253,21 +252,21 @@ export function ProjectDialog({
         />
 
         <div className="p-5 sm:p-8 lg:p-10">
-          {/* Top meta bar */}
-          <div className="flex items-center justify-between gap-4 border-b border-border pb-4">
-            <div className="flex flex-wrap items-center gap-2.5 font-sans text-[11px] font-medium uppercase tracking-[0.12em]">
-              <span className="text-brand-bright">{cachedProject.category}</span>
-              <span aria-hidden="true" className="text-white/25">
-                ·
-              </span>
-              <span className="text-muted-foreground tabular-nums">{cachedProject.year}</span>
-              <span className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/[0.03] px-2.5 py-0.5 text-[10px] font-medium tracking-[0.08em] text-foreground/80">
-                <span
-                  aria-hidden="true"
-                  className={cn("size-1.5 rounded-full", statusMeta.dotClass)}
-                />
-                <span>{statusMeta.label}</span>
-              </span>
+          {/* Monumental header */}
+          <header className="flex items-start justify-between gap-4">
+            <div className="min-w-0">
+              <h2
+                id="project-dialog-title"
+                className="font-display text-[clamp(1.75rem,4vw,3.15rem)] font-semibold leading-[1.06] tracking-[-0.035em] text-foreground"
+              >
+                {cachedProject.title}
+              </h2>
+              <p
+                id="project-dialog-subtitle"
+                className="mt-2.5 max-w-[64ch] font-sans text-sm leading-[1.6] font-medium text-muted-foreground sm:text-base"
+              >
+                {cachedProject.subtitle}
+              </p>
             </div>
 
             <button
@@ -279,22 +278,6 @@ export function ProjectDialog({
             >
               <X className="size-5" aria-hidden="true" />
             </button>
-          </div>
-
-          {/* Monumental header */}
-          <header className="mt-6">
-            <h2
-              id="project-dialog-title"
-              className="font-display text-[clamp(1.75rem,4vw,3.15rem)] font-semibold leading-[1.06] tracking-[-0.035em] text-foreground"
-            >
-              {cachedProject.title}
-            </h2>
-            <p
-              id="project-dialog-subtitle"
-              className="mt-2.5 max-w-[64ch] font-sans text-sm leading-[1.6] font-medium text-muted-foreground sm:text-base"
-            >
-              {cachedProject.subtitle}
-            </p>
           </header>
 
           {/* Gallery viewer */}
