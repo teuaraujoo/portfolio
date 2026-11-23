@@ -8,14 +8,19 @@ export interface JornadaCategoryMeta {
 
 export type JornadaMedia =
   | {
-      type: "placeholder";
-      scene: JornadaCategory;
-      caption: string;
-    }
-  | {
       type: "image";
       src: string;
       alt: string;
+    }
+  | {
+      type: "gallery";
+      images: [
+        { src: string; alt: string },
+        { src: string; alt: string },
+      ];
+    }
+  | {
+      type: "none";
     };
 
 export interface JornadaStop {
@@ -43,11 +48,11 @@ export interface JornadaContent {
 /** Dados da Seção 4 (Jornada), isolados da camada de apresentação. */
 export const jornadaContent: JornadaContent = {
   eyebrow: "04 — Jornada",
-  periodLabel: "2021 — 2026",
+  periodLabel: "2025 — 2026",
   titleLine1: "Minha",
   titleLine2: "jornada.",
   intro:
-    "Lorem ipsum dolor sit amet, consectetur adipiscing elit sed eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+    "Formação, eventos, hackathons, programas e experiências que marcaram minha evolução como pessoa e profissional de tecnologia.",
   scrollCue: "Role para percorrer",
   categories: {
     tech: {
@@ -73,108 +78,82 @@ export const jornadaContent: JornadaContent = {
   },
   stops: [
     {
-      id: "stop-2021-tech",
-      year: "2021",
-      monthLabel: "Mar",
-      category: "tech",
-      title: "Primeiro contato com código & Web",
-      organization: "Base · HTML, CSS & JS",
-      description:
-        "Lorem ipsum dolor sit amet, consectetur adipiscing elit sed do eiusmod tempor incididunt.",
-      media: {
-        type: "placeholder",
-        scene: "tech",
-        caption: "Foto do momento",
-      },
-    },
-    {
-      id: "stop-2022-curso",
-      year: "2022",
-      monthLabel: "Fev",
-      category: "curso",
-      title: "Formação FullStack & Fundamentos",
-      organization: "Lorem Academy · Formação",
-      description:
-        "Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi aliquip.",
-      media: {
-        type: "placeholder",
-        scene: "curso",
-        caption: "Foto do momento",
-      },
-    },
-    {
-      id: "stop-2022-programa",
-      year: "2022",
-      monthLabel: "Out",
-      category: "programa",
-      title: "Programa de Bolsas & Hackathon",
-      organization: "Ipsum Labs · Desafio Tech",
-      description:
-        "Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat.",
-      media: {
-        type: "placeholder",
-        scene: "programa",
-        caption: "Foto do momento",
-      },
-    },
-    {
-      id: "stop-2023-empresa",
-      year: "2023",
-      monthLabel: "Jun",
-      category: "empresa",
-      title: "Primeira experiência profissional Tech",
-      organization: "Dolor Studio · Desenvolvedor Jr.",
-      description:
-        "Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt.",
-      media: {
-        type: "placeholder",
-        scene: "empresa",
-        caption: "Foto do momento",
-      },
-    },
-    {
-      id: "stop-2024-curso",
-      year: "2024",
-      monthLabel: "Mar",
-      category: "curso",
-      title: "Especialização Arquitetura & Cloud",
-      organization: "Sit Institute · Especialização",
-      description:
-        "Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque.",
-      media: {
-        type: "placeholder",
-        scene: "curso",
-        caption: "Foto do momento",
-      },
-    },
-    {
-      id: "stop-2024-programa",
-      year: "2024",
-      monthLabel: "Nov",
-      category: "programa",
-      title: "Comunidade & Programa Embaixador",
-      organization: "Amet Community · Mentoria",
-      description:
-        "Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit.",
-      media: {
-        type: "placeholder",
-        scene: "programa",
-        caption: "Foto do momento",
-      },
-    },
-    {
-      id: "stop-2025-empresa",
+      id: "stop-2025-jovem-tech",
       year: "2025",
-      monthLabel: "Ago",
-      category: "empresa",
-      title: "Atuação como Desenvolvedor FullStack",
-      organization: "Consectetur Tech · Produto Web",
+      monthLabel: "Mai 25 – Mar 26",
+      category: "curso",
+      title: "Formação FullStack · Jovem Tech",
+      organization: "INOVA-SE · MCTI",
       description:
-        "Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet consectetur adipisci.",
+        "Formação técnica em desenvolvimento fullstack pelo programa Jovem Tech, programa da empresa INOVA-SE em parceria com o Ministério de Ciência, Tecnologia e Inovação.",
       media: {
-        type: "placeholder",
-        scene: "empresa",
-        caption: "Foto do momento",
+        type: "image",
+        src: "/jornada/jovemtech.png",
+        alt: "Formação técnica em desenvolvimento fullstack no programa Jovem Tech",
+      },
+    },
+    {
+      id: "stop-2026-unit",
+      year: "2026",
+      monthLabel: "Fev – Atual",
+      category: "curso",
+      title: "Análise e Desenvolvimento de Sistemas",
+      organization: "UNIT-SE · Graduação Tecnológica",
+      description:
+        "Início da graduação em Análise e Desenvolvimento de Sistemas na UNIT-SE, atualmente em andamento.",
+      media: {
+        type: "none",
+      },
+    },
+    {
+      id: "stop-2026-hackai",
+      year: "2026",
+      monthLabel: "Jul",
+      category: "tech",
+      title: "HackAI · Projeto Mapâe",
+      organization: "1º Hackathon · Descoberta Urbana",
+      description:
+        "Participação no meu primeiro hackathon, o HackAI, apresentando o Mapae, uma solução de descoberta urbana que atualmente está em desenvolvimento.",
+      media: {
+        type: "image",
+        src: "/jornada/hacktoon.png",
+        alt: "Participação no hackathon HackAI apresentando a solução urbana Mapae",
+      },
+    },
+    {
+      id: "stop-2026-google",
+      year: "2026",
+      monthLabel: "Ago",
+      category: "programa",
+      title: "Embaixador Estudantil da Google",
+      organization: "Google · Programa Estudantil",
+      description:
+        "Participação no programa de Embaixadores Estudantis da Google, conectando comunidade acadêmica, aprendizado e ecossistema de inovação.",
+      media: {
+        type: "gallery",
+        images: [
+          {
+            src: "/jornada/google.png",
+            alt: "Participação no programa de Embaixadores Estudantis da Google",
+          },
+          {
+            src: "/jornada/google2.png",
+            alt: "Registro de atividades como Embaixador Estudantil da Google",
+          },
+        ],
+      },
+    },
+    {
+      id: "stop-2026-delfinance",
+      year: "2026",
+      monthLabel: "Set",
+      category: "empresa",
+      title: "Desenvolvedor FullStack · DelFinance",
+      organization: "DelFinance · Fintech",
+      description:
+        "Ingresso na primeira oportunidade profissional no mercado de tecnologia na DelFinance, uma das maiores fintechs do estado de Sergipe.",
+      media: {
+        type: "none",
       },
     },
   ],

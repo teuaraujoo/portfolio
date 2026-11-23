@@ -32,6 +32,7 @@ export interface TimelineProps<T extends { id: string } = TimelineItem> {
     index: number,
     layout: "desktop" | "mobile",
   ) => ReactNode;
+  isWideStop?: (item: T, index: number) => boolean;
   className?: string;
 }
 
@@ -54,6 +55,7 @@ export function Timeline<T extends { id: string } = TimelineItem>({
   headerExtra,
   items,
   renderStop,
+  isWideStop,
   className,
 }: TimelineProps<T>) {
   const sectionRef = useRef<HTMLElement>(null);
@@ -426,11 +428,17 @@ export function Timeline<T extends { id: string } = TimelineItem>({
                 <ol className="relative flex h-full items-stretch gap-x-[clamp(44px,5.5vw,92px)]">
                   {items.map((item, index) => {
                     const isTop = index % 2 === 0;
+                    const wide = isWideStop?.(item, index) ?? false;
                     return (
                       <li
                         key={item.id}
                         data-top={isTop ? "true" : "false"}
-                        className="journey-stop relative flex h-full w-[clamp(360px,33vw,490px)] shrink-0 flex-col"
+                        className={cn(
+                          "journey-stop relative flex h-full shrink-0 flex-col",
+                          wide
+                            ? "w-[clamp(540px,48vw,760px)]"
+                            : "w-[clamp(420px,38vw,580px)]",
+                        )}
                       >
                         <div className="relative flex h-1/2 flex-col justify-end pb-5">
                           {isTop ? (

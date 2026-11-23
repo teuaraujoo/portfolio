@@ -20,7 +20,7 @@ Para adequá-lo à realidade do portfólio de **Mateus Araujo** (Next.js 16, Rea
    - **Adaptação:** No desktop (`>= 900px` com `prefers-reduced-motion: no-preference`), mantém a experiência fiel de **trilho horizontal `sticky`** alternando paradas acima e abaixo da linha central. Em **mobile (`< 900px`)** e sob **`prefers-reduced-motion: reduce`**, converte automaticamente para uma **Timeline Vertical Editorial** com linha roxa contínua à esquerda, mantendo as fotos em tamanho pleno de leitura e zero scroll travado.
 
 > [!NOTE]
-> **Conteúdo e Mídias Iniciais:** A primeira versão será estruturada com **6 a 8 paradas de exemplo em *Lorem ipsum*** cobrindo as quatro categorias (**Tech**, **Cursos**, **Programas**, **Empresas**) em [src/data/jornada.ts](../src/data/jornada.ts), utilizando **placeholders fotográficos Editorial-Tech** estilizados por categoria (e suporte nativo a fotos reais `.jpg`/`.webp` em `public/jornada/...` assim que forem adicionadas).
+> **Conteúdo e Mídias Reais (`2025 — 2026`):** A seção apresenta **5 marcos cronológicos reais** cobrindo as quatro categorias (**Tech**, **Cursos**, **Programas**, **Empresas**) em [src/data/jornada.ts](../src/data/jornada.ts), combinando paradas com foto única (`image` em `public/jornada/`), galeria dupla (`gallery` com 2 fotos lado a lado) e marcos textuais puros sem foto (`none`).
 
 ---
 
@@ -53,7 +53,7 @@ Seguindo [ARCHITECTURE.md](../docs/ARCHITECTURE.md):
   - Respeita `pt-20 md:pt-24` no topo para **nunca colidir com o header flutuante `#navbar`**.
   - **Faixa Superior Fixa do Palco (Contextualização):**
     - Alinhada a `mx-auto w-full max-w-[1600px] px-[clamp(20px,4vw,56px)]`:
-    - Barra de metadados discreta: `"04 — Jornada"` à esquerda, período total `"2021 — 2026"` + legenda das categorias (*Tech · Cursos · Programas · Empresas*) à direita.
+    - Barra de metadados discreta: `"04 — Jornada"` à esquerda, período total `"2025 — 2026"` + legenda das categorias (*Tech · Cursos · Programas · Empresas*) à direita.
   - **Área Central do Trilho (`relative flex-1 flex items-center`):**
     - **Eixo Central Horizontal (`.journey-axis`):**
       - Posicionado na linha média vertical (`top-1/2 -translate-y-1/2`).
@@ -63,33 +63,36 @@ Seguindo [ARCHITECTURE.md](../docs/ARCHITECTURE.md):
       - Título monumental (`<h2 id="jornada-title">`) em `Space Grotesk`, `text-[clamp(3.15rem,5.8vw,6rem)]`, `leading-[0.94]`, `tracking-[-0.045em]` (`"Minha / jornada."`).
       - Descrição introdutória curta em `Montserrat` (`mt-5 max-w-[36ch] text-sm lg:text-base leading-relaxed text-muted-foreground`) + indicador discreto `"Role para percorrer"`.
     - **Paradas Alternadas (Cima / Baixo em torno da linha central):**
-      - Os marcos cronológicos alternam posição automaticamente (`index % 2 === 0` acima do eixo central; `index % 2 === 1` abaixo do eixo central), mantendo espaçamento horizontal confortável (`gap-x-[clamp(44px,5.5vw,92px)]`) e largura ampliada por parada (`w-[clamp(360px,33vw,490px)]`) para acomodar o layout lado a lado sem colisões.
+      - Os marcos cronológicos alternam posição automaticamente (`index % 2 === 0` acima do eixo central; `index % 2 === 1` abaixo do eixo central), mantendo espaçamento horizontal confortável (`gap-x-[clamp(44px,5.5vw,92px)]`) e largura padrão `w-[clamp(420px,38vw,580px)]` por parada — ou `w-[clamp(540px,48vw,760px)]` quando `isWideStop` retorna `true` (como nas paradas de galeria dupla) para preservar folga para o texto ao lado das fotos ampliadas.
       - **Estrutura de Cada Parada (Layout Lado a Lado Desktop com Padrão Retrato `#sobre` — Foto Principal à Esquerda + Texto Secundário à Direita):**
         1. **Haste Conectora (`.jl-*`) + Nó Circular (`.jd-*`):**
            - Haste fina (`w-px bg-brand-bright/75`) e ponto sólido com halo roxo (`size-2.5 rounded-full bg-brand-bright ring-4 ring-brand-bright/20`) conectando o eixo central ao card da parada.
-        2. **Bloco de Conteúdo da Parada (`flex items-center gap-4 lg:gap-5` no desktop; `flex-col` empilhado no mobile):**
-           - **1º — Foto Principal (`<figure className="w-[clamp(164px,23svh,268px)] shrink-0">` seguindo exatamente `#sobre` / `sobre.tsx`):**
-             - Frame quadrado **`aspect-square` (`1:1`)** com dimensionamento fluido **`w-[clamp(164px,23svh,268px)]`** no trilho horizontal desktop (`165.6px` em `720p`, `207px` em `900p`, `248.4px` em `1080p`), garantindo folga vertical dentro de `100svh` tanto em `1280×720` quanto em `1920×1080` sem clipping.
+        2. **Bloco de Conteúdo da Parada (`flex items-center gap-4 lg:gap-5` no desktop com mídia, `flex items-center` sem mídia; `flex-col` empilhado no mobile):**
+           - **Modo 1 — Foto Única (`media.type === "image"`, `<figure className="w-[clamp(210px,29svh,315px)] shrink-0">`):**
+             - Frame quadrado **`aspect-square` (`1:1`)** com dimensionamento fluido **`w-[clamp(210px,29svh,315px)]`** no trilho horizontal desktop, garantindo folga vertical dentro de `100svh` tanto em `1280×720` quanto em `1920×1080` sem clipping.
              - Moldura (`.journey-stop-media`): `relative aspect-square w-full overflow-hidden rounded-[12px] border border-white/10 bg-card transition-colors duration-300 group-hover/stop-photo:border-brand-bright/50`.
              - Wrapper dedicado `.journey-stop-media-inner` para o zoom-out cinematográfico de entrada (`scale: 1.24 -> 1` no GSAP), envolvendo o container de escala CSS no hover (`group-hover/stop-photo:scale-[1.03]`) sem conflito de `transform`.
-             - Em estado placeholder (enquanto não houver fotos reais), renderiza uma cena fotográfica abstrata Editorial-Tech temática da categoria (`aspect-square`, grain/luz roxa `#4811ED`/`#793CFF`, silhuetas arquitetônicas de escritório/palco/código/certificado e rótulo visual discreto).
-           - **2º — Legenda Técnica Inferior (`<figcaption>`):**
-             - `mt-2 flex items-center justify-between gap-2 font-sans text-[10px] sm:text-[11px] font-medium uppercase tracking-[0.08em] text-muted-foreground` (padrão idêntico ao retrato de `#sobre`):
+           - **Modo 2 — Galeria Dupla (`media.type === "gallery"`, `<figure className="w-[clamp(300px,42svh,440px)] shrink-0">` no desktop / `w-full max-w-[580px]` no mobile, combinada com `isWideStop`):**
+             - Moldura `.journey-stop-media` (`rounded-[12px] border border-white/10 bg-card p-1.5`) contendo `.journey-stop-media-inner` em `grid grid-cols-2 gap-2` com 2 fotos lado a lado em `aspect-[4/5]` (desktop e mobile), `rounded-[8px]` e `object-cover object-center`, preservando a coreografia GSAP de `clipPath` + zoom-out.
+           - **Modo 3 — Ponto Puro Sem Foto (`media.type === "none"`):**
+             - Não renderiza `<figure>` nem placeholder visual; exibe apenas `.journey-stop-copy` (`min-w-0 max-w-[36ch]` no desktop / `py-1` no mobile) com faixa superior de metadados (ponto colorido + `{category.label}` e `{year} · {monthLabel}`), `title`, `organization` e `description` exibida integralmente sem truncamento.
+           - **Legenda Técnica Inferior (`<figcaption>`, nos modos com mídia):**
+             - `mt-2 flex items-center justify-between gap-2 font-sans text-[10px] sm:text-[11px] font-medium uppercase tracking-[0.08em] text-muted-foreground`:
              - Esquerda: rótulo da **categoria** (`Tech`, `Curso`, `Programa`, `Empresa`).
-             - Direita: **data (`YEAR · MONTH`)**, ex.: `2021 · Mar`.
-           - **3º — Texto Secundário (`.journey-stop-copy`, `min-w-0 flex-1` ao lado direito da foto no desktop):**
-             - `title`: título conciso (`font-display text-sm lg:text-base font-semibold leading-snug line-clamp-2 text-foreground`).
-             - `organization`: organização / contexto em 1 linha (`mt-1 truncate text-xs font-medium text-brand-bright`).
-             - `description`: descrição secundária enxuta (`mt-1.5 line-clamp-3 text-xs leading-relaxed text-muted-foreground`) em *Lorem ipsum* inicial.
+             - Direita: **data (`YEAR · MONTH`)**, ex.: `2025 · Mai 25 – Mar 26`.
+           - **Texto Secundário (`.journey-stop-copy`, `min-w-0 flex-1` ao lado direito da foto no desktop):**
+             - `title`: título conciso com quebra natural (`font-display text-sm lg:text-base font-semibold leading-snug text-foreground`).
+             - `organization`: organização / contexto sem `truncate` (`mt-1 text-xs font-medium text-brand-bright`).
+             - `description`: descrição secundária completa sem `line-clamp-*` (`mt-1.5 text-xs leading-relaxed text-muted-foreground` no desktop e `text-sm` no mobile).
 
 ### B) Layout Mobile & Reduced Motion (`< 900px` ou `prefers-reduced-motion: reduce`)
 
 - Sem `position: sticky` nem deslocamento horizontal forçado.
 - Container padrão com padding lateral (`px-[clamp(20px,4vw,56px)] py-24`):
-  - Cabeçalho empilhado: Eyebrow `"04 — Jornada"`, período `"2021 — 2026"`, título `"Minha jornada."` e resumo curto.
+  - Cabeçalho empilhado: Eyebrow `"04 — Jornada"`, período `"2025 — 2026"`, título `"Minha jornada."` e resumo curto.
   - **Lista Vertical com Eixo à Esquerda:**
-    - Linha vertical contínua (`border-l border-white/15 ml-3 pl-6 space-y-10`).
-    - Cada parada tem um nó roxo alinhado à linha vertical esquerda + **Foto Principal em `<figure>` seguindo o padrão retrato de `#sobre` (`w-full max-w-[380px] aspect-square`, `rounded-[12px]`, `border border-white/10 bg-card`, `hover:border-brand-bright/50`, escala interna `scale-[1.03]`)** + **`<figcaption>` técnico inferior** (`font-sans text-[11px] font-medium uppercase tracking-[0.08em] text-muted-foreground`, categoria à esquerda e `YEAR · MONTH` à direita) + texto secundário conciso logo abaixo (`title`, `organization`, `description`).
+    - Linha vertical contínua (`border-l border-brand-bright/35 ml-2.5 pl-6 sm:pl-8 space-y-10`).
+    - Cada parada tem um nó roxo alinhado à linha vertical esquerda + **Foto Única (`w-full max-w-[460px] aspect-square`) / Galeria Dupla (`w-full max-w-[580px]`, `grid-cols-2 gap-2`, `aspect-[4/5]`) / ou Ponto Puro Sem Foto (`media.type === "none"` com metadados no topo do bloco textual)** + texto secundário conciso (`title`, `organization`, `description`).
 
 ---
 
@@ -136,14 +139,19 @@ export interface JornadaCategoryMeta {
 
 export type JornadaMedia =
   | {
-      type: "placeholder";
-      scene: JornadaCategory;
-      caption: string;
-    }
-  | {
       type: "image";
       src: string;
       alt: string;
+    }
+  | {
+      type: "gallery";
+      images: [
+        { src: string; alt: string },
+        { src: string; alt: string },
+      ];
+    }
+  | {
+      type: "none";
     };
 
 export interface JornadaStop {
@@ -169,24 +177,22 @@ export interface JornadaContent {
 }
 ```
 
-### Paradas Iniciais Definidas (`src/data/jornada.ts` — Placeholder em *Lorem ipsum*)
-Para cobrir todos os pilares citados pelo usuário (**tecnologia, cursos, programas e empresas**), a especificação prevê **7 paradas cronológicas** iniciais:
-1. `2021 · Mar` — **`tech`** — *Primeiro contato com código & Web* (Placeholder fotográfico + Lorem ipsum)
-2. `2022 · Fev` — **`curso`** — *Formação FullStack & Fundamentos* (Placeholder fotográfico + Lorem ipsum)
-3. `2022 · Out` — **`programa`** — *Programa de Bolsas / Hackathon* (Placeholder fotográfico + Lorem ipsum)
-4. `2023 · Jun` — **`empresa`** — *Primeira experiência profissional Tech* (Placeholder fotográfico + Lorem ipsum)
-5. `2024 · Mar` — **`curso`** — *Especialização Arquitetura & Cloud* (Placeholder fotográfico + Lorem ipsum)
-6. `2024 · Nov` — **`programa`** — *Comunidade / Programa Embaixador* (Placeholder fotográfico + Lorem ipsum)
-7. `2025 · Ago` — **`empresa`** — *Atuação atual como Desenvolvedor FullStack* (Placeholder fotográfico + Lorem ipsum)
+### Paradas Definidas (`src/data/jornada.ts` — Trajetória Real `2025 — 2026`)
+As **5 paradas cronológicas** cobrem os quatro pilares (`curso`, `tech`, `programa`, `empresa`) com fotos reais em `public/jornada/`, galeria dupla e marcos textuais puros:
+1. `2025 · Mai 25 – Mar 26` — **`curso`** — *Formação FullStack · Jovem Tech* (`INOVA-SE · MCTI`, `image`: `/jornada/jovemtech.png`)
+2. `2026 · Fev – Atual` — **`curso`** — *Análise e Desenvolvimento de Sistemas* (`UNIT-SE · Graduação Tecnológica`, `none`)
+3. `2026 · Jul` — **`tech`** — *HackAI · Projeto Mapae* (`1º Hackathon · Descoberta Urbana`, `image`: `/jornada/hacktoon.png`)
+4. `2026 · Ago` — **`programa`** — *Embaixador Estudantil da Google* (`Google · Programa Estudantil`, `gallery`: `/jornada/google.png` e `/jornada/google2.png`)
+5. `2026 · Set` — **`empresa`** — *Desenvolvedor FullStack · DelFinance* (`DelFinance · Fintech`, `none`)
 
 ---
 
 ## 6. Checklist de Verificação da Implementação
 
-- [ ] `<section id="jornada">` usa `overflow-x-clip` (não `overflow-hidden`), garantindo que o palco interno `sticky` funcione sem travar e integrando ao link `Jornada` do Header.
-- [ ] O palco `sticky` reserva padding superior suficiente para que as paradas superiores e a faixa de título nunca fiquem sob `#navbar`.
-- [ ] Em cada parada, a **foto** (`JornadaMedia`) segue o padrão exato de retrato de `#sobre` (`sobre.tsx`): frame quadrado `aspect-square` (`1:1`), `rounded-[12px]`, `border border-white/10 bg-card`, `hover:border-brand-bright/50`, escala interna suave (`scale-[1.03]`), dimensionado com `w-[clamp(164px,23svh,268px)]` no layout lado a lado do trilho horizontal desktop (cabendo com folga nas metades superior e inferior de `100svh` mesmo em `1280×720` e `1920×1080`) e `w-full max-w-[380px] aspect-square` na timeline vertical mobile, acompanhado de `<figcaption>` técnico inferior (`font-sans text-[10px] sm:text-[11px] font-medium uppercase tracking-[0.08em] text-muted-foreground`) com categoria à esquerda e data (`YEAR · MONTH`) à direita, além do texto secundário conciso ao lado no desktop / abaixo no mobile (`title`, `organization`, `description`).
-- [ ] A linha de progresso horizontal e o `x` do trilho calculam dinamicamente a largura total (`scrollWidth - clientWidth`), funcionando com qualquer número de paradas sem clipping no início ou fim.
-- [ ] As hastes e pontos conectam corretamente os cards alternados acima e abaixo da linha central via `containerAnimation`.
-- [ ] Em `< 900px` e sob `prefers-reduced-motion: reduce`, a timeline vira lista vertical editorial legível sem scroll horizontal preso.
+- [x] `<section id="jornada">` usa `overflow-x-clip` (não `overflow-hidden`), garantindo que o palco interno `sticky` funcione sem travar e integrando ao link `Jornada` do Header.
+- [x] O palco `sticky` reserva padding superior suficiente para que as paradas superiores e a faixa de título nunca fiquem sob `#navbar`.
+- [x] Suporte completo aos 3 modos de parada em `JornadaStopCard`: foto única (`image` 1:1), galeria dupla (`gallery` com 2 fotos lado a lado) e ponto puro sem foto (`none`), preservando `.journey-stop-media`, `.journey-stop-media-inner` e `.journey-stop-copy` para o `Timeline`.
+- [x] A linha de progresso horizontal e o `x` do trilho calculam dinamicamente a largura total (`scrollWidth - clientWidth`), funcionando com qualquer número de paradas sem clipping no início ou fim.
+- [x] As hastes e pontos conectam corretamente os cards alternados acima e abaixo da linha central via `containerAnimation`.
+- [x] Em `< 900px` e sob `prefers-reduced-motion: reduce`, a timeline vira lista vertical editorial legível sem scroll horizontal preso.
 - [ ] `npm run check` e `npm run build` passam com exit code `0`.
