@@ -13,7 +13,7 @@ export interface FooterProps {
 
 /**
  * Minimalist Editorial-Tech footer featuring the full-width interactive
- * Space Grotesk wordmark, a hairline separator, and a smooth-scroll back-to-top action.
+ * Space Grotesk wordmark, a hairline separator, copyright notice, and a smooth-scroll back-to-top action.
  */
 export function Footer({ content }: FooterProps) {
   const { scrollTo } = useSmoothScroll();
@@ -65,7 +65,10 @@ export function Footer({ content }: FooterProps) {
         )}
       />
 
-      <div className="mt-4 flex justify-end md:mt-5">
+      <div className="mt-4 flex flex-col-reverse items-start justify-between gap-3 sm:flex-row sm:items-center md:mt-5">
+        <p className="font-sans text-xs font-medium tracking-[0.04em] text-muted-foreground">
+          {content.copyright}
+        </p>
         <button
           type="button"
           onClick={() => scrollTo(0)}
