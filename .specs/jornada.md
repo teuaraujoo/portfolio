@@ -179,10 +179,10 @@ export interface JornadaContent {
 
 ### Paradas Definidas (`src/data/jornada.ts` — Trajetória Real `2025 — 2026`)
 As **5 paradas cronológicas** cobrem os quatro pilares (`curso`, `tech`, `programa`, `empresa`) com fotos reais em `public/jornada/`, galeria dupla e marcos textuais puros:
-1. `2025 · Mai 25 – Mar 26` — **`curso`** — *Formação FullStack · Jovem Tech* (`INOVA-SE · MCTI`, `image`: `/jornada/jovemtech.png`)
+1. `2025 · Mai 25 – Mar 26` — **`curso`** — *Formação FullStack · Jovem Tech* (`INOVA-SE · MCTI`, `image`: `/jornada/jovemtech.webp`)
 2. `2026 · Fev – Atual` — **`curso`** — *Análise e Desenvolvimento de Sistemas* (`UNIT-SE · Graduação Tecnológica`, `none`)
-3. `2026 · Jul` — **`tech`** — *HackAI · Projeto Mapae* (`1º Hackathon · Descoberta Urbana`, `image`: `/jornada/hacktoon.png`)
-4. `2026 · Ago` — **`programa`** — *Embaixador Estudantil da Google* (`Google · Programa Estudantil`, `gallery`: `/jornada/google.png` e `/jornada/google2.png`)
+3. `2026 · Jul` — **`tech`** — *HackAI · Projeto Mapae* (`1º Hackathon · Descoberta Urbana`, `image`: `/jornada/hacktoon.webp`)
+4. `2026 · Ago` — **`programa`** — *Embaixador Estudantil da Google* (`Google · Programa Estudantil`, `gallery`: `/jornada/google.webp` e `/jornada/google2.webp`)
 5. `2026 · Set` — **`empresa`** — *Desenvolvedor FullStack · DelFinance* (`DelFinance · Fintech`, `none`)
 
 ---

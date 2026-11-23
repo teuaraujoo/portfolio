@@ -88,7 +88,7 @@ export const jornadaContent: JornadaContent = {
         "Formação técnica em desenvolvimento fullstack pelo programa Jovem Tech, programa da empresa INOVA-SE em parceria com o Ministério de Ciência, Tecnologia e Inovação.",
       media: {
         type: "image",
-        src: "/jornada/jovemtech.png",
+        src: "/jornada/jovemtech.webp",
         alt: "Formação técnica em desenvolvimento fullstack no programa Jovem Tech",
       },
     },
@@ -116,7 +116,7 @@ export const jornadaContent: JornadaContent = {
         "Participação no meu primeiro hackathon, o HackAI, apresentando o Mapae, uma solução de descoberta urbana que atualmente está em desenvolvimento.",
       media: {
         type: "image",
-        src: "/jornada/hacktoon.png",
+        src: "/jornada/hacktoon.webp",
         alt: "Participação no hackathon HackAI apresentando a solução urbana Mapae",
       },
     },
@@ -133,11 +133,11 @@ export const jornadaContent: JornadaContent = {
         type: "gallery",
         images: [
           {
-            src: "/jornada/google.png",
+            src: "/jornada/google.webp",
             alt: "Participação no programa de Embaixadores Estudantis da Google",
           },
           {
-            src: "/jornada/google2.png",
+            src: "/jornada/google2.webp",
             alt: "Registro de atividades como Embaixador Estudantil da Google",
           },
         ],
