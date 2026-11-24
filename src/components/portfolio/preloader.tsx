@@ -39,19 +39,22 @@ function isEditableTarget(target: EventTarget | null): boolean {
 
 export interface PreloaderProps {
   content: PreloaderContent;
-  /** Disparado ~0.35s após o início da subida da cortina para sincronizar a entrada da Hero */
+  /** Disparado em 0.48s (logo após ambas as metades da cortina iniciarem a subida) para sincronizar a entrada da Hero */
   onExitStart?: () => void;
-  /** Disparado após a cortina sair completamente da viewport e liberar o scroll */
+  /** Disparado após as cortinas saírem completamente da viewport e liberarem o scroll */
   onComplete?: () => void;
 }
 
 /**
  * Full-viewport editorial preloader with 0->100 counter, progress bar,
- * curtain exit transition, and zero-shift scroll blocking via Lenis + input guards.
+ * two-half staggered curtain exit transition, and zero-shift scroll blocking via Lenis + input guards.
  */
 export function Preloader({ content, onExitStart, onComplete }: PreloaderProps) {
   const [isVisible, setIsVisible] = useState(true);
   const scope = useRef<HTMLDivElement>(null);
+  const leftPanelRef = useRef<HTMLDivElement>(null);
+  const rightPanelRef = useRef<HTMLDivElement>(null);
+  const contentRef = useRef<HTMLDivElement>(null);
   const countRef = useRef<HTMLSpanElement>(null);
   const barRef = useRef<HTMLDivElement>(null);
   const onExitStartRef = useRef(onExitStart);
@@ -78,10 +81,13 @@ export function Preloader({ content, onExitStart, onComplete }: PreloaderProps) 
 
       mm.add("(prefers-reduced-motion: no-preference)", () => {
         const introEl = scope.current;
+        const leftEl = leftPanelRef.current;
+        const rightEl = rightPanelRef.current;
+        const contentEl = contentRef.current;
         const countEl = countRef.current;
         const barEl = barRef.current;
 
-        if (!introEl || !countEl || !barEl) return;
+        if (!introEl || !leftEl || !rightEl || !contentEl || !countEl || !barEl) return;
 
         const preventScrollEvent = (event: Event) => {
           if (event.cancelable) {
@@ -115,7 +121,8 @@ export function Preloader({ content, onExitStart, onComplete }: PreloaderProps) 
 
         countEl.textContent = "0";
         gsap.set(barEl, { scaleX: 0 });
-        gsap.set(introEl, { yPercent: 0 });
+        gsap.set([leftEl, rightEl], { yPercent: 0 });
+        gsap.set(contentEl, { autoAlpha: 1, y: 0 });
 
         const tick = () => {
           const elapsed = performance.now() - startTime;
@@ -132,6 +139,7 @@ export function Preloader({ content, onExitStart, onComplete }: PreloaderProps) 
           if (shown === 1 && !completed) {
             completed = true;
             gsap.ticker.remove(tick);
+            gsap.set(introEl, { pointerEvents: "none" });
 
             exitTl = gsap.timeline({
               onComplete: () => {
@@ -145,17 +153,36 @@ export function Preloader({ content, onExitStart, onComplete }: PreloaderProps) 
 
             exitTl
               .to(
-                introEl,
+                contentEl,
+                {
+                  y: -14,
+                  autoAlpha: 0,
+                  duration: 0.28,
+                  ease: "power2.in",
+                },
+                0.1,
+              )
+              .to(
+                leftEl,
                 {
                   yPercent: -100,
-                  duration: 1.1,
+                  duration: 0.95,
                   ease: "expo.inOut",
                 },
-                0.15,
+                0.2,
+              )
+              .to(
+                rightEl,
+                {
+                  yPercent: -100,
+                  duration: 0.95,
+                  ease: "expo.inOut",
+                },
+                0.36,
               )
               .add(() => {
                 onExitStartRef.current?.();
-              }, "<0.35");
+              }, 0.48);
           }
         };
 
@@ -186,29 +213,45 @@ export function Preloader({ content, onExitStart, onComplete }: PreloaderProps) 
       id="intro"
       aria-hidden="true"
       data-lenis-prevent
-      className="fixed inset-0 z-[10000] flex h-svh flex-col justify-between overscroll-none bg-background p-[clamp(20px,4vw,56px)] text-foreground select-none"
+      className="fixed inset-0 z-[10000] h-svh overscroll-none bg-transparent text-foreground select-none"
     >
-      <div className="intro-top flex items-end justify-between font-sans text-[11px] font-medium uppercase tracking-[0.08em] text-muted-foreground">
-        <span>{content.author}</span>
-        <span>{content.yearLabel}</span>
-      </div>
-
-      <div className="intro-bottom flex items-end justify-between">
-        <span className="font-sans text-[11px] font-medium uppercase tracking-[0.08em] text-muted-foreground">
-          {content.loadingLabel}
-        </span>
-        <span
-          ref={countRef}
-          className="intro-count font-display text-[clamp(4.5rem,14vw,12.5rem)] font-medium leading-[0.8] tracking-[-0.05em] text-foreground tabular-nums"
-        >
-          0
-        </span>
-      </div>
+      <div
+        ref={leftPanelRef}
+        aria-hidden="true"
+        className="intro-curtain-left pointer-events-none absolute inset-y-0 left-0 z-0 w-[calc(50%+1px)] bg-background will-change-transform"
+      />
+      <div
+        ref={rightPanelRef}
+        aria-hidden="true"
+        className="intro-curtain-right pointer-events-none absolute inset-y-0 right-0 z-0 w-1/2 bg-background will-change-transform"
+      />
 
       <div
-        ref={barRef}
-        className="intro-bar absolute bottom-0 left-0 h-[2px] w-full origin-left scale-x-0 bg-brand-bright"
-      />
+        ref={contentRef}
+        className="intro-content relative z-10 flex h-full w-full flex-col justify-between p-[clamp(20px,4vw,56px)]"
+      >
+        <div className="intro-top flex items-end justify-between font-sans text-[11px] font-medium uppercase tracking-[0.08em] text-muted-foreground">
+          <span>{content.author}</span>
+          <span>{content.yearLabel}</span>
+        </div>
+
+        <div className="intro-bottom flex items-end justify-between">
+          <span className="font-sans text-[11px] font-medium uppercase tracking-[0.08em] text-muted-foreground">
+            {content.loadingLabel}
+          </span>
+          <span
+            ref={countRef}
+            className="intro-count font-display text-[clamp(4.5rem,14vw,12.5rem)] font-medium leading-[0.8] tracking-[-0.05em] text-foreground tabular-nums"
+          >
+            0
+          </span>
+        </div>
+
+        <div
+          ref={barRef}
+          className="intro-bar absolute bottom-0 left-0 h-[2px] w-full origin-left scale-x-0 bg-brand-bright"
+        />
+      </div>
     </div>
   );
 }
