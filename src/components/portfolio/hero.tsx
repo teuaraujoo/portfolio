@@ -153,7 +153,7 @@ export function Hero({ content, contributions, active }: HeroProps) {
       ref={scope}
       id="hero"
       aria-label="Apresentação"
-      className="relative min-h-svh lg:h-svh w-full overflow-hidden bg-background text-foreground px-[clamp(20px,4vw,56px)] pt-24 pb-6 md:pt-28 md:pb-8"
+      className="relative min-h-svh lg:h-svh w-full overflow-hidden bg-background text-foreground px-[clamp(20px,4vw,56px)] pt-24 pb-6 md:pt-28 md:pb-8 [contain:layout]"
     >
       <div
         aria-hidden="true"
@@ -240,7 +240,7 @@ export function Hero({ content, contributions, active }: HeroProps) {
         </div>
 
         <div className="flex flex-col items-start lg:h-full lg:items-end lg:justify-end">
-          <div className="hero-parallax-map w-full max-w-[400px] lg:mt-auto lg:mb-4 lg:self-end xl:max-w-[440px] will-change-transform">
+          <div className="hero-parallax-map min-h-[258px] w-full max-w-[400px] lg:mt-auto lg:mb-4 lg:min-h-[278px] lg:self-end xl:max-w-[440px] will-change-transform">
             <div data-hero-fade="">
               <ContributionSkyline
                 {...content.gitMap}

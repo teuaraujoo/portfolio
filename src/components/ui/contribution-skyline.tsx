@@ -744,6 +744,100 @@ interface ProjectedBar {
   tipY: number;
 }
 
+interface BarScratch {
+  bar: ProjectedBar;
+  b0: [number, number];
+  b1: [number, number];
+  b2: [number, number];
+  b3: [number, number];
+  t0: [number, number];
+  t1: [number, number];
+  t2: [number, number];
+  t3: [number, number];
+  tip: [number, number];
+  faceY: Array<[number, number]>;
+  faceX: Array<[number, number]>;
+  topFace: Array<[number, number]>;
+}
+
+interface DrawScratch {
+  depths: Float64Array;
+  sortedIndices: number[];
+  hitList: ProjectedBar[];
+  barPool: BarScratch[];
+  focusColor: RGB;
+}
+
+function createBarScratch(placeholderCell: Cell): BarScratch {
+  const b0: [number, number] = [0, 0];
+  const b1: [number, number] = [0, 0];
+  const b2: [number, number] = [0, 0];
+  const b3: [number, number] = [0, 0];
+  const t0: [number, number] = [0, 0];
+  const t1: [number, number] = [0, 0];
+  const t2: [number, number] = [0, 0];
+  const t3: [number, number] = [0, 0];
+  const tip: [number, number] = [0, 0];
+  const faceY: Array<[number, number]> = [t0, t1, b1, b0];
+  const faceX: Array<[number, number]> = [t1, t2, b2, b1];
+  const topFace: Array<[number, number]> = [t0, t1, t2, t3];
+  return {
+    bar: {
+      cellIndex: 0,
+      cell: placeholderCell,
+      polys: [],
+      tipX: 0,
+      tipY: 0,
+    },
+    b0,
+    b1,
+    b2,
+    b3,
+    t0,
+    t1,
+    t2,
+    t3,
+    tip,
+    faceY,
+    faceX,
+    topFace,
+  };
+}
+
+function projectInto(
+  wx: number,
+  wy: number,
+  wz: number,
+  cam: Cam,
+  out: [number, number],
+): [number, number] {
+  const x1 = wx * cam.cosY - wy * cam.sinY;
+  const y1 = wx * cam.sinY + wy * cam.cosY;
+  out[0] = cam.cx + x1 * cam.scale;
+  out[1] = cam.cy + (y1 * cam.cosE - wz * cam.sinE) * cam.scale;
+  return out;
+}
+
+function mixRGBInto(a: RGB, b: RGB, t: number, out: RGB): RGB {
+  const k = clamp01(t);
+  out[0] = Math.round(lerp(a[0], b[0], k));
+  out[1] = Math.round(lerp(a[1], b[1], k));
+  out[2] = Math.round(lerp(a[2], b[2], k));
+  return out;
+}
+
+function mixRgbCss(a: RGB, b: RGB, t: number, alpha: number = 1): string {
+  const k = clamp01(t);
+  const r = Math.round(lerp(a[0], b[0], k));
+  const g = Math.round(lerp(a[1], b[1], k));
+  const bl = Math.round(lerp(a[2], b[2], k));
+  return alpha >= 1
+    ? `rgb(${r}, ${g}, ${bl})`
+    : `rgba(${r}, ${g}, ${bl}, ${alpha})`;
+}
+
+const WHITE_RGB: RGB = [255, 255, 255];
+
 const subscribeReducedMotion = (cb: () => void) => {
   if (typeof window === "undefined") return () => {};
   const mql = window.matchMedia("(prefers-reduced-motion: reduce)");
@@ -839,6 +933,7 @@ export function ContributionSkyline({
   const [view, setView] = useState<ContributionSkylineView>(defaultView);
   const [hasEntered, setHasEntered] = useState(false);
   const [width, setWidth] = useState(400);
+  const [hasMeasuredWidth, setHasMeasuredWidth] = useState(false);
   const [theme, setTheme] = useState<ThemeColors>(DEFAULT_THEME);
   const [activeIdx, setActiveIdx] = useState<number | null>(null);
   const [pinnedIdx, setPinnedIdx] = useState<number | null>(null);
@@ -854,6 +949,29 @@ export function ContributionSkyline({
   const tooltipRef = useRef<HTMLDivElement>(null);
   const cornersRef = useRef<HTMLDivElement>(null);
   const modeSwitchTimerRef = useRef<number | null>(null);
+  const morphDelayTimerRef = useRef<number | null>(null);
+  const hasManuallyToggledRef = useRef(false);
+
+  const paletteColors = useMemo(
+    () => resolvePalette(palette, theme.isDark),
+    [palette, theme.isDark],
+  );
+
+  const emptyCellColor = useMemo(
+    () => mixRGB(theme.bg, theme.fg, theme.isDark ? 0.095 : 0.07),
+    [theme],
+  );
+
+  const levelColors = useMemo<[RGB, RGB, RGB, RGB, RGB]>(
+    () => [
+      emptyCellColor,
+      paletteColors[0],
+      paletteColors[1],
+      paletteColors[2],
+      paletteColors[3],
+    ],
+    [emptyCellColor, paletteColors],
+  );
 
   // Refs mutáveis de animação (atualizados apenas em effects/callbacks)
   const animRef = useRef({
@@ -882,6 +1000,13 @@ export function ContributionSkyline({
   });
 
   const projectedRef = useRef<ProjectedBar[]>([]);
+  const scratchRef = useRef<DrawScratch>({
+    depths: new Float64Array(0),
+    sortedIndices: [],
+    hitList: [],
+    barPool: [],
+    focusColor: [0, 0, 0],
+  });
   const paramsRef = useRef({
     cells,
     cols,
@@ -893,6 +1018,7 @@ export function ContributionSkyline({
     view,
     theme,
     palette,
+    levelColors,
     showStats,
     activeIdx,
     activeLevel,
@@ -900,12 +1026,18 @@ export function ContributionSkyline({
     orbit,
   });
 
-  // Dimensões responsivas (encaixe compacto na Hero 100svh)
-  const { isCornerLayout, bigSize, h2, h3 } = computeCanvasMetrics(
-    width,
-    showStats,
-  );
-  const canvasHeight = view === "3d" ? h3 : h2;
+  // Dimensões responsivas (encaixe compacto na Hero 100svh, CSS cqw evita salto SSR -> ResizeObserver)
+  const { isCornerLayout, bigSize } = computeCanvasMetrics(width, showStats);
+  const stageHeight =
+    view === "2d"
+      ? "clamp(96px, 24cqw, 168px)"
+      : showStats
+        ? hasMeasuredWidth && width >= 500
+          ? "clamp(276px, 58cqw, 400px)"
+          : "clamp(176px, 50cqw, 224px)"
+        : hasMeasuredWidth && width >= 500
+          ? "clamp(220px, 46cqw, 320px)"
+          : "clamp(168px, 46cqw, 212px)";
 
   const nf = useMemo(() => new Intl.NumberFormat(locale), [locale]);
   const longDateFmt = useMemo(
@@ -980,16 +1112,6 @@ export function ContributionSkyline({
     [cells, formatDate, unit, nf, noun, levelLabels],
   );
 
-  const paletteColors = useMemo(
-    () => resolvePalette(palette, theme.isDark),
-    [palette, theme.isDark],
-  );
-
-  const emptyCellColor = useMemo(
-    () => mixRGB(theme.bg, theme.fg, theme.isDark ? 0.095 : 0.07),
-    [theme],
-  );
-
   const swatchColors = useMemo(
     () => [
       rgbCss(emptyCellColor),
@@ -1062,20 +1184,9 @@ export function ContributionSkyline({
       curBigSize,
     );
 
-    const activePalette = resolvePalette(p.palette, p.theme.isDark);
-    const level0 = mixRGB(
-      p.theme.bg,
-      p.theme.fg,
-      p.theme.isDark ? 0.095 : 0.07,
-    );
-    const levelColors: [RGB, RGB, RGB, RGB, RGB] = [
-      level0,
-      activePalette[0],
-      activePalette[1],
-      activePalette[2],
-      activePalette[3],
-    ];
+    const activeLevelColors = p.levelColors;
     const shadeBase = p.theme.bg;
+    const scratch = scratchRef.current;
 
     // Rótulos de meses visíveis no estado 2D (desaparecem suavemente no morph 3D)
     const monthAlpha = 1 - smoothstep(0, 0.45, e);
@@ -1085,18 +1196,25 @@ export function ContributionSkyline({
       ctx.fillStyle = rgbCss(p.theme.fg, 0.58 * monthAlpha);
       ctx.textBaseline = "bottom";
       ctx.textAlign = "left";
-      for (const m of p.months) {
+      const monthPt: [number, number] = [0, 0];
+      for (let mIdx = 0; mIdx < p.months.length; mIdx++) {
+        const m = p.months[mIdx];
         const wx = m.col - (p.cols - 1) * 0.5 - DEFAULT_CELL_HALF;
         const wy = -3 - DEFAULT_CELL_HALF;
-        const [mx, my] = project(wx, wy, 0, cam);
-        ctx.fillText(m.label, mx, my - 5);
+        projectInto(wx, wy, 0, cam, monthPt);
+        ctx.fillText(m.label, monthPt[0], monthPt[1] - 5);
       }
       ctx.restore();
     }
 
-    // Lista ordenada back-to-front via profundidade na câmera
-    const sortedIndices: number[] = [];
-    const depths = new Float64Array(p.cells.length);
+    // Lista ordenada back-to-front via profundidade na câmera (buffers reutilizados)
+    if (scratch.depths.length < p.cells.length) {
+      scratch.depths = new Float64Array(p.cells.length);
+    }
+    const depths = scratch.depths;
+    const sortedIndices = scratch.sortedIndices;
+    sortedIndices.length = 0;
+
     for (let i = 0; i < p.cells.length; i++) {
       const c = p.cells[i];
       if (!c.inRange) continue;
@@ -1107,18 +1225,31 @@ export function ContributionSkyline({
     }
     sortedIndices.sort((ia, ib) => depths[ia] - depths[ib]);
 
+    while (scratch.barPool.length < sortedIndices.length) {
+      scratch.barPool.push(createBarScratch(p.cells[0]));
+    }
+
     // Vetor direção da câmera para culling exato de faces laterais em qualquer ângulo de órbita
     const viewX = cam.sinY * cam.sinE;
     const viewY = cam.cosY * cam.sinE;
 
-    const hitList: ProjectedBar[] = [];
-    let tooltipPos: [number, number] | null = null;
+    const hitList = scratch.hitList;
+    hitList.length = 0;
+    let hasTooltipPos = false;
+    let tooltipTipX = 0;
+    let tooltipTipY = 0;
 
     const drawFlatRounded = e < 0.015;
+    const focusMix = p.theme.isDark ? 0.24 : 0.14;
+    const topHighlightMix = p.theme.isDark ? 0.07 : 0.03;
 
     for (let s = 0; s < sortedIndices.length; s++) {
       const idx = sortedIndices[s];
       const cell = p.cells[idx];
+      const slot = scratch.barPool[s];
+      const polys = slot.bar.polys;
+      polys.length = 0;
+
       const wx = cell.col - (p.cols - 1) * 0.5;
       const wy = cell.row - 3;
       const rise = riseAt(cell.col, p.cols, e);
@@ -1130,9 +1261,9 @@ export function ContributionSkyline({
         p.activeLevel === null || cell.level === p.activeLevel;
       const dimAlpha = matchesFilter ? 1 : 0.16;
 
-      let baseColor = levelColors[cell.level];
+      let baseColor = activeLevelColors[cell.level];
       if (isFocused) {
-        baseColor = mixRGB(baseColor, [255, 255, 255], p.theme.isDark ? 0.24 : 0.14);
+        baseColor = mixRGBInto(baseColor, WHITE_RGB, focusMix, scratch.focusColor);
       }
 
       const x0 = wx - DEFAULT_CELL_HALF;
@@ -1141,8 +1272,12 @@ export function ContributionSkyline({
       const y1 = wy + DEFAULT_CELL_HALF;
 
       if (drawFlatRounded) {
-        const [tlx, tly] = project(x0, y0, 0, cam);
-        const [brx, bry] = project(x1, y1, 0, cam);
+        projectInto(x0, y0, 0, cam, slot.t0);
+        projectInto(x1, y1, 0, cam, slot.t2);
+        const tlx = slot.t0[0];
+        const tly = slot.t0[1];
+        const brx = slot.t2[0];
+        const bry = slot.t2[1];
         const cw = Math.max(2, brx - tlx);
         const ch = Math.max(2, bry - tly);
         drawRoundedRect(ctx, tlx, tly, cw, ch, Math.min(2.5, cw * 0.24));
@@ -1154,112 +1289,132 @@ export function ContributionSkyline({
           ctx.lineWidth = 1.4;
           ctx.stroke();
         } else if (cell.level > 0 && matchesFilter) {
-          ctx.strokeStyle = rgbCss([255, 255, 255], 0.06);
+          ctx.strokeStyle = rgbCss(WHITE_RGB, 0.06);
           ctx.lineWidth = 0.6;
           ctx.stroke();
         }
 
-        const topPt: [number, number] = [tlx + cw * 0.5, tly];
-        hitList.push({
-          cellIndex: idx,
-          cell,
-          polys: [
-            [
-              [tlx, tly],
-              [brx, tly],
-              [brx, bry],
-              [tlx, bry],
-            ],
-          ],
-          tipX: topPt[0],
-          tipY: topPt[1],
-        });
-        if (isFocused) tooltipPos = topPt;
+        slot.t1[0] = brx;
+        slot.t1[1] = tly;
+        slot.t3[0] = tlx;
+        slot.t3[1] = bry;
+        slot.topFace[0] = slot.t0;
+        slot.topFace[1] = slot.t1;
+        slot.topFace[2] = slot.t2;
+        slot.topFace[3] = slot.t3;
+        polys.push(slot.topFace);
+
+        const tipX = tlx + cw * 0.5;
+        const tipY = tly;
+        slot.bar.cellIndex = idx;
+        slot.bar.cell = cell;
+        slot.bar.tipX = tipX;
+        slot.bar.tipY = tipY;
+        hitList.push(slot.bar);
+
+        if (isFocused) {
+          hasTooltipPos = true;
+          tooltipTipX = tipX;
+          tooltipTipY = tipY;
+        }
         continue;
       }
 
-      const b0 = project(x0, y0, 0, cam);
-      const b1 = project(x1, y0, 0, cam);
-      const b2 = project(x1, y1, 0, cam);
-      const b3 = project(x0, y1, 0, cam);
+      projectInto(x0, y0, 0, cam, slot.b0);
+      projectInto(x1, y0, 0, cam, slot.b1);
+      projectInto(x1, y1, 0, cam, slot.b2);
+      projectInto(x0, y1, 0, cam, slot.b3);
 
-      const t0 = project(x0, y0, barH, cam);
-      const t1 = project(x1, y0, barH, cam);
-      const t2 = project(x1, y1, barH, cam);
-      const t3 = project(x0, y1, barH, cam);
-
-      const polys: Array<Array<[number, number]>> = [];
+      projectInto(x0, y0, barH, cam, slot.t0);
+      projectInto(x1, y0, barH, cam, slot.t1);
+      projectInto(x1, y1, barH, cam, slot.t2);
+      projectInto(x0, y1, barH, cam, slot.t3);
 
       // Faces laterais visíveis (ordem correta pelo culling do vetor de visão)
       if (barH > 0.002) {
         if (viewY < 0) {
-          const face: Array<[number, number]> = [t0, t1, b1, b0];
-          drawPoly(ctx, face);
-          ctx.fillStyle = rgbCss(mixRGB(baseColor, shadeBase, 0.48), dimAlpha);
+          slot.faceY[0] = slot.t0;
+          slot.faceY[1] = slot.t1;
+          slot.faceY[2] = slot.b1;
+          slot.faceY[3] = slot.b0;
+          drawPoly(ctx, slot.faceY);
+          ctx.fillStyle = mixRgbCss(baseColor, shadeBase, 0.48, dimAlpha);
           ctx.fill();
-          polys.push(face);
+          polys.push(slot.faceY);
         } else if (viewY > 0) {
-          const face: Array<[number, number]> = [t2, t3, b3, b2];
-          drawPoly(ctx, face);
-          ctx.fillStyle = rgbCss(mixRGB(baseColor, shadeBase, 0.44), dimAlpha);
+          slot.faceY[0] = slot.t2;
+          slot.faceY[1] = slot.t3;
+          slot.faceY[2] = slot.b3;
+          slot.faceY[3] = slot.b2;
+          drawPoly(ctx, slot.faceY);
+          ctx.fillStyle = mixRgbCss(baseColor, shadeBase, 0.44, dimAlpha);
           ctx.fill();
-          polys.push(face);
+          polys.push(slot.faceY);
         }
 
         if (viewX > 0) {
-          const face: Array<[number, number]> = [t1, t2, b2, b1];
-          drawPoly(ctx, face);
-          ctx.fillStyle = rgbCss(mixRGB(baseColor, shadeBase, 0.28), dimAlpha);
+          slot.faceX[0] = slot.t1;
+          slot.faceX[1] = slot.t2;
+          slot.faceX[2] = slot.b2;
+          slot.faceX[3] = slot.b1;
+          drawPoly(ctx, slot.faceX);
+          ctx.fillStyle = mixRgbCss(baseColor, shadeBase, 0.28, dimAlpha);
           ctx.fill();
-          polys.push(face);
+          polys.push(slot.faceX);
         } else if (viewX < 0) {
-          const face: Array<[number, number]> = [t3, t0, b0, b3];
-          drawPoly(ctx, face);
-          ctx.fillStyle = rgbCss(mixRGB(baseColor, shadeBase, 0.3), dimAlpha);
+          slot.faceX[0] = slot.t3;
+          slot.faceX[1] = slot.t0;
+          slot.faceX[2] = slot.b0;
+          slot.faceX[3] = slot.b3;
+          drawPoly(ctx, slot.faceX);
+          ctx.fillStyle = mixRgbCss(baseColor, shadeBase, 0.3, dimAlpha);
           ctx.fill();
-          polys.push(face);
+          polys.push(slot.faceX);
         }
       }
 
       // Face superior
-      const topFace: Array<[number, number]> = [t0, t1, t2, t3];
-      const topColor =
+      slot.topFace[0] = slot.t0;
+      slot.topFace[1] = slot.t1;
+      slot.topFace[2] = slot.t2;
+      slot.topFace[3] = slot.t3;
+      drawPoly(ctx, slot.topFace);
+      ctx.fillStyle =
         cell.level > 0
-          ? mixRGB(baseColor, [255, 255, 255], p.theme.isDark ? 0.07 : 0.03)
-          : baseColor;
-      drawPoly(ctx, topFace);
-      ctx.fillStyle = rgbCss(topColor, dimAlpha);
+          ? mixRgbCss(baseColor, WHITE_RGB, topHighlightMix, dimAlpha)
+          : rgbCss(baseColor, dimAlpha);
       ctx.fill();
-      polys.push(topFace);
+      polys.push(slot.topFace);
 
       if (isFocused) {
         ctx.strokeStyle = rgbCss(p.theme.fg, 0.95);
         ctx.lineWidth = 1.4;
         ctx.stroke();
       } else if (cell.level > 0 && matchesFilter) {
-        ctx.strokeStyle = rgbCss([255, 255, 255], 0.14);
+        ctx.strokeStyle = rgbCss(WHITE_RGB, 0.14);
         ctx.lineWidth = 0.65;
         ctx.stroke();
       }
 
-      const [tipX, tipY] = project(wx, wy, barH, cam);
-      hitList.push({
-        cellIndex: idx,
-        cell,
-        polys,
-        tipX,
-        tipY,
-      });
+      projectInto(wx, wy, barH, cam, slot.tip);
+      slot.bar.cellIndex = idx;
+      slot.bar.cell = cell;
+      slot.bar.tipX = slot.tip[0];
+      slot.bar.tipY = slot.tip[1];
+      hitList.push(slot.bar);
+
       if (isFocused) {
-        tooltipPos = [tipX, tipY];
+        hasTooltipPos = true;
+        tooltipTipX = slot.tip[0];
+        tooltipTipY = slot.tip[1];
       }
     }
 
     projectedRef.current = hitList;
 
     if (tooltipRef.current) {
-      if (tooltipPos && p.activeIdx !== null) {
-        updateTooltipDOM(tooltipPos[0], tooltipPos[1], w);
+      if (hasTooltipPos && p.activeIdx !== null) {
+        updateTooltipDOM(tooltipTipX, tooltipTipY, w);
         tooltipRef.current.style.opacity = "1";
       } else {
         tooltipRef.current.style.opacity = "0";
@@ -1361,6 +1516,7 @@ export function ContributionSkyline({
       view,
       theme,
       palette,
+      levelColors,
       showStats,
       activeIdx,
       activeLevel,
@@ -1379,6 +1535,7 @@ export function ContributionSkyline({
     view,
     theme,
     palette,
+    levelColors,
     showStats,
     activeIdx,
     activeLevel,
@@ -1397,6 +1554,7 @@ export function ContributionSkyline({
       if (!entry) return;
       const nextW = Math.round(entry.contentRect.width);
       if (nextW > 0) {
+        setHasMeasuredWidth(true);
         setWidth((prev) => (prev === nextW ? prev : nextW));
       }
     });
@@ -1497,10 +1655,42 @@ export function ContributionSkyline({
     return () => io.disconnect();
   }, [animate]);
 
-  // Orquestra estado alvo de morph (2D = 0, 3D = 1)
+  // Orquestra estado alvo de morph (2D = 0, 3D = 1), adiando o morph inicial pós-Hero
   useEffect(() => {
+    if (morphDelayTimerRef.current !== null) {
+      window.clearTimeout(morphDelayTimerRef.current);
+      morphDelayTimerRef.current = null;
+    }
+
     const targetE =
       view === "3d" && (hasEntered || reducedMotion) && animate ? 1 : 0;
+
+    if (reducedMotion) {
+      startMorph(targetE);
+      return;
+    }
+
+    if (targetE === 1 && !hasManuallyToggledRef.current) {
+      morphDelayTimerRef.current = window.setTimeout(() => {
+        morphDelayTimerRef.current = null;
+        startMorph(1);
+      }, 350);
+      return () => {
+        if (morphDelayTimerRef.current !== null) {
+          window.clearTimeout(morphDelayTimerRef.current);
+          morphDelayTimerRef.current = null;
+        }
+      };
+    }
+
+    if (
+      targetE === 0 &&
+      Math.abs(animRef.current.e) < 0.001 &&
+      !animRef.current.animating
+    ) {
+      return;
+    }
+
     startMorph(targetE);
   }, [view, hasEntered, reducedMotion, animate, startMorph]);
 
@@ -1510,6 +1700,10 @@ export function ContributionSkyline({
       if (modeSwitchTimerRef.current !== null) {
         window.clearTimeout(modeSwitchTimerRef.current);
         modeSwitchTimerRef.current = null;
+      }
+      if (morphDelayTimerRef.current !== null) {
+        window.clearTimeout(morphDelayTimerRef.current);
+        morphDelayTimerRef.current = null;
       }
     };
   }, [stopAnimation]);
@@ -1530,6 +1724,7 @@ export function ContributionSkyline({
 
   const handleViewChange = useCallback(
     (nextView: ContributionSkylineView) => {
+      hasManuallyToggledRef.current = true;
       if (nextView !== view) {
         if (modeSwitchTimerRef.current !== null) {
           window.clearTimeout(modeSwitchTimerRef.current);
@@ -1837,6 +2032,7 @@ export function ContributionSkyline({
     <section
       ref={containerRef}
       aria-label="Contribuições no GitHub"
+      style={{ containerType: "inline-size" }}
       className={cn(
         "border-0 bg-transparent p-0 font-sans text-foreground",
         className,
@@ -1909,7 +2105,7 @@ export function ContributionSkyline({
         ref={stageRef}
         className="relative overflow-visible"
         style={{
-          height: `${canvasHeight}px`,
+          height: stageHeight,
           transition:
             !reducedMotion && isModeSwitching
               ? "height 320ms cubic-bezier(0.16, 1, 0.3, 1)"
