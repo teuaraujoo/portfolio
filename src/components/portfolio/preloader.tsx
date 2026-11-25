@@ -11,9 +11,9 @@ if (typeof window !== "undefined") {
   gsap.registerPlugin(ScrollTrigger);
 }
 
-const MIN_MS = 1600;
-const LERP_FACTOR = 0.12;
-const COMPLETE_SNAP_THRESHOLD = 0.995;
+const MIN_MS = 800;
+const LERP_FACTOR = 0.24;
+const COMPLETE_SNAP_THRESHOLD = 0.992;
 
 const SCROLL_KEYS = new Set([
   "ArrowUp",
@@ -39,7 +39,7 @@ function isEditableTarget(target: EventTarget | null): boolean {
 
 export interface PreloaderProps {
   content: PreloaderContent;
-  /** Disparado em 0.48s (logo após ambas as metades da cortina iniciarem a subida) para sincronizar a entrada da Hero */
+  /** Disparado em ~0.20s (logo após a cortina esquerda iniciar a subida) para sincronizar a entrada da Hero */
   onExitStart?: () => void;
   /** Disparado após as cortinas saírem completamente da viewport e liberarem o scroll */
   onComplete?: () => void;
@@ -153,36 +153,36 @@ export function Preloader({ content, onExitStart, onComplete }: PreloaderProps) 
 
             exitTl
               .to(
-                contentEl,
-                {
-                  y: -14,
-                  autoAlpha: 0,
-                  duration: 0.28,
-                  ease: "power2.in",
-                },
-                0.1,
-              )
-              .to(
                 leftEl,
                 {
                   yPercent: -100,
-                  duration: 0.95,
-                  ease: "expo.inOut",
+                  duration: 1.25,
+                  ease: "power4.inOut",
                 },
-                0.2,
+                0,
               )
+              .add(() => {
+                onExitStartRef.current?.();
+              }, 0.2)
               .to(
                 rightEl,
                 {
                   yPercent: -100,
-                  duration: 0.95,
-                  ease: "expo.inOut",
+                  duration: 1.25,
+                  ease: "power4.inOut",
                 },
-                0.36,
+                0.22,
               )
-              .add(() => {
-                onExitStartRef.current?.();
-              }, 0.48);
+              .to(
+                contentEl,
+                {
+                  y: -28,
+                  autoAlpha: 0,
+                  duration: 0.48,
+                  ease: "power2.inOut",
+                },
+                0.42,
+              );
           }
         };
 
@@ -239,11 +239,16 @@ export function Preloader({ content, onExitStart, onComplete }: PreloaderProps) 
           <span className="font-sans text-[11px] font-medium uppercase tracking-[0.08em] text-muted-foreground">
             {content.loadingLabel}
           </span>
-          <span
-            ref={countRef}
-            className="intro-count font-display text-[clamp(4.5rem,14vw,12.5rem)] font-medium leading-[0.8] tracking-[-0.05em] text-foreground tabular-nums"
-          >
-            0
+          <span className="intro-count inline-flex items-baseline font-display text-[clamp(4.5rem,14vw,12.5rem)] font-medium leading-[0.8] tracking-[-0.05em] text-foreground tabular-nums">
+            <span
+              ref={countRef}
+              className="inline-block min-w-[3ch] text-right tabular-nums"
+            >
+              0
+            </span>
+            <span className="ml-[0.04em] text-[0.42em] tracking-normal text-brand-bright">
+              %
+            </span>
           </span>
         </div>
 
