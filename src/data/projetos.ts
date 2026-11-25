@@ -226,7 +226,7 @@ export const projetosContent: ProjetosContent = {
       accentColor: "#8E5CFF",
       featured: true,
       visibility: "private",
-      status: "completed",
+      status: "in_progress",
       techs: ["React", "TypeScript", "n8n", "Express", "Tailwind CSS", "Figma", "PostgreSQL", "Lenis", "GSAP"],
       cover: {
         type: "image",
