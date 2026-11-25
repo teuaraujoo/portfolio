@@ -10,7 +10,6 @@ import {
   useSyncExternalStore,
   type PointerEvent,
 } from "react";
-import { useNearViewport } from "@/hooks/use-near-viewport";
 import { cn } from "@/lib/utils";
 
 const REF_FONT_SIZE = 100;
@@ -123,7 +122,6 @@ export function KilnWordmark({
   });
 
   const [shown, setShown] = useState(false);
-  const isNear = useNearViewport(containerRef, "650px 0px");
   const reduced = useSyncExternalStore(
     subscribeReducedMotion,
     getReducedMotionSnapshot,
@@ -185,8 +183,6 @@ export function KilnWordmark({
   }, [baseWeight, chars, reduced]);
 
   useLayoutEffect(() => {
-    if (!isNear) return;
-
     const container = containerRef.current;
     const measureEl = measureRef.current;
     const lineEl = lineRef.current;
@@ -280,7 +276,7 @@ export function KilnWordmark({
       }
       ro?.disconnect();
     };
-  }, [baseWeight, chars, isNear]);
+  }, [baseWeight, chars]);
 
   useEffect(() => {
     const el = containerRef.current;

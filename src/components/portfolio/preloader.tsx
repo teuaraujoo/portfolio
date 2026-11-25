@@ -11,26 +11,9 @@ if (typeof window !== "undefined") {
   gsap.registerPlugin(ScrollTrigger);
 }
 
-const MIN_MS = 450;
-const LERP_FACTOR = 0.34;
-const COMPLETE_SNAP_THRESHOLD = 0.992;
-const PRELOADER_SESSION_KEY = "teuaraujo:preloader-seen";
-
-function hasSeenPreloader(): boolean {
-  try {
-    return window.sessionStorage.getItem(PRELOADER_SESSION_KEY) === "1";
-  } catch {
-    return false;
-  }
-}
-
-function markPreloaderSeen(): void {
-  try {
-    window.sessionStorage.setItem(PRELOADER_SESSION_KEY, "1");
-  } catch {
-    // Ignore storage access restrictions (private browsing / sandboxed contexts)
-  }
-}
+const MIN_MS = 1600;
+const LERP_FACTOR = 0.12;
+const COMPLETE_SNAP_THRESHOLD = 0.995;
 
 const SCROLL_KEYS = new Set([
   "ArrowUp",
@@ -56,7 +39,7 @@ function isEditableTarget(target: EventTarget | null): boolean {
 
 export interface PreloaderProps {
   content: PreloaderContent;
-  /** Disparado em ~0.06s (logo após a cortina esquerda iniciar a subida) para sincronizar a entrada da Hero */
+  /** Disparado em 0.3s (logo após a cortina esquerda iniciar a subida) para sincronizar a entrada da Hero */
   onExitStart?: () => void;
   /** Disparado após as cortinas saírem completamente da viewport e liberarem o scroll */
   onComplete?: () => void;
@@ -87,28 +70,9 @@ export function Preloader({ content, onExitStart, onComplete }: PreloaderProps) 
     () => {
       if (!isVisible) return;
 
-      if (hasSeenPreloader()) {
-        if (scope.current) {
-          scope.current.style.display = "none";
-        }
-        let cancelled = false;
-        queueMicrotask(() => {
-          if (cancelled) return;
-          start();
-          onExitStartRef.current?.();
-          onCompleteRef.current?.();
-          setIsVisible(false);
-        });
-        return () => {
-          cancelled = true;
-        };
-      }
-
-      let refreshCleanup: (() => void) | null = null;
       const mm = gsap.matchMedia();
 
       mm.add("(prefers-reduced-motion: reduce)", () => {
-        markPreloaderSeen();
         start();
         setIsVisible(false);
         onExitStartRef.current?.();
@@ -158,7 +122,7 @@ export function Preloader({ content, onExitStart, onComplete }: PreloaderProps) 
         countEl.textContent = "0";
         gsap.set(barEl, { scaleX: 0 });
         gsap.set([leftEl, rightEl], { yPercent: 0 });
-        gsap.set(contentEl, { opacity: 1, y: 0 });
+        gsap.set(contentEl, { autoAlpha: 1, y: 0 });
 
         const tick = () => {
           const elapsed = performance.now() - startTime;
@@ -181,26 +145,9 @@ export function Preloader({ content, onExitStart, onComplete }: PreloaderProps) 
               onComplete: () => {
                 unlockScrollEvents();
                 start();
-                markPreloaderSeen();
+                ScrollTrigger.refresh();
                 setIsVisible(false);
                 onCompleteRef.current?.();
-
-                if (typeof window.requestIdleCallback === "function") {
-                  const idleId = window.requestIdleCallback(
-                    () => {
-                      refreshCleanup = null;
-                      ScrollTrigger.refresh();
-                    },
-                    { timeout: 300 },
-                  );
-                  refreshCleanup = () => window.cancelIdleCallback(idleId);
-                } else {
-                  const timerId = window.setTimeout(() => {
-                    refreshCleanup = null;
-                    ScrollTrigger.refresh();
-                  }, 0);
-                  refreshCleanup = () => window.clearTimeout(timerId);
-                }
               },
             });
 
@@ -209,32 +156,32 @@ export function Preloader({ content, onExitStart, onComplete }: PreloaderProps) 
                 leftEl,
                 {
                   yPercent: -100,
-                  duration: 0.72,
-                  ease: "power3.inOut",
+                  duration: 1.25,
+                  ease: "power4.inOut",
                 },
-                0,
+                0.1,
               )
               .add(() => {
                 onExitStartRef.current?.();
-              }, 0.06)
+              }, 0.3)
               .to(
                 rightEl,
                 {
                   yPercent: -100,
-                  duration: 0.72,
-                  ease: "power3.inOut",
+                  duration: 1.25,
+                  ease: "power4.inOut",
                 },
-                0.12,
+                0.32,
               )
               .to(
                 contentEl,
                 {
-                  y: -36,
-                  opacity: 0,
-                  duration: 0.28,
-                  ease: "power2.in",
+                  y: -28,
+                  autoAlpha: 0,
+                  duration: 0.48,
+                  ease: "power2.inOut",
                 },
-                0.2,
+                0.48,
               );
           }
         };
@@ -250,7 +197,6 @@ export function Preloader({ content, onExitStart, onComplete }: PreloaderProps) 
       });
 
       return () => {
-        refreshCleanup?.();
         mm.revert();
       };
     },

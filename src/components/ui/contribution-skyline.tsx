@@ -949,8 +949,6 @@ export function ContributionSkyline({
   const tooltipRef = useRef<HTMLDivElement>(null);
   const cornersRef = useRef<HTMLDivElement>(null);
   const modeSwitchTimerRef = useRef<number | null>(null);
-  const morphDelayTimerRef = useRef<number | null>(null);
-  const hasManuallyToggledRef = useRef(false);
 
   const paletteColors = useMemo(
     () => resolvePalette(palette, theme.isDark),
@@ -1655,35 +1653,13 @@ export function ContributionSkyline({
     return () => io.disconnect();
   }, [animate]);
 
-  // Orquestra estado alvo de morph (2D = 0, 3D = 1), adiando o morph inicial pós-Hero
+  // Orquestra estado alvo de morph (2D = 0, 3D = 1)
   useEffect(() => {
-    if (morphDelayTimerRef.current !== null) {
-      window.clearTimeout(morphDelayTimerRef.current);
-      morphDelayTimerRef.current = null;
-    }
-
     const targetE =
       view === "3d" && (hasEntered || reducedMotion) && animate ? 1 : 0;
 
-    if (reducedMotion) {
-      startMorph(targetE);
-      return;
-    }
-
-    if (targetE === 1 && !hasManuallyToggledRef.current) {
-      morphDelayTimerRef.current = window.setTimeout(() => {
-        morphDelayTimerRef.current = null;
-        startMorph(1);
-      }, 350);
-      return () => {
-        if (morphDelayTimerRef.current !== null) {
-          window.clearTimeout(morphDelayTimerRef.current);
-          morphDelayTimerRef.current = null;
-        }
-      };
-    }
-
     if (
+      !reducedMotion &&
       targetE === 0 &&
       Math.abs(animRef.current.e) < 0.001 &&
       !animRef.current.animating
@@ -1700,10 +1676,6 @@ export function ContributionSkyline({
       if (modeSwitchTimerRef.current !== null) {
         window.clearTimeout(modeSwitchTimerRef.current);
         modeSwitchTimerRef.current = null;
-      }
-      if (morphDelayTimerRef.current !== null) {
-        window.clearTimeout(morphDelayTimerRef.current);
-        morphDelayTimerRef.current = null;
       }
     };
   }, [stopAnimation]);
@@ -1724,7 +1696,6 @@ export function ContributionSkyline({
 
   const handleViewChange = useCallback(
     (nextView: ContributionSkylineView) => {
-      hasManuallyToggledRef.current = true;
       if (nextView !== view) {
         if (modeSwitchTimerRef.current !== null) {
           window.clearTimeout(modeSwitchTimerRef.current);

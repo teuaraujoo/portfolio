@@ -6,8 +6,11 @@ import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { ArrowRight } from "lucide-react";
-import { useNearViewport } from "@/hooks/use-near-viewport";
 import { cn } from "@/lib/utils";
+
+if (typeof window !== "undefined") {
+  gsap.registerPlugin(ScrollTrigger);
+}
 
 export interface TimelineItem {
   id: string;
@@ -61,13 +64,9 @@ export function Timeline<T extends { id: string } = TimelineItem>({
 
   const titleId = `${id}-title`;
   const mobileTitleId = `${id}-title-mobile`;
-  const isNear = useNearViewport(sectionRef, "650px 0px");
 
   useGSAP(
     () => {
-      if (!isNear) return;
-
-      gsap.registerPlugin(ScrollTrigger);
       const mm = gsap.matchMedia();
 
       mm.add("(prefers-reduced-motion: reduce)", () => {
@@ -351,7 +350,7 @@ export function Timeline<T extends { id: string } = TimelineItem>({
     },
     {
       scope: sectionRef,
-      dependencies: [items.length, isNear],
+      dependencies: [items.length],
       revertOnUpdate: true,
     },
   );

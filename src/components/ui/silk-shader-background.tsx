@@ -9,9 +9,7 @@ export interface SilkShaderBackgroundProps {
   active?: boolean;
 }
 
-const TARGET_FPS = 30;
-const FRAME_INTERVAL_MS = 1000 / TARGET_FPS;
-const RESOLUTION_SCALE = 0.6;
+const RESOLUTION_SCALE = 1;
 const SOFTWARE_RENDERER_RE =
   /SwiftShader|llvmpipe|Software Rasterizer|Microsoft Basic Render/i;
 
@@ -362,16 +360,9 @@ export function SilkShaderBackground({
       return;
     }
 
-    let disposed = false;
-    let idleCallbackId: number | null = null;
-    let timeoutId: number | null = null;
     let cleanupWebGL: (() => void) | null = null;
 
     const initWebGL = () => {
-      if (disposed) {
-        return;
-      }
-
       const contextAttributes: WebGLContextAttributes = {
         alpha: false,
         antialias: false,
@@ -528,14 +519,6 @@ export function SilkShaderBackground({
           return;
         }
 
-        if (
-          lastRenderTime !== null &&
-          now - lastRenderTime < FRAME_INTERVAL_MS
-        ) {
-          rafId = requestAnimationFrame(tick);
-          return;
-        }
-
         if (lastRenderTime !== null) {
           const dt = Math.min((now - lastRenderTime) / 1000, 0.1);
           elapsedSeconds += dt;
@@ -581,7 +564,7 @@ export function SilkShaderBackground({
           return;
         }
 
-        const effectiveDpr = Math.min(window.devicePixelRatio || 1, 1.0);
+        const effectiveDpr = Math.min(window.devicePixelRatio || 1, 1.5);
         const cssWidth = canvas.clientWidth || observeTarget.clientWidth;
         const cssHeight = canvas.clientHeight || observeTarget.clientHeight;
 
@@ -683,34 +666,9 @@ export function SilkShaderBackground({
       };
     };
 
-    if (typeof window.requestIdleCallback === "function") {
-      idleCallbackId = window.requestIdleCallback(
-        () => {
-          idleCallbackId = null;
-          initWebGL();
-        },
-        { timeout: 300 },
-      );
-    } else {
-      timeoutId = window.setTimeout(() => {
-        timeoutId = null;
-        initWebGL();
-      }, 120);
-    }
+    initWebGL();
 
     return () => {
-      disposed = true;
-      if (
-        idleCallbackId !== null &&
-        typeof window.cancelIdleCallback === "function"
-      ) {
-        window.cancelIdleCallback(idleCallbackId);
-        idleCallbackId = null;
-      }
-      if (timeoutId !== null) {
-        window.clearTimeout(timeoutId);
-        timeoutId = null;
-      }
       syncLoopRef.current = null;
       cleanupWebGL?.();
       cleanupWebGL = null;

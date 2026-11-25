@@ -22,7 +22,6 @@ import {
   type ProjectItem,
   type ProjetosContent,
 } from "@/data/projetos";
-import { useNearViewport } from "@/hooks/use-near-viewport";
 import { ProjectMedia } from "./project-media";
 
 const ProjectDialog = dynamic(
@@ -51,7 +50,6 @@ export function Projetos({ content }: ProjetosProps) {
   const [selectedProject, setSelectedProject] = useState<ProjectItem | null>(
     null,
   );
-  const isNear = useNearViewport(scope, "650px 0px");
 
   const featuredItems = content.items.filter((item) => item.featured);
   const archiveItems = content.items.filter((item) => !item.featured);
@@ -99,8 +97,6 @@ export function Projetos({ content }: ProjetosProps) {
 
   useGSAP(
     () => {
-      if (!isNear) return;
-
       const mm = gsap.matchMedia();
 
       mm.add("(prefers-reduced-motion: reduce)", () => {
@@ -281,7 +277,7 @@ export function Projetos({ content }: ProjetosProps) {
         mm.revert();
       };
     },
-    { scope, dependencies: [isNear], revertOnUpdate: true },
+    { scope },
   );
 
   return (

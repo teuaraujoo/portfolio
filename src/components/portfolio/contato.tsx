@@ -6,7 +6,10 @@ import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { Check, Loader2, Mail, MessageCircle, Send } from "lucide-react";
 import type { ContatoContent, SocialPlatform } from "@/data/contato";
-import { useNearViewport } from "@/hooks/use-near-viewport";
+
+if (typeof window !== "undefined") {
+  gsap.registerPlugin(ScrollTrigger);
+}
 
 export interface ContatoProps {
   content: ContatoContent;
@@ -220,7 +223,6 @@ export function Contato({ content }: ContatoProps) {
   const [fieldErrors, setFieldErrors] = useState<FormErrors>({});
   const [status, setStatus] = useState<FormStatus>("idle");
   const [serverError, setServerError] = useState<string | null>(null);
-  const isNear = useNearViewport(scope, "650px 0px");
 
   function updateField(field: keyof FormValues, nextValue: string) {
     setValues((prev) => ({ ...prev, [field]: nextValue }));
@@ -314,9 +316,6 @@ export function Contato({ content }: ContatoProps) {
 
   useGSAP(
     () => {
-      if (!isNear) return;
-
-      gsap.registerPlugin(ScrollTrigger);
       const mm = gsap.matchMedia();
 
       mm.add("(prefers-reduced-motion: reduce)", () => {
@@ -393,7 +392,7 @@ export function Contato({ content }: ContatoProps) {
         mm.revert();
       };
     },
-    { scope, dependencies: [isNear], revertOnUpdate: true },
+    { scope },
   );
 
   const isSubmitting = status === "submitting";

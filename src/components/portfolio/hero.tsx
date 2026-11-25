@@ -74,19 +74,19 @@ export function Hero({ content, contributions, active }: HeroProps) {
         timeline
           .from(
             ".hero-name .char",
-            { yPercent: 135, duration: 1.0, stagger: 0.03 },
-            0.05,
+            { yPercent: 135, duration: 1.4, stagger: 0.045 },
+            0.1,
           )
           .from(
             "[data-hero-fade]",
             {
-              y: 16,
-              opacity: 0,
-              duration: 0.75,
-              stagger: 0.05,
+              y: 20,
+              autoAlpha: 0,
+              duration: 1.2,
+              stagger: 0.08,
               clearProps: "transform",
             },
-            0.15,
+            0.5,
           );
 
         timelineRef.current = timeline;
