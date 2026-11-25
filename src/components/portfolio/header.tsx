@@ -417,7 +417,7 @@ export function Header({ content }: HeaderProps) {
           role="dialog"
           aria-modal="true"
           aria-label="Menu de navegação"
-          className="mobile-menu fixed inset-0 z-[60] flex h-svh flex-col justify-between bg-background px-[clamp(20px,4vw,56px)] py-4 text-foreground animate-in fade-in duration-200 lg:hidden"
+          className="mobile-menu fixed inset-0 z-[60] flex h-svh flex-col justify-between bg-background px-[clamp(20px,4vw,56px)] py-4 text-foreground lg:hidden"
         >
           <div className="flex items-center justify-between">
             <a

@@ -71,7 +71,7 @@ export const sobreData: SobreContent = {
     { text: "pontas soltas.", annotation: "underline", delayMs: 2000 },
   ],
   photo: {
-    src: "/foto_rosto.jpg",
+    src: "/foto_rosto.webp",
     alt: "Retrato de Mateus Araujo",
     captionLeft: "Mateus Araujo",
     captionRight: "Aracaju, SE",
