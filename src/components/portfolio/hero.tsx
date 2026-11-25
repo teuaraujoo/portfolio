@@ -74,13 +74,19 @@ export function Hero({ content, contributions, active }: HeroProps) {
         timeline
           .from(
             ".hero-name .char",
-            { yPercent: 135, duration: 1.4, stagger: 0.045 },
-            0.1,
+            { yPercent: 135, duration: 1.0, stagger: 0.03 },
+            0.05,
           )
           .from(
             "[data-hero-fade]",
-            { y: 20, autoAlpha: 0, duration: 1.2, stagger: 0.08 },
-            0.5,
+            {
+              y: 16,
+              opacity: 0,
+              duration: 0.75,
+              stagger: 0.05,
+              clearProps: "transform",
+            },
+            0.15,
           );
 
         timelineRef.current = timeline;
@@ -151,9 +157,9 @@ export function Hero({ content, contributions, active }: HeroProps) {
     >
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute inset-0 z-0 overflow-hidden"
+        className="pointer-events-none absolute inset-0 z-0 overflow-hidden [contain:layout_paint]"
       >
-        <SilkShaderBackground className="size-full" />
+        <SilkShaderBackground active={active} className="size-full" />
         {/* Subtle readability veil preserving WCAG contrast over luminous #916BBF bands */}
         <div className="absolute inset-0 bg-linear-to-r from-background/50 via-background/20 to-background/40" />
         {/* Seamless bottom transition into #sobre (#0D0D0D) */}
@@ -190,9 +196,12 @@ export function Hero({ content, contributions, active }: HeroProps) {
               className="hero-eyebrow mt-3 inline-flex max-w-full flex-wrap items-center gap-x-3 gap-y-1.5 rounded-full border border-white/14 bg-white/[0.04] px-4 py-2.5 text-[clamp(13px,1.05vw,15px)] leading-none sm:flex-nowrap sm:whitespace-nowrap backdrop-blur-md"
             >
               <span
-                className="size-2 shrink-0 rounded-full bg-brand-bright animate-hero-pulse"
+                className="relative inline-flex size-2 shrink-0"
                 aria-hidden="true"
-              />
+              >
+                <span className="absolute inset-0 rounded-full bg-brand-bright/55 animate-hero-pulse" />
+                <span className="relative size-2 rounded-full bg-brand-bright" />
+              </span>
               <span className="font-medium text-foreground">{content.role}</span>
               <span className="h-3.5 w-px bg-white/20" aria-hidden="true" />
               <span className="text-muted-foreground">{content.location}</span>
