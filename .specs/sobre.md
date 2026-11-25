@@ -8,7 +8,7 @@ A seção **Sobre (`#sobre`)** combina elementos visuais e comportamentais das d
    - Texto editorial de grande escala acompanhado de **4 tipos de marcações manuais em SVG** (marca-texto orgânico, círculo desenhado à mão, asterisco elástico e sublinhado duplo) que se desenham progressivamente quando a seção entra na viewport.
    - **Tag flutuante interativa** sobre o retrato (label curto `"Sobre mim"` + linha conectora + ponto pulsante roxo `#793CFF`) e **dialog/modal com animação radial** (`clip-path: circle(...)` partindo do ponto do clique) exibindo título, subtítulo e texto corrido de biografia (sem botões de redes sociais, abas ou stats extras).
 2. **Referência 2 — `victordeveloper.com` (Lado Direito — Retrato + Faixa Inferior de Métricas):**
-   - **Retrato quadrado (`aspect-square`)** usando a foto oficial em [public/foto_rosto.jpg](../public/foto_rosto.jpg), com revelação vertical por `clip-path`, leve parallax no scroll, legenda técnica inferior (`MATEUS ARAUJO` / `ARACAJU, SE`) e gatilho clicável para o modal de biografia.
+   - **Retrato quadrado (`aspect-square`)** usando a foto oficial em [public/foto_rosto.webp](../public/foto_rosto.webp), com revelação vertical por `clip-path`, leve parallax no scroll, legenda técnica inferior (`MATEUS ARAUJO` / `ARACAJU, SE`) e gatilho clicável para o modal de biografia.
    - **Faixa de 3 métricas monumentais** na base da seção (`border-t` + `border-b`), com números gigantes em `Space Grotesk` (`tabular-nums`) que contam de `0` até o valor real ao entrar na tela.
 
 ---
@@ -18,7 +18,7 @@ A seção **Sobre (`#sobre`)** combina elementos visuais e comportamentais das d
 Seguindo [ARCHITECTURE.md](../docs/ARCHITECTURE.md):
 
 - **Camada de dados tipada (`src/data/sobre.ts`):**
-  - Centraliza eyebrow, segmentos da citação (com o tipo de anotação e delay de cada trecho), dados do retrato (`/foto_rosto.jpg`, `alt`, legenda), dados do gatilho/modal editorial (`SobreModalContent`: labels acessíveis, título, subtítulo e array `paragraphs: string[]`) e array das 3 métricas (`value`, `prefix`, `suffix`, `label`).
+  - Centraliza eyebrow, segmentos da citação (com o tipo de anotação e delay de cada trecho), dados do retrato (`/foto_rosto.webp`, `alt`, legenda), dados do gatilho/modal editorial (`SobreModalContent`: labels acessíveis, título, subtítulo e array `paragraphs: string[]`) e array das 3 métricas (`value`, `prefix`, `suffix`, `label`).
   - Estruturada para `pt-BR` agora e pronta para internacionalização (`en`) ou API no futuro.
 - **Componentes de anotação reutilizáveis (`src/components/portfolio/hand-drawn-annotations.tsx`):**
   - Exporta `BrushHighlight`, `HandCircle`, `SparkAsterisk` e `DoubleUnderline`.
@@ -59,7 +59,7 @@ Seguindo a moldura, proporção quadrada pedida pelo usuário, legenda da refer�
     - Ao clicar (mouse ou teclado), captura a coordenada de origem `{ x, y }` do clique (ou centro do botão quando acionado via teclado) para iniciar a animação radial do dialog.
   - **Container da Imagem (`.about-photo-inner`):**
     - `relative aspect-square w-full overflow-hidden rounded-[12px] bg-card border border-white/10 transition-colors duration-300 group-hover/photo:border-brand-bright/50`
-  - **Imagem (`/foto_rosto.jpg`):**
+  - **Imagem (`/foto_rosto.webp`):**
     - `<img src={content.photo.src} alt={content.photo.alt} width={800} height={800} loading="lazy" decoding="async" />`
     - Classes: `h-[115%] w-full max-w-none object-cover object-[50%_25%] will-change-transform transition-transform duration-500 ease-out group-hover/photo:scale-[1.02]`
     - *Por que `h-[115%]`?* Para que o parallax vertical (`yPercent: -8` → `0`) tenha sobra de imagem acima/abaixo e nunca revele o fundo durante o scroll.
@@ -204,7 +204,7 @@ A versão atual utiliza a **citação real aprovada pelo usuário** em portuguê
 - **Citação Principal:**
   > *"Escolhi a tecnologia por ser **autodidata** (`brush:brand`, `150ms`) e gostar de resolver **problemas** (`circle`, `600ms`) com autonomia. Hoje atuo construindo **produtos digitais completos** (`brush:bright` + `sparkAfter`, `1050ms`), **da interface** (`brush:subtle`, `1550ms`) até o deploy, sem deixar **pontas soltas.** (`underline`, `2000ms`)"*
 - **Retrato (direita):**
-  - `src`: `"/foto_rosto.jpg"`
+  - `src`: `"/foto_rosto.webp"`
   - `alt`: `"Retrato de Mateus Araujo"`
   - `captionLeft`: `"Mateus Araujo"`
   - `captionRight`: `"Aracaju, SE"`
@@ -227,7 +227,7 @@ A versão atual utiliza a **citação real aprovada pelo usuário** em portuguê
 As definições da **Seção 2 (`#sobre`)** consolidadas em [src/data/sobre.ts](../src/data/sobre.ts):
 
 1. **Citação (Lado Esquerdo):** Texto real aprovado pelo usuário (*"Escolhi a tecnologia por ser autodidata e gostar de resolver problemas com autonomia. Hoje atuo construindo produtos digitais completos, da interface até o deploy, sem deixar pontas soltas."*), mantendo as 4 marcações SVG animadas (`brush`, `circle`, `sparkAfter`, `underline`) distribuídas em sequência, com `circle` (`"problemas"`) e `underline` (`"pontas soltas."`) em expressões curtas (`1–2` palavras) para evitar overflow horizontal em viewports mobile (`375px`).
-2. **Retrato + Tag Interativa (Lado Direito):** Foto quadrada (`/foto_rosto.jpg`) envolvida por botão acessível com tag flutuante (`Sobre mim`, linha conectora e ponto pulsante roxo `#793CFF`, sem mini foto repetida), revelação vertical por `clip-path`, parallax no scroll e legenda técnica (`Mateus Araujo` / `Aracaju, SE`).
+2. **Retrato + Tag Interativa (Lado Direito):** Foto quadrada (`/foto_rosto.webp`) envolvida por botão acessível com tag flutuante (`Sobre mim`, linha conectora e ponto pulsante roxo `#793CFF`, sem mini foto repetida), revelação vertical por `clip-path`, parallax no scroll e legenda técnica (`Mateus Araujo` / `Aracaju, SE`).
 3. **Dialog Radial de Biografia (`SobreDialog`):** Abre com `clip-path: circle(var(--or) ...)` + `scale` suave em `cubic-bezier(0.16, 1, 0.3, 1)` a partir do ponto do clique, botão fechar `z-20 cursor-pointer`, exibindo apenas título, subtítulo e 3 parágrafos reais de biografia em português (sem botões de redes sociais).
 4. **Métricas Inferiores (`.about-stats`):** 3 contadores reais (`+5 projetos`, `+10 certificados`, `+2 formações`, com `prefix?: string` antes do valor e `suffix?: string` opcional após) em bloco centralizado abaixo do grid de 2 colunas (`mx-auto max-w-4xl`, `items-center text-center`).
 5. **Cabeçalho da Seção:** Eyebrow limpo (`"Sobre mim"`) acima da citação, estilo `vitorcg.com.br`.
