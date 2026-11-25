@@ -5,11 +5,8 @@ import { useRef, useState } from "react";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { useNearViewport } from "@/hooks/use-near-viewport";
 import { cn } from "@/lib/utils";
-
-if (typeof window !== "undefined") {
-  gsap.registerPlugin(ScrollTrigger);
-}
 
 export interface StackSpreadPlacement {
   linearOffset: { xVw: number; yVh: number };
@@ -85,6 +82,7 @@ export function StackSpread<T extends StackSpreadItem = StackSpreadItem>({
 
   const [isSpread, setIsSpread] = useState(false);
   const spreadRef = useRef(false);
+  const isNear = useNearViewport(sectionRef, "650px 0px");
 
   const titleId = `${id}-title`;
 
@@ -98,6 +96,9 @@ export function StackSpread<T extends StackSpreadItem = StackSpreadItem>({
 
   useGSAP(
     () => {
+      if (!isNear) return;
+
+      gsap.registerPlugin(ScrollTrigger);
       const mm = gsap.matchMedia();
 
       mm.add("(prefers-reduced-motion: reduce)", () => {
@@ -341,7 +342,7 @@ export function StackSpread<T extends StackSpreadItem = StackSpreadItem>({
     },
     {
       scope: sectionRef,
-      dependencies: [placementSignature, stackScale],
+      dependencies: [placementSignature, stackScale, isNear],
       revertOnUpdate: true,
     },
   );

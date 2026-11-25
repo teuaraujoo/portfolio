@@ -22,6 +22,7 @@ import {
   type ProjectItem,
   type ProjetosContent,
 } from "@/data/projetos";
+import { useNearViewport } from "@/hooks/use-near-viewport";
 import { ProjectMedia } from "./project-media";
 
 const ProjectDialog = dynamic(
@@ -50,6 +51,7 @@ export function Projetos({ content }: ProjetosProps) {
   const [selectedProject, setSelectedProject] = useState<ProjectItem | null>(
     null,
   );
+  const isNear = useNearViewport(scope, "650px 0px");
 
   const featuredItems = content.items.filter((item) => item.featured);
   const archiveItems = content.items.filter((item) => !item.featured);
@@ -97,6 +99,8 @@ export function Projetos({ content }: ProjetosProps) {
 
   useGSAP(
     () => {
+      if (!isNear) return;
+
       const mm = gsap.matchMedia();
 
       mm.add("(prefers-reduced-motion: reduce)", () => {
@@ -277,7 +281,7 @@ export function Projetos({ content }: ProjetosProps) {
         mm.revert();
       };
     },
-    { scope },
+    { scope, dependencies: [isNear], revertOnUpdate: true },
   );
 
   return (
@@ -382,7 +386,7 @@ export function Projetos({ content }: ProjetosProps) {
                     <div className="flex items-start justify-end">
                       <span
                         aria-hidden="true"
-                        className="font-display text-3xl font-semibold leading-none text-white/18 tabular-nums"
+                        className="font-display text-3xl font-semibold leading-none text-white/45 tabular-nums"
                       >
                         {String(index + 1).padStart(2, "0")}
                       </span>

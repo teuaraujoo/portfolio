@@ -7,6 +7,7 @@ import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import type { QuoteSegment, SobreContent } from "@/data/sobre";
+import { useNearViewport } from "@/hooks/use-near-viewport";
 import {
   BrushHighlight,
   DoubleUnderline,
@@ -57,6 +58,7 @@ export function Sobre({ content }: SobreProps) {
   const [hasOpenedModal, setHasOpenedModal] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
   const [modalOrigin, setModalOrigin] = useState<{ x: number; y: number } | null>(null);
+  const isNear = useNearViewport(scope, "650px 0px");
 
   const handleOpenModal = (event: MouseEvent<HTMLButtonElement>) => {
     if (event.clientX === 0 && event.clientY === 0) {
@@ -119,6 +121,8 @@ export function Sobre({ content }: SobreProps) {
 
   useGSAP(
     () => {
+      if (!isNear) return;
+
       const mm = gsap.matchMedia();
 
       mm.add("(prefers-reduced-motion: reduce)", () => {
@@ -233,7 +237,7 @@ export function Sobre({ content }: SobreProps) {
         mm.revert();
       };
     },
-    { scope },
+    { scope, dependencies: [isNear], revertOnUpdate: true },
   );
 
   return (
@@ -290,7 +294,8 @@ export function Sobre({ content }: SobreProps) {
                       src={content.photo.src}
                       alt={content.photo.alt}
                       fill
-                      sizes="(min-width: 1024px) 400px, 92vw"
+                      quality={75}
+                      sizes="(min-width: 1024px) 400px, (min-width: 440px) 400px, calc(100vw - 40px)"
                       className="object-cover object-[50%_25%]"
                     />
                   </div>

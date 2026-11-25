@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import dynamic from "next/dynamic";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import type { ContatoContent } from "@/data/contato";
@@ -10,16 +11,35 @@ import type { JornadaContent } from "@/data/jornada";
 import type { ProjetosContent } from "@/data/projetos";
 import type { SkillsContent } from "@/data/skills";
 import type { SobreContent } from "@/data/sobre";
-import { Contato } from "./contato";
-import { Footer } from "./footer";
 import { Header } from "./header";
 import { Hero } from "./hero";
-import { Jornada } from "./jornada";
 import { Preloader } from "./preloader";
-import { Projetos } from "./projetos";
-import { Skills } from "./skills";
 import { SmoothScrollProvider } from "./smooth-scroll";
-import { Sobre } from "./sobre";
+
+const Sobre = dynamic(
+  () => import("./sobre").then((mod) => mod.Sobre),
+  { ssr: true },
+);
+const Projetos = dynamic(
+  () => import("./projetos").then((mod) => mod.Projetos),
+  { ssr: true },
+);
+const Jornada = dynamic(
+  () => import("./jornada").then((mod) => mod.Jornada),
+  { ssr: true },
+);
+const Skills = dynamic(
+  () => import("./skills").then((mod) => mod.Skills),
+  { ssr: true },
+);
+const Contato = dynamic(
+  () => import("./contato").then((mod) => mod.Contato),
+  { ssr: true },
+);
+const Footer = dynamic(
+  () => import("./footer").then((mod) => mod.Footer),
+  { ssr: true },
+);
 
 export interface HomeShellProps {
   data: HomePageData;

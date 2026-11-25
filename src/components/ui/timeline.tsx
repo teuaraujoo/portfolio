@@ -6,11 +6,8 @@ import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { ArrowRight } from "lucide-react";
+import { useNearViewport } from "@/hooks/use-near-viewport";
 import { cn } from "@/lib/utils";
-
-if (typeof window !== "undefined") {
-  gsap.registerPlugin(ScrollTrigger);
-}
 
 export interface TimelineItem {
   id: string;
@@ -64,9 +61,13 @@ export function Timeline<T extends { id: string } = TimelineItem>({
 
   const titleId = `${id}-title`;
   const mobileTitleId = `${id}-title-mobile`;
+  const isNear = useNearViewport(sectionRef, "650px 0px");
 
   useGSAP(
     () => {
+      if (!isNear) return;
+
+      gsap.registerPlugin(ScrollTrigger);
       const mm = gsap.matchMedia();
 
       mm.add("(prefers-reduced-motion: reduce)", () => {
@@ -118,25 +119,35 @@ export function Timeline<T extends { id: string } = TimelineItem>({
             Math.max(0, track.scrollWidth - stage.clientWidth + 64);
 
           let lastDistance = getScrollDistance();
+          let resizeRafId = 0;
 
-          const updateHeight = () => {
-            const distance = getScrollDistance();
+          const updateHeight = (measuredDistance?: number) => {
+            const distance = measuredDistance ?? getScrollDistance();
             lastDistance = distance;
-            section.style.height =
+            const nextHeight =
               distance > 0 ? `${window.innerHeight + distance}px` : "";
+            if (section.style.height !== nextHeight) {
+              section.style.height = nextHeight;
+            }
           };
 
-          updateHeight();
-          ScrollTrigger.addEventListener("refreshInit", updateHeight);
+          const handleRefreshInit = () => updateHeight();
+
+          updateHeight(lastDistance);
+          ScrollTrigger.addEventListener("refreshInit", handleRefreshInit);
 
           const resizeObserver =
             typeof ResizeObserver !== "undefined"
               ? new ResizeObserver(() => {
-                  const nextDistance = getScrollDistance();
-                  if (Math.abs(nextDistance - lastDistance) > 1) {
-                    updateHeight();
-                    ScrollTrigger.refresh();
-                  }
+                  if (resizeRafId !== 0) return;
+                  resizeRafId = requestAnimationFrame(() => {
+                    resizeRafId = 0;
+                    const nextDistance = getScrollDistance();
+                    if (Math.abs(nextDistance - lastDistance) > 2) {
+                      updateHeight(nextDistance);
+                      ScrollTrigger.refresh();
+                    }
+                  });
                 })
               : null;
 
@@ -285,7 +296,11 @@ export function Timeline<T extends { id: string } = TimelineItem>({
           }
 
           return () => {
-            ScrollTrigger.removeEventListener("refreshInit", updateHeight);
+            if (resizeRafId !== 0) {
+              cancelAnimationFrame(resizeRafId);
+              resizeRafId = 0;
+            }
+            ScrollTrigger.removeEventListener("refreshInit", handleRefreshInit);
             resizeObserver?.disconnect();
             section.style.height = "";
           };
@@ -336,7 +351,7 @@ export function Timeline<T extends { id: string } = TimelineItem>({
     },
     {
       scope: sectionRef,
-      dependencies: [items.length],
+      dependencies: [items.length, isNear],
       revertOnUpdate: true,
     },
   );
