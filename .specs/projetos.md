@@ -11,11 +11,11 @@ A seção **Projetos (`#projetos`)** adapta o padrão **Sticky Card Stacking** (
 2. **Referência 2 — `ruancostadev.com.br` (Escala Fullscreen + Ritmo de Leitura + Spotlight):**
    - **Escala panorâmica de tela cheia:** Cards proporcionais à largura generosa do grid de `1600px` (`min-[900px]:min-h-[400px]`, mídia widescreen `aspect-[19/9]`), com cantos concêntricos e degrau superior escalonado (`--stack-index`).
    - **Ritmo de scroll controlado:** Espaçadores proporcionais à viewport entre os cards (`md:h-[36vh]`) garantem tempo de leitura confortável antes que o próximo card cubra o anterior.
-   - **Spotlight sutil de ponteiro + CTA único no card:** Em desktop, um brilho radial discreto (`#793CFF` / `#4811ED`) reage ao cursor na borda e superfície do card (sem tilt 3D agressivo, mantendo o card arquitetonicamente firme durante o `scale` do scroll) e o rodapé do card apresenta apenas o CTA **`Ver case completo`**, mantendo os links externos (**`Acessar`** e **`GitHub`** condicional) exclusivamente no dialog de Case Study.
+   - **Spotlight sutil de ponteiro + CTA e metadados na base do card:** Em desktop, um brilho radial discreto (`#793CFF` / `#4811ED`) reage ao cursor na borda e superfície do card (sem tilt 3D agressivo, mantendo o card arquitetonicamente firme durante o `scale` do scroll) e o rodapé do card apresenta o CTA **`Ver case completo`** à esquerda e dois badges discretos à direita (status do projeto e visibilidade do repositório), mantendo os links externos (**`Acessar`** e **`GitHub`** condicional) exclusivamente no dialog de Case Study.
 
 > [!NOTE]
 > **Conteúdo Atual:** Os **4 projetos em destaque (`featured: true`)** utilizam títulos, capas, galerias reais (`public/projects/`) e links reais em [src/data/projetos.ts](../src/data/projetos.ts), mantendo textos descritivos em **Lorem ipsum** enquanto os cases completos estão em redação. Os **3 projetos adicionais (`featured: false`)** na lista *"Mais projetos"* (`Calculadora`, `Lista de Tarefas` e `Lâmpada Interativa`) utilizam capas reais em `public/projects/` e textos reais em português em [src/data/projetos.ts](../src/data/projetos.ts) — exibindo apenas título e preview fotográfico na lista e somente **Descrição geral**, galeria e tecnologias (`HTML`, `CSS`, `JavaScript`) no modal, omitindo `challenge`, `solution` e `highlights`.
-> Os projetos suportam `visibility` (`"public" | "private"`) para controlar a exibição de links de repositório, enquanto `status` (`"completed" | "in_progress"`) e `category` permanecem estritamente na camada de dados, no JSON-LD de SEO e no `llms-full.txt` (sem barra visual de categoria/ano/status nos cards em destaque ou no cabeçalho do `ProjectDialog`).
+> Os projetos utilizam `status` (`"completed" | "in_progress"` via `PROJECT_STATUS_META`: `"Concluído"` / `"Em andamento"`) e `visibility` (`"public" | "private"` via `PROJECT_VISIBILITY_META`: `"Público"` / `"Privado"`) — exibidos como duas pills compactas na barra inferior dos cards em destaque (ao lado de `Ver case completo`, preservando a área acima do título livre de tags de categoria ou status) além de controlar a exibição de links de repositório, JSON-LD de SEO e `llms-full.txt`; `category` e `year` permanecem estritamente na camada de dados, SEO e `llms-full.txt`.
 
 ---
 
@@ -82,13 +82,16 @@ Seguindo [ARCHITECTURE.md](../docs/ARCHITECTURE.md):
        - Container `relative aspect-[19/9] w-full self-center overflow-hidden rounded-[14px] border border-white/8 bg-[#0D0D0D]` para enquadramento widescreen sem corte lateral.
        - Hover suave na mídia: `transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover/card:scale-[1.01] motion-reduce:transition-none`.
     3. **Coluna Direita — Conteúdo Editorial (`flex flex-col justify-between gap-6 p-4 pt-6 min-[900px]:p-8 xl:p-10`):**
-       - **Topo:** Exibe apenas o índice monumental alinhado à direita (`01`, `02`, `03`, `04` em `font-display text-3xl font-semibold text-white/18 tabular-nums` dentro de `flex items-start justify-end`). Nem os cards em destaque nem o cabeçalho do `ProjectDialog` renderizam categoria, ano ou badge de status acima do título (`status` e `category` permanecem estritamente no schema de dados, JSON-LD de SEO e `llms-full.txt`).
+       - **Topo:** Exibe apenas o índice monumental alinhado à direita (`01`, `02`, `03`, `04` em `font-display text-3xl font-semibold text-white/18 tabular-nums` dentro de `flex items-start justify-end`). Nem a área acima do título dos cards em destaque nem o cabeçalho do `ProjectDialog` renderizam tags de categoria, ano ou status (`category` e `year` permanecem estritamente no schema de dados, JSON-LD de SEO e `llms-full.txt`).
        - **Centro:**
          - Título (`<h3 className="font-display text-[clamp(1.6rem,2.6vw,2.75rem)] font-semibold leading-[1.08] tracking-[-0.03em] text-foreground">`) + subtítulo curto (`mt-2 text-sm font-medium text-muted-foreground`).
          - Descrição concisa (`mt-4 max-w-[44ch] text-[0.95rem] leading-[1.65] text-muted-foreground`).
          - Pills de tecnologias (`mt-6 flex flex-wrap gap-2`): `rounded-full border border-white/10 bg-white/[0.03] px-3 py-1 text-[11px] font-medium tracking-[0.02em] text-foreground/80`.
-       - **Base (`mt-auto flex flex-wrap items-center gap-3 pt-4`):**
-         - Exibe exclusivamente o botão principal **`Ver case completo`** (`ctaCaseLabel`, em `bg-brand text-foreground hover:brightness-110 rounded-full px-5 py-2.5 text-sm font-semibold cursor-pointer`).
+       - **Base (`mt-auto flex flex-wrap items-center justify-between gap-3 pt-4`):**
+         - **Esquerda:** Botão principal **`Ver case completo`** (`ctaCaseLabel`, em `bg-brand text-foreground hover:brightness-110 rounded-full px-5 py-2.5 text-sm font-semibold cursor-pointer`).
+         - **Direita (`flex flex-wrap items-center gap-2`):** Duas pills editoriais compactas (`rounded-full border border-white/10 bg-white/[0.03] px-2.5 py-1 font-sans text-[11px] font-medium tracking-[0.02em]`):
+           1. Status (`PROJECT_STATUS_META[project.status]`): ponto colorido (`dotClass`) + `"Concluído"` ou `"Em andamento"` (`text-foreground/85`).
+           2. Visibilidade (`PROJECT_VISIBILITY_META[project.visibility]`): ícone `Globe` (`text-brand-bright`) para `"Público"` ou `Lock` (`text-muted-foreground`) para `"Privado"` (`text-muted-foreground`).
          - Os links externos (**`Acessar ↗`** via `ctaLiveLabel` quando `Boolean(project.liveUrl)` e **`GitHub ↗`** via `ctaRepoLabel` quando `project.visibility === "public" && Boolean(project.repoUrl)`) são exibidos apenas dentro do `ProjectDialog`.
     4. **Scrim de Profundidade (`.project-shade`):**
        - `<div aria-hidden="true" className="project-shade pointer-events-none absolute inset-0 z-20 bg-background opacity-0" />`
@@ -162,7 +165,15 @@ export const PROJECT_STATUS_META: Record<
   { label: string; dotClass: string }
 > = {
   completed: { label: "Concluído", dotClass: "bg-emerald-400" },
-  in_progress: { label: "Em desenvolvimento", dotClass: "bg-amber-400" },
+  in_progress: { label: "Em andamento", dotClass: "bg-amber-400" },
+};
+
+export const PROJECT_VISIBILITY_META: Record<
+  ProjectVisibility,
+  { label: string }
+> = {
+  public: { label: "Público" },
+  private: { label: "Privado" },
 };
 
 export type ProjectMedia =
@@ -252,7 +263,7 @@ export interface ProjetosContent {
 - [ ] O topo dos cards empilhados nunca fica coberto pelo header flutuante `#navbar` (`top` ≥ `88px`).
 - [ ] Em mobile (`375px` / `< 900px`), o stacking desativa e os cards fluem verticalmente sem overflow horizontal.
 - [ ] Clicar em qualquer card, botão `Ver case completo` ou linha de `Mais projetos` abre o `ProjectDialog` estruturado com **Descrição geral** obrigatória e os blocos opcionais **O desafio**, **A solução** e **Destaques** quando presentes (além de galeria navegável por cliques e `←`/`→`, tecnologias, links externos `Acessar ↗` / `GitHub ↗` quando aplicáveis, bloqueio de scroll `data-lenis-prevent`, `Escape` e foco restaurado ao fechar).
-- [ ] Cada card em destaque exibe exclusivamente o botão `Ver case completo` (`ctaCaseLabel`), mantendo os links externos (`Acessar ↗` via `ctaLiveLabel` e `GitHub ↗` via `ctaRepoLabel`, condicional à visibilidade pública) exclusivamente dentro do `ProjectDialog`.
+- [ ] Cada card em destaque mantém a área acima do título limpa (apenas índice `01`–`04`) e exibe na barra inferior (`Ver case completo` à esquerda + pills de status `Concluído`/`Em andamento` e visibilidade `Público`/`Privado` à direita), mantendo os links externos (`Acessar ↗` via `ctaLiveLabel` e `GitHub ↗` via `ctaRepoLabel`, condicional à visibilidade pública) exclusivamente dentro do `ProjectDialog`.
 - [ ] Na lista `"Mais projetos"` (`InteractiveHoverLinks`), o hover/focus-visible em desktop anima o stagger por letra do título, revela o preview flutuante inclinado (`ProjectMedia`) rastreando o ponteiro sem recortes verticais (`.projects-more`/`.projects-list` sem `overflow-hidden` e `clearProps: "transform"` no GSAP) e desliza a seta `ArrowUpRight`; em touch (`pointerType === "touch"`) e `prefers-reduced-motion: reduce`, o rastreamento de ponteiro, stagger e preview flutuante ficam desativados mantendo toda a linha legível e clicável.
 - [ ] `prefers-reduced-motion: reduce` desativa `sticky`, `scale`, `shade`, spotlight e preview flutuante da lista mantendo tudo legível.
 - [ ] `npm run check` e `npm run build` passam sem erros.

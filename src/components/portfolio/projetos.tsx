@@ -1,5 +1,6 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import {
   Fragment,
   useRef,
@@ -10,17 +11,23 @@ import {
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { ArrowUpRight } from "lucide-react";
+import { ArrowUpRight, Globe, Lock } from "lucide-react";
 import {
   InteractiveHoverLinks,
   type InteractiveHoverLinkItem,
 } from "@/components/ui/interactive-hover-links";
 import {
+  PROJECT_STATUS_META,
+  PROJECT_VISIBILITY_META,
   type ProjectItem,
   type ProjetosContent,
 } from "@/data/projetos";
-import { ProjectDialog } from "./project-dialog";
 import { ProjectMedia } from "./project-media";
+
+const ProjectDialog = dynamic(
+  () => import("./project-dialog").then((mod) => mod.ProjectDialog),
+  { ssr: false },
+);
 
 if (typeof window !== "undefined") {
   gsap.registerPlugin(ScrollTrigger);
@@ -39,6 +46,7 @@ export interface ProjetosProps {
 export function Projetos({ content }: ProjetosProps) {
   const scope = useRef<HTMLElement>(null);
   const triggerRef = useRef<HTMLElement | null>(null);
+  const [hasOpenedDialog, setHasOpenedDialog] = useState(false);
   const [selectedProject, setSelectedProject] = useState<ProjectItem | null>(
     null,
   );
@@ -59,6 +67,7 @@ export function Projetos({ content }: ProjetosProps) {
 
   const handleOpenProject = (project: ProjectItem, trigger: HTMLElement) => {
     triggerRef.current = trigger;
+    setHasOpenedDialog(true);
     setSelectedProject(project);
   };
 
@@ -94,7 +103,7 @@ export function Projetos({ content }: ProjetosProps) {
         gsap.set(".project-card", { clearProps: "all" });
         gsap.set(".project-card-inner", { clearProps: "transform" });
         gsap.set(".project-shade", { clearProps: "opacity" });
-        gsap.set(".project-row", { clearProps: "all" });
+        gsap.set(".project-row", { clearProps: "opacity,transform" });
         gsap.set(
           [
             ".projects-meta-row",
@@ -250,7 +259,7 @@ export function Projetos({ content }: ProjetosProps) {
 
           gsap.from(rows, {
             y: 20,
-            autoAlpha: 0,
+            opacity: 0,
             duration: 0.75,
             stagger: 0.06,
             ease: "expo.out",
@@ -404,7 +413,7 @@ export function Projetos({ content }: ProjetosProps) {
                       </ul>
                     </div>
 
-                    <div className="mt-auto flex flex-wrap items-center gap-3 pt-4">
+                    <div className="mt-auto flex flex-wrap items-center justify-between gap-3 pt-4">
                       <button
                         type="button"
                         data-case-trigger
@@ -419,6 +428,33 @@ export function Projetos({ content }: ProjetosProps) {
                         <span>{content.ctaCaseLabel}</span>
                         <ArrowUpRight className="size-4" aria-hidden="true" />
                       </button>
+
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/[0.03] px-2.5 py-1 font-sans text-[11px] font-medium tracking-[0.02em] text-foreground/85">
+                          <span
+                            aria-hidden="true"
+                            className={`size-1.5 rounded-full ${PROJECT_STATUS_META[project.status].dotClass}`}
+                          />
+                          <span>{PROJECT_STATUS_META[project.status].label}</span>
+                        </span>
+
+                        <span className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/[0.03] px-2.5 py-1 font-sans text-[11px] font-medium tracking-[0.02em] text-muted-foreground">
+                          {project.visibility === "public" ? (
+                            <Globe
+                              className="size-3 text-brand-bright"
+                              aria-hidden="true"
+                            />
+                          ) : (
+                            <Lock
+                              className="size-3 text-muted-foreground"
+                              aria-hidden="true"
+                            />
+                          )}
+                          <span>
+                            {PROJECT_VISIBILITY_META[project.visibility].label}
+                          </span>
+                        </span>
+                      </div>
                     </div>
                   </div>
 
@@ -470,14 +506,16 @@ export function Projetos({ content }: ProjetosProps) {
         ) : null}
       </div>
 
-      <ProjectDialog
-        project={selectedProject}
-        open={Boolean(selectedProject)}
-        onClose={handleCloseDialog}
-        closeAriaLabel={content.closeDialogAriaLabel}
-        ctaLiveLabel={content.ctaLiveLabel}
-        ctaRepoLabel={content.ctaRepoLabel}
-      />
+      {hasOpenedDialog ? (
+        <ProjectDialog
+          project={selectedProject}
+          open={Boolean(selectedProject)}
+          onClose={handleCloseDialog}
+          closeAriaLabel={content.closeDialogAriaLabel}
+          ctaLiveLabel={content.ctaLiveLabel}
+          ctaRepoLabel={content.ctaRepoLabel}
+        />
+      ) : null}
     </section>
   );
 }

@@ -6,7 +6,15 @@ export const PROJECT_STATUS_META: Record<
   { label: string; dotClass: string }
 > = {
   completed: { label: "Concluído", dotClass: "bg-emerald-400" },
-  in_progress: { label: "Em desenvolvimento", dotClass: "bg-amber-400" },
+  in_progress: { label: "Em andamento", dotClass: "bg-amber-400" },
+};
+
+export const PROJECT_VISIBILITY_META: Record<
+  ProjectVisibility,
+  { label: string }
+> = {
+  public: { label: "Público" },
+  private: { label: "Privado" },
 };
 
 export type ProjectMedia =
