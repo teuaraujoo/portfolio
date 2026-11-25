@@ -190,6 +190,7 @@ export function KilnWordmark({
     if (!container || !measureEl || !lineEl || !innerLineEl) return;
 
     let cancelled = false;
+    let resizeRafId = 0;
 
     const fitAndLockSlots = () => {
       if (cancelled) return;
@@ -200,57 +201,79 @@ export function KilnWordmark({
       const fittedPx =
         Math.floor(((containerWidth * 0.996) / naturalWidth) * REF_FONT_SIZE * 100) /
         100;
-      lineEl.style.fontSize = `${fittedPx}px`;
+      const nextFontSize = `${fittedPx}px`;
+      if (lineEl.style.fontSize !== nextFontSize) {
+        lineEl.style.fontSize = nextFontSize;
+      }
 
       // Temporarily release locked widths and resting font weight to read true advance boxes.
       for (let i = 0; i < chars.length; i++) {
         const slot = slotRefs.current[i];
-        if (slot) slot.style.width = "";
+        if (slot && slot.style.width !== "") {
+          slot.style.width = "";
+        }
         applyCharVisual(charRefs.current[i], baseWeight, 0);
       }
 
+      // Batch all DOM geometry reads together before applying slot width writes.
       const lineRect = lineEl.getBoundingClientRect();
       const innerRect = innerLineEl.getBoundingClientRect();
-      lineWidthRef.current = innerRect.width;
+      const widths: number[] = new Array(chars.length).fill(0);
+      const centersX: number[] = new Array(chars.length).fill(0);
 
-      const rects = chars.map((_, i) => {
+      for (let i = 0; i < chars.length; i++) {
         const slot = slotRefs.current[i];
-        return slot ? slot.getBoundingClientRect() : null;
-      });
+        if (!slot) continue;
+        const rect = slot.getBoundingClientRect();
+        widths[i] = rect.width;
+        centersX[i] = rect.left - lineRect.left + rect.width * 0.5;
+      }
+
+      lineWidthRef.current = innerRect.width;
 
       const a = anim.current;
       for (let i = 0; i < chars.length; i++) {
-        const rect = rects[i];
+        const slotWidth = widths[i];
         const slot = slotRefs.current[i];
-        if (slot && rect && rect.width > 0) {
-          slot.style.width = `${rect.width.toFixed(3)}px`;
+        if (slot && slotWidth > 0) {
+          slot.style.width = `${slotWidth.toFixed(3)}px`;
           slotsMetaRef.current[i] = {
-            centerX: rect.left - lineRect.left + rect.width * 0.5,
-            width: rect.width,
+            centerX: centersX[i],
+            width: slotWidth,
           };
         }
         applyCharVisual(charRefs.current[i], baseWeight, a.p[i] ?? 0);
       }
     };
 
+    const scheduleFit = () => {
+      if (cancelled || resizeRafId !== 0) return;
+      resizeRafId = requestAnimationFrame(() => {
+        resizeRafId = 0;
+        fitAndLockSlots();
+      });
+    };
+
     fitAndLockSlots();
 
     const ro =
       typeof ResizeObserver !== "undefined"
-        ? new ResizeObserver(() => {
-            fitAndLockSlots();
-          })
+        ? new ResizeObserver(scheduleFit)
         : null;
     ro?.observe(container);
 
     if (typeof document !== "undefined" && document.fonts?.ready) {
       void document.fonts.ready.then(() => {
-        if (!cancelled) fitAndLockSlots();
+        if (!cancelled) scheduleFit();
       });
     }
 
     return () => {
       cancelled = true;
+      if (resizeRafId !== 0) {
+        cancelAnimationFrame(resizeRafId);
+        resizeRafId = 0;
+      }
       ro?.disconnect();
     };
   }, [baseWeight, chars]);

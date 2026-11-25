@@ -375,11 +375,11 @@ export function Contato({ content }: ContatoProps) {
 
         gsap.from(".contact-social-item", {
           y: 16,
-          autoAlpha: 0,
+          opacity: 0,
           duration: 0.65,
           stagger: 0.06,
           ease: "expo.out",
-          clearProps: "opacity,visibility,transform",
+          clearProps: "opacity,transform",
           scrollTrigger: {
             trigger: ".contact-socials",
             start: "top 92%",
@@ -659,7 +659,7 @@ export function Contato({ content }: ContatoProps) {
                     title={`${item.label} — ${item.handle}`}
                     target={item.external ? "_blank" : undefined}
                     rel={item.external ? "noopener noreferrer" : undefined}
-                    className="flex size-11 items-center justify-center rounded-[12px] border border-white/10 bg-card text-foreground/85 transition-all duration-300 hover:-translate-y-0.5 hover:border-brand-bright/50 hover:text-brand-bright focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-bright motion-reduce:transition-none motion-reduce:hover:translate-y-0"
+                    className="flex size-11 items-center justify-center rounded-[12px] border border-white/10 bg-card text-foreground/85 transition-[transform,border-color,color] duration-300 hover:-translate-y-0.5 hover:border-brand-bright/50 hover:text-brand-bright focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-bright motion-reduce:transition-none motion-reduce:hover:translate-y-0"
                   >
                     <SocialPlatformIcon platform={item.platform} />
                   </a>

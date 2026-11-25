@@ -844,6 +844,7 @@ export function ContributionSkyline({
   const [pinnedIdx, setPinnedIdx] = useState<number | null>(null);
   const [hoverLevel, setHoverLevel] = useState<number | null>(null);
   const [lockedLevel, setLockedLevel] = useState<number | null>(null);
+  const [isModeSwitching, setIsModeSwitching] = useState(false);
 
   const activeLevel = lockedLevel ?? hoverLevel;
 
@@ -852,6 +853,7 @@ export function ContributionSkyline({
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const tooltipRef = useRef<HTMLDivElement>(null);
   const cornersRef = useRef<HTMLDivElement>(null);
+  const modeSwitchTimerRef = useRef<number | null>(null);
 
   // Refs mutáveis de animação (atualizados apenas em effects/callbacks)
   const animRef = useRef({
@@ -1503,7 +1505,13 @@ export function ContributionSkyline({
   }, [view, hasEntered, reducedMotion, animate, startMorph]);
 
   useEffect(() => {
-    return () => stopAnimation();
+    return () => {
+      stopAnimation();
+      if (modeSwitchTimerRef.current !== null) {
+        window.clearTimeout(modeSwitchTimerRef.current);
+        modeSwitchTimerRef.current = null;
+      }
+    };
   }, [stopAnimation]);
 
   const hitTest = useCallback((mx: number, my: number): number | null => {
@@ -1520,10 +1528,23 @@ export function ContributionSkyline({
     return null;
   }, []);
 
-  const handleViewChange = useCallback((nextView: ContributionSkylineView) => {
-    setHasEntered(true);
-    setView(nextView);
-  }, []);
+  const handleViewChange = useCallback(
+    (nextView: ContributionSkylineView) => {
+      if (nextView !== view) {
+        if (modeSwitchTimerRef.current !== null) {
+          window.clearTimeout(modeSwitchTimerRef.current);
+        }
+        setIsModeSwitching(true);
+        modeSwitchTimerRef.current = window.setTimeout(() => {
+          setIsModeSwitching(false);
+          modeSwitchTimerRef.current = null;
+        }, 350);
+      }
+      setHasEntered(true);
+      setView(nextView);
+    },
+    [view],
+  );
 
   const handlePointerDown = useCallback(
     (e: PointerEvent<HTMLCanvasElement>) => {
@@ -1889,9 +1910,10 @@ export function ContributionSkyline({
         className="relative overflow-visible"
         style={{
           height: `${canvasHeight}px`,
-          transition: reducedMotion
-            ? undefined
-            : "height 320ms cubic-bezier(0.16, 1, 0.3, 1)",
+          transition:
+            !reducedMotion && isModeSwitching
+              ? "height 320ms cubic-bezier(0.16, 1, 0.3, 1)"
+              : undefined,
         }}
       >
         <canvas

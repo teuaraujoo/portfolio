@@ -196,7 +196,7 @@ export function InteractiveHoverLinks({
               <span className="inline-flex size-8 items-center justify-center overflow-hidden text-muted-foreground transition-colors duration-300 group-hover/row:text-brand-bright group-focus-visible/row:text-brand-bright">
                 <ArrowUpRight
                   aria-hidden="true"
-                  className="size-5 opacity-70 transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] md:-translate-x-2 md:opacity-0 md:group-hover/row:translate-x-0 md:group-hover/row:opacity-100 md:group-focus-visible/row:translate-x-0 md:group-focus-visible/row:opacity-100 motion-reduce:translate-x-0 motion-reduce:transition-none"
+                  className="size-5 opacity-70 transition-[transform,opacity] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] md:-translate-x-2 md:opacity-0 md:group-hover/row:translate-x-0 md:group-hover/row:opacity-100 md:group-focus-visible/row:translate-x-0 md:group-focus-visible/row:opacity-100 motion-reduce:translate-x-0 motion-reduce:transition-none"
                 />
               </span>
             </div>

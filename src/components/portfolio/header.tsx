@@ -36,6 +36,7 @@ export function Header({ content }: HeaderProps) {
   const indicatorRef = useRef<HTMLSpanElement>(null);
   const linkRefs = useRef<Map<string, HTMLAnchorElement>>(new Map());
   const hasPositionedRef = useRef(false);
+  const indicatorRafRef = useRef<number | null>(null);
   const isScrolledRef = useRef(false);
 
   const menuButtonRef = useRef<HTMLButtonElement>(null);
@@ -49,28 +50,45 @@ export function Header({ content }: HeaderProps) {
 
     if (!indicator) return;
 
-    if (!activeEl || activeEl.offsetWidth === 0) {
+    if (!activeEl) {
+      indicator.style.opacity = "0";
+      return;
+    }
+
+    const targetWidth = activeEl.offsetWidth;
+    const targetLeft = activeEl.offsetLeft;
+
+    if (targetWidth === 0) {
       indicator.style.opacity = "0";
       return;
     }
 
     if (!hasPositionedRef.current) {
+      if (indicatorRafRef.current !== null) {
+        cancelAnimationFrame(indicatorRafRef.current);
+        indicatorRafRef.current = null;
+      }
       indicator.style.transition = "none";
       indicator.style.opacity = "1";
-      indicator.style.width = `${activeEl.offsetWidth}px`;
-      indicator.style.translate = `${activeEl.offsetLeft}px 0`;
-      void indicator.offsetWidth;
-      indicator.style.transition = "";
+      indicator.style.width = `${targetWidth}px`;
+      indicator.style.translate = `${targetLeft}px 0`;
       hasPositionedRef.current = true;
+      indicatorRafRef.current = requestAnimationFrame(() => {
+        indicatorRafRef.current = null;
+        if (indicatorRef.current) {
+          indicatorRef.current.style.transition = "";
+        }
+      });
       return;
     }
 
     indicator.style.opacity = "1";
-    indicator.style.width = `${activeEl.offsetWidth}px`;
-    indicator.style.translate = `${activeEl.offsetLeft}px 0`;
+    indicator.style.width = `${targetWidth}px`;
+    indicator.style.translate = `${targetLeft}px 0`;
   }, [activeId]);
 
   useLayoutEffect(() => {
+    const indicatorEl = indicatorRef.current;
     const initialScrolled = window.scrollY > SCROLL_THRESHOLD_PX;
     isScrolledRef.current = initialScrolled;
     if (initialScrolled) {
@@ -110,6 +128,13 @@ export function Header({ content }: HeaderProps) {
 
     return () => {
       cancelled = true;
+      if (indicatorRafRef.current !== null) {
+        cancelAnimationFrame(indicatorRafRef.current);
+        indicatorRafRef.current = null;
+        if (indicatorEl) {
+          indicatorEl.style.transition = "";
+        }
+      }
       window.removeEventListener("resize", updateIndicator);
       observer?.disconnect();
     };

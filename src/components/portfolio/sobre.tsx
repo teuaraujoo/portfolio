@@ -1,5 +1,6 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import Image from "next/image";
 import { Fragment, useEffect, useRef, useState, type MouseEvent } from "react";
 import { useGSAP } from "@gsap/react";
@@ -12,7 +13,11 @@ import {
   HandCircle,
   SparkAsterisk,
 } from "./hand-drawn-annotations";
-import { SobreDialog } from "./sobre-dialog";
+
+const SobreDialog = dynamic(
+  () => import("./sobre-dialog").then((mod) => mod.SobreDialog),
+  { ssr: false },
+);
 
 if (typeof window !== "undefined") {
   gsap.registerPlugin(ScrollTrigger);
@@ -49,6 +54,7 @@ export function Sobre({ content }: SobreProps) {
   const scope = useRef<HTMLElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
   const [shown, setShown] = useState(false);
+  const [hasOpenedModal, setHasOpenedModal] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
   const [modalOrigin, setModalOrigin] = useState<{ x: number; y: number } | null>(null);
 
@@ -67,6 +73,7 @@ export function Sobre({ content }: SobreProps) {
       setModalOrigin({ x: event.clientX, y: event.clientY });
     }
 
+    setHasOpenedModal(true);
     setModalOpen(true);
   };
 
@@ -348,13 +355,15 @@ export function Sobre({ content }: SobreProps) {
         </div>
       </div>
 
-      <SobreDialog
-        open={modalOpen}
-        origin={modalOrigin}
-        photoSrc={content.photo.src}
-        content={content.modal}
-        onClose={() => setModalOpen(false)}
-      />
+      {hasOpenedModal ? (
+        <SobreDialog
+          open={modalOpen}
+          origin={modalOrigin}
+          photoSrc={content.photo.src}
+          content={content.modal}
+          onClose={() => setModalOpen(false)}
+        />
+      ) : null}
     </section>
   );
 }
