@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { Montserrat, Space_Grotesk } from "next/font/google";
 import type { ReactNode } from "react";
-import { DeviconStylesheet } from "@/components/portfolio/devicon-stylesheet";
 import { getSiteMetadata } from "@/lib/seo";
 import "./globals.css";
 
@@ -25,14 +24,10 @@ export default function RootLayout({ children }: Readonly<{ children: ReactNode 
       lang="pt-BR"
       className={`${spaceGrotesk.variable} ${montserrat.variable} h-full antialiased`}
     >
-      <head>
-        <link rel="dns-prefetch" href="https://cdn.jsdelivr.net" />
-      </head>
       <body className="min-h-full">
         <noscript>
           <style>{"#intro { display: none !important; }"}</style>
         </noscript>
-        <DeviconStylesheet />
         {children}
       </body>
     </html>
